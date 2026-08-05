@@ -1,0 +1,26 @@
+/*
+ * KICK.JS - Crittix-MD
+ * Created by: LORD DEVINE
+ */
+const h = require('../../lib/helpers');
+
+module.exports = {
+  command: 'kick',
+  category: 'abysscommands',
+  description: 'Remove member from group',
+  groupOnly: true,
+  execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
+    
+    let _gtP = [];
+    if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
+    const target = h.getTarget(msg, _gtP);
+    if (!target.length) return reply(h.demonError('.kick', 'Reply or tag user'));
+    const sender_ = msg.key.participant || msg.key.remoteJid;
+    if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(h.demonFail('Admins only'));
+    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    try {
+      await sock.groupParticipantsUpdate(chatId, target, 'remove');
+      reply('✓ Kicked @' + target[0].split('@')[0], { mentions: target });
+    } catch(e) { reply(h.demonFail(e.message)); }
+  }
+};

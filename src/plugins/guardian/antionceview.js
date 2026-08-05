@@ -1,0 +1,20 @@
+/*
+ * ANTIONCEVIEW.JS - Crittix-MD
+ * Created by: LORD DEVINE
+ */
+const h = require('../../lib/helpers');
+
+module.exports = {
+  command: 'antionceview',
+  category: 'voidsystem',
+  description: 'Toggle antionceview',
+  sudoOnly: true,
+  execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
+    
+    const action = args[0]?.toLowerCase();
+    const { set, getConfig } = require('../../lib/config');
+    if (action === 'on') { set({ ANTIONCEVIEW: true }); return reply('✓ antionceview enabled'); }
+    if (action === 'off') { set({ ANTIONCEVIEW: false }); return reply('✓ antionceview disabled'); }
+    reply('ℹ️ antionceview: ' + (getConfig().ANTIONCEVIEW ? 'ON' : 'OFF') + '\n\nUsage: .antionceview on/off');
+  }
+};

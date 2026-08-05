@@ -1,0 +1,69 @@
+{
+  "name": "crittix-md",
+  "version": "1.0.0",
+  "description": "CRITTIX MD WhatsApp Bot by Lord Devine",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "LORD DEVINE",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@adiwajshing/keyed-db": "^0.2.4",
+    "@hapi/boom": "^10.0.1",
+    "@myno_21/pinterest-scraper": "^1.0.4",
+    "@mudbill/duckduckgo-images-api": "^2.0.1",
+    "@whiskeysockets/baileys": "npm:@heis-devine/baileys@^1.0.0",
+    "axios": "^1.6.8",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.1.2",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.6.0",
+    "express": "^4.18.0",
+    "file-type": "^16.5.4",
+    "fluent-ffmpeg": "^2.1.2",
+    "form-data": "^4.0.5",
+    "fs-extra": "^10.0.0",
+    "gifencoder": "^2.0.1",
+    "google-tts-api": "^2.0.2",
+    "https-proxy-agent": "^7.0.6",
+    "jimp": "^0.16.1",
+    "jsqr": "^1.4.0",
+    "libphonenumber-js": "^1.10.56",
+    "mal-scraper": "^2.11.4",
+    "mathjs": "^11.11.0",
+    "mime-types": "^2.1.35",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "mumaker": "^1.0.0",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^2.7.0",
+    "node-webpmux": "^3.1.7",
+    "parse-ms": "^2.1.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pino": "^10.1.0",
+    "qrcode": "^1.5.3",
+    "qrcode-terminal": "^0.12.0",
+    "socks-proxy-agent": "^8.0.5",
+    "wa-sticker-formatter": "^3.3.8",
+    "yt-search": "^2.13.1",
+    "ytdl-core": "^4.11.5",
+    "youtube-search-api": "^2.0.1",
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "overrides": {
+    "form-data": "^4.0.5",
+    "jimp": "^0.16.1",
+    "wa-sticker-formatter": {
+      "jimp": "^0.16.1"
+    }
+  }
+}
