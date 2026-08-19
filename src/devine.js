@@ -1503,24 +1503,14 @@ module.exports = (sock, ownerNumber) => {
             const userName = msg.pushName || senderNumber;
             const menu = buildMenu(cfg.PREFIX || '.').replace('{USERNAME}', userName);
             const botPic = cfg.BOT_PIC;
-            const fakeQuote = {
-              key: {
-                fromMe: false,
-                participant: '0@s.whatsapp.net',
-                remoteJid: 'status@broadcast',
-              },
-              message: {
-                conversation: '𝕮𝖗𝖎𝖙𝖙𝖎𝖝 𝑴𝑫'
-              }
-            };
 
             if (botPic) {
               await sock.sendMessage(chatId, {
                 [cfg.BOT_PIC_TYPE === 'video' ? 'video' : 'image']: { url: botPic },
                 caption: menu
-              }, { quoted: fakeQuote });
+              });
             } else {
-              await sock.sendMessage(chatId, { text: menu }, { quoted: fakeQuote });
+              await sock.sendMessage(chatId, { text: menu });
             }
             continue;
           }
