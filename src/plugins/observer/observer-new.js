@@ -7,6 +7,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -133,8 +135,8 @@ module.exports = [
     description: 'List group members with zero recorded activity. Usage: inactivealert',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can view inactive alert'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const actDB = loadDB('activity.json') || {};
         const groupAct = actDB[chatId] || {};
@@ -189,8 +191,8 @@ module.exports = [
     description: 'Show group member retention estimate. Usage: retentionrate',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can view retention rate'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const meta = await sock.groupMetadata(chatId);
         const total = meta.participants.length;
@@ -218,8 +220,8 @@ module.exports = [
     description: 'Show the group\'s most active hours. Usage: peakhours',
     groupOnly: true,
     execute: async ({ chatId, sender, sock, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can view peak hours'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const hoursDB = loadDB('peakhours.json') || {};
         const groupHours = hoursDB[chatId] || {};

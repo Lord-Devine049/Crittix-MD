@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'add',
@@ -14,8 +16,8 @@ module.exports = {
     const num = args[0]?.replace(/\D/g,'');
     if (!num || num.length < 10) return reply(h.demonError('.add', '.add 2348xxxxxxx'));
     const sender_ = msg.key.participant || msg.key.remoteJid;
-    if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(h.demonFail('Admins only'));
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     try {
       await sock.groupParticipantsUpdate(chatId, [num + '@s.whatsapp.net'], 'add');
       reply('✓ Added +' + num);

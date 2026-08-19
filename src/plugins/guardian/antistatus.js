@@ -1,6 +1,8 @@
 /* ANTISTATUS.JS - Crittix-MD / Created by: LORD DEVINE */
 const db = require('../../lib/db');
 const h  = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['antistatus', 'antistatusmention'],
@@ -11,9 +13,9 @@ module.exports = {
     if (!isGroupMsg) return reply(`✘ ${h.toBoldItalic('Group only')}!`);
     const groupId      = groupMetadata?.id || chatId;
     const senderIsAdmin = await h.isSenderAdmin(sock, groupId, sender).catch(() => false);
-    if (!senderIsAdmin) return reply(`✘ ${h.toBoldItalic('Admins only')}!`);
+    if (!senderIsAdmin) return reply(p.phrases.adminOnly());
     const botIsAdmin = await h.isBotAdmin(sock, groupId).catch(() => false);
-    if (!botIsAdmin) return reply(h.demonFail('Make my Lord Admin'));
+    if (!botIsAdmin) return reply(p.phrases.adminOnly());
 
     const action = (args[0] || '').toLowerCase();
 

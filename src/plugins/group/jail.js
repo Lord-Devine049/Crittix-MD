@@ -4,6 +4,8 @@
  */
 const h    = require('../../lib/helpers');
 const jail = require('../../lib/jail');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -16,11 +18,11 @@ module.exports = [
       // Sender must be admin
       const sender_ = msg.key.participant || msg.key.remoteJid;
       if (!await h.isSenderAdmin(sock, chatId, sender_))
-        return reply(h.demonFail('Admins only'));
+        return reply(p.phrases.adminOnly());
 
       // Owner (connected user) must be admin
       if (!await h.isBotAdmin(sock, chatId))
-        return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
 
       // Get target from reply or mention
       // Pass group participants so LID JIDs are resolved to real phone JIDs before storing
@@ -61,9 +63,9 @@ module.exports = [
       // Sender must be admin, and connected user must be admin
       const sender_ = msg.key.participant || msg.key.remoteJid;
       if (!await h.isSenderAdmin(sock, chatId, sender_))
-        return reply(h.demonFail('Admins only'));
+        return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId))
-        return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
 
       // Resolve LID → real phone JID before looking up jail list
       let _unjailParticipants = [];

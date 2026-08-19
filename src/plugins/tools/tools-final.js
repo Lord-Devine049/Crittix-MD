@@ -9,6 +9,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -58,8 +60,8 @@ module.exports = [
       const action = args[0]?.toLowerCase();
       if (action === 'start') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can start a movie poll'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const raw = args.slice(1).join(' ');
         const options = raw.split('|').map(s => s.trim()).filter(Boolean);
         if (options.length < 2) return reply(h.demonError('.moviepoll', '.moviepoll start <Movie 1> | <Movie 2> | <Movie 3>'));
@@ -69,7 +71,7 @@ module.exports = [
         return reply(`🎬 *MOVIE POLL STARTED*\n\n${list}\n\nVote with: .moviepoll vote <number>\nResults: .moviepoll results\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const poll = polls[chatId];
-      if (!poll) return reply(h.demonFail('no active movie poll. Admin can start one with .moviepoll start'));
+      if (!poll) return reply(p.phrases.adminOnly());
       if (action === 'results') {
         const tally = {};
         poll.options.forEach((_, i) => tally[i] = 0);

@@ -1,31 +1,40 @@
-const downloader = require('../../lib/downloader');
+const axios = require('axios');
 
 module.exports = {
   command: 'play',
+  aliases: ['song', 'music'],
   category: 'darkweb',
-  description: 'Search and download a song from YouTube',
+  description: 'Search and download a song',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const query = args.join(' ');
-    if (!query) return reply('usage: .play <song name>');
+    if (!query) return reply('🎵 usage: .play <song name>');
 
-    await reply('🔍 searching: ' + query);
+    await reply('🔍 ˢᵉᵃʀᶜʰⁱⁿᵍ: ' + query);
 
     try {
-      const result = await downloader.ytPlay(query);
+      const { data } = await axios.get('https://apis.davidcyril.name.ng/song', {
+        params: { query },
+        timeout: 20000
+      });
 
-      if (!result?.audioUrl) return reply('❌ nothing found or audio unavailable');
+      if (!data?.status || !data?.result?.audio?.download_url)
+        return reply('❌ nothing found for: ' + query);
+
+      const r = data.result;
 
       const caption =
-        `╭─────── ⛧ PLAY ⛧ ───────╮\n` +
-        `│ ➜ ${result.title}\n` +
-        `│ ➜ by: ${result.author}\n` +
-        `│ ➜ duration: ${result.duration}\n` +
-        `╰─────────────────────────────╯`;
+        `╔═════════════════════么\n` +
+        `║ 闇 *${r.title}*\n` +
+        `║ 闇 ᴅᴜʀᴀᴛɪᴏɴ: ${r.duration}\n` +
+        `║ 闇 ᴠɪᴇᴡs: ${Number(r.views).toLocaleString()}\n` +
+        `║ 闇 ᴜᴘʟᴏᴀᴅᴇᴅ: ${r.published}\n` +
+        `╚═════════════════════么\n` +
+        `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`;
 
       await sock.sendMessage(chatId, {
-        audio: { url: result.audioUrl },
+        audio: { url: r.audio.download_url },
         mimetype: 'audio/mpeg',
-        fileName: (result.title || 'audio') + '.mp3',
+        fileName: (r.title || 'audio') + '.mp3',
         caption
       }, { quoted: msg });
 

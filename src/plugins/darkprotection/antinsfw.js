@@ -1,5 +1,7 @@
 const db = require('../../lib/db');
 const h  = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'antinsfw',
@@ -36,7 +38,7 @@ module.exports = {
     if (!await h.isSenderAdmin(sock, chatId, sender))
       return reply(`ᴏɴʟʏ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴs ᴄᴀɴ ᴛᴏɢɢʟᴇ ᴀɴᴛɪɴsғᴡ, ʏᴏᴜ sᴛᴜᴘɪᴅ ɴᴏɴ-ᴀᴅᴍɪɴ ᴛʀʏɪɴɢ ᴛᴏ ᴜsᴇ ᴀᴅᴍɪɴ ᴄᴏᴍᴍᴀɴᴅs.`);
     if (!await h.isBotAdmin(sock, chatId))
-      return reply(h.demonFail('Make my Lord Admin'));
+      return reply(p.phrases.adminOnly());
 
     if (sub === 'on') {
       db.setAnti(chatId, 'antinsfw', 'warn');

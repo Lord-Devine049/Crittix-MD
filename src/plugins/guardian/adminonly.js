@@ -1,5 +1,7 @@
 /* ADMINONLY.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'adminonly',
   category: 'darkprotection',
@@ -9,9 +11,9 @@ module.exports = {
     if (!isGroupMsg) return reply(`✘ ${h.toBoldItalic('Group only you')} ${h.toBoldItalic(h.randomCuss())}! ${h.demonEmoji()}`);
     const groupId = groupMetadata?.id || chatId;
     const senderIsAdmin = await h.isSenderAdmin(sock, groupId, sender);
-    if (!senderIsAdmin) return reply(`✘ ${h.toBoldItalic('Only admins can use this command you')} ${h.toBoldItalic(h.randomCuss())}! ${h.demonEmoji()}`);
+    if (!senderIsAdmin) return reply(p.phrases.adminOnly());
     const botIsAdmin = await h.isBotAdmin(sock, groupId);
-    if (!botIsAdmin) return reply(h.demonFail('Make my Lord Admin'));
+    if (!botIsAdmin) return reply(p.phrases.adminOnly());
     const action = args[0]?.toLowerCase();
     try {
       if (action === 'on') {

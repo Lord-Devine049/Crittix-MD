@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'grouplink',
@@ -12,6 +14,6 @@ module.exports = {
   execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
     
     try { const code = await sock.groupInviteCode(chatId); reply('🔗 https://chat.whatsapp.com/' + code); }
-    catch(e) { reply(h.demonFail('Bot needs admin')); }
+    catch(e) { reply(p.phrases.adminOnly()); }
   }
 };

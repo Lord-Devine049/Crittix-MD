@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'listadmins',
@@ -13,7 +15,7 @@ module.exports = {
   execute: async ({ sock, msg, chatId, reply }) => {
     const meta   = await sock.groupMetadata(chatId);
     const admins = meta.participants.filter(p => p.admin);
-    if (!admins.length) return reply(h.demonFail('No admins found'));
+    if (!admins.length) return reply(p.phrases.adminOnly());
 
     let text = `╔════════════════════════么\n`;
     text    += `║ 👑 *GROUP ADMINS*\n`;

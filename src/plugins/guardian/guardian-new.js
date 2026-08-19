@@ -9,14 +9,16 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
 const saveDB = (file, data) => { try { fs.ensureDirSync(path.dirname(DB(file))); fs.writeFileSync(DB(file), JSON.stringify(data, null, 2)); } catch {} };
 
 const toggle = async (feature, chatId, sock, sender, args, reply, descriptions) => {
-  if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can configure this'));
-  if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+  if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+  if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
   const db = loadDB(`${feature}.json`);
   const action = args[0]?.toLowerCase() || 'status';
   if (action === 'on') {
@@ -41,8 +43,8 @@ module.exports = [
     description: 'Toggle anti-doxx — auto-delete messages containing personal info patterns. Usage: antidoxx on | off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can configure antidoxx'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const doxxDB = loadDB('antidoxx.json');
       const action = args[0]?.toLowerCase() || 'status';
       if (action === 'on') {
@@ -62,8 +64,8 @@ module.exports = [
     description: 'Toggle anti-scam keyword filter. Usage: antiscam on | off | add <keyword>',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can configure antiscam'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const scamDB = loadDB('antiscam.json');
       if (!scamDB[chatId]) scamDB[chatId] = { enabled: false, keywords: ['click here to claim', 'you have won', 'send btc', 'wire transfer urgent', 'investment returns 100%', 'whatsapp winner', 'account suspended click'] };
       const action = args[0]?.toLowerCase() || 'status';
@@ -87,8 +89,8 @@ module.exports = [
     description: 'Toggle anti-phishing domain checker. Usage: antiphishing on | off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can configure antiphishing'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const phishDB = loadDB('antiphishing.json');
       const action = args[0]?.toLowerCase() || 'status';
       const knownPhishDomains = ['bit.ly/free', 'win-prize', 'click-now', 'claim-reward', 'free-airtime', 'data-bonus'];
@@ -105,8 +107,8 @@ module.exports = [
     description: 'Toggle blocking of short URLs (bit.ly, tinyurl, etc). Usage: antishorturl on | off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can configure antishorturl'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const shortDB = loadDB('antishorturl.json');
       const action = args[0]?.toLowerCase() || 'status';
       const blockedDomains = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','buff.ly','adf.ly','linktr.ee'];

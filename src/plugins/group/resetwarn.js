@@ -1,4 +1,6 @@
 const db = require('../../lib/db');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'resetwarn',
   category: 'abysscommands',
@@ -6,8 +8,8 @@ module.exports = {
   groupOnly: true,
   execute: async ({ sock, msg, chatId, sender, isOwner, isSudo, reply }) => {
     const h = require('../../lib/helpers');
-    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply("admins only");
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     let _gtP = [];
     if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
     const target = h.getTarget(msg, _gtP);

@@ -1,6 +1,8 @@
-'use strict';
+
 const db = require('../../lib/db');
 const h  = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'warn',
   category: 'abysscommands',
@@ -12,7 +14,7 @@ module.exports = {
     const target = h.getTarget(msg, _gtP);
     if (!target.length) return reply('reply or tag user to warn them');
     if (!await h.isSenderAdmin(sock, chatId, sender)) return reply("you ain't even an admin, why are you trying to use this");
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const reason    = args.slice(1).join(' ') || 'no reason given';
     const threshold = db.getWarnThreshold(chatId);
     const count     = db.addWarning(chatId, target[0], 'warn');

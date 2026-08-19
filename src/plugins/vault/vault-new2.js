@@ -6,6 +6,8 @@ const h = require('../../lib/helpers');
 const vault = require('../../lib/vault');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -109,8 +111,8 @@ module.exports = [
       if (!gData[chatId]) gData[chatId] = null;
       if (action === 'start') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can start a giveaway'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const prize = parseInt(args[1]) || 500;
         gData[chatId] = { prize, entries: [], started: Date.now(), by: senderNumber };
         saveDB('giveaway.json', gData);
@@ -121,7 +123,7 @@ module.exports = [
       }
       if (action === 'join') {
         const ga = gData[chatId];
-        if (!ga) return reply(h.demonFail('no active giveaway in this group. Ask an admin to start one.'));
+        if (!ga) return reply(p.phrases.adminOnly());
         if (ga.entries.includes(sender)) return reply(h.demonFail('you\'re already in the giveaway. Patience.'));
         ga.entries.push(sender);
         saveDB('giveaway.json', gData);
@@ -129,8 +131,8 @@ module.exports = [
       }
       if (action === 'end') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can end the giveaway'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const ga = gData[chatId];
         if (!ga) return reply(h.demonFail('no active giveaway to end'));
         if (!ga.entries.length) { gData[chatId] = null; saveDB('giveaway.json', gData); return reply(h.demonFail('no one entered. Awkward.')); }

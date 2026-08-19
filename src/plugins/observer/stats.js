@@ -18,6 +18,8 @@ const h        = require('../../lib/helpers');
 const observer = require('../../lib/observer');
 const fs       = require('fs-extra');
 const path     = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB_DIR  = path.join(process.cwd(), 'database');
 const loadDB  = (f) => { try { const p = path.join(DB_DIR, f); return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : {}; } catch { return {}; } };
@@ -225,8 +227,8 @@ module.exports = {
     if (sub === 'admin') {
       if (!isGroupMsg) return reply(h.demonFail('Group only.'));
       const isAdmin = await h.isSenderAdmin(sock, chatId, sender).catch(() => false);
-      if (!isAdmin) return reply(h.demonFail('Admins only.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!isAdmin) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
 
       let meta;
       try { meta = await sock.groupMetadata(chatId); } catch { return reply(h.demonFail('Could not fetch group info.')); }

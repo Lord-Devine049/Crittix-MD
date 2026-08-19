@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'promote',
@@ -20,8 +22,8 @@ module.exports = {
     const rawTargets = h.getTarget(msg, participants);
     if (!rawTargets.length) return reply(h.demonError('.promote', 'Reply or tag user'));
     // Use the resolved sender from divine.js (already LID-resolved)
-    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Admins only'));
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     // Resolve any remaining @lid targets to phone JIDs using participant list
     const target = rawTargets.map(jid => {
       if (!jid.endsWith('@lid')) return jid;

@@ -4,6 +4,8 @@
  * Commands: listrequests
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'listrequests',
@@ -15,7 +17,7 @@ module.exports = {
   execute: async ({ sock, msg, chatId, reply }) => {
     try {
       const botAdmin = await h.isBotAdmin(sock, chatId);
-      if (!botAdmin) return reply(h.demonFail('I need to be admin to see join requests. Promote me first.'));
+      if (!botAdmin) return reply(p.phrases.adminOnly());
 
       const requests = await sock.groupRequestParticipantsList(chatId);
       if (!requests || requests.length === 0) {

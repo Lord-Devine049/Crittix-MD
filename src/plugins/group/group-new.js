@@ -9,6 +9,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -30,8 +32,8 @@ module.exports = [
         return reply(`📋 *GROUP BIO*\n\n${bio}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'set') {
-        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can set group bio'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const bio = args.slice(1).join(' ') || text?.replace(/^set\s+/i, '');
         if (!bio) return reply(h.demonError('.groupbio set', '.groupbio set <your bio text>'));
         bios[chatId] = bio;
@@ -94,8 +96,8 @@ module.exports = [
     description: 'Set a recurring scheduled group message. Usage: groupschedule set 09:00 Good morning! | groupschedule list | groupschedule clear',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can manage schedules'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const schedules = loadDB('groupschedules.json');
       if (!schedules[chatId]) schedules[chatId] = [];
       const action = args[0]?.toLowerCase();
@@ -197,8 +199,8 @@ module.exports = [
     description: 'Set a one-time group reminder. Usage: groupreminder 30m Team meeting | groupreminder 2h Lunch break',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can set reminders'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const timeStr = args[0];
       const message = args.slice(1).join(' ');
       if (!timeStr || !message) return reply(h.demonError('.groupreminder', '.groupreminder <time (5m/1h/2h)> <message>'));
@@ -222,8 +224,8 @@ module.exports = [
     description: 'Export group member list as a document. Usage: groupexport',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can export member list'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const meta = await sock.groupMetadata(chatId);
         const members = meta.participants;
@@ -254,8 +256,8 @@ module.exports = [
     description: 'Backup group settings and info. Usage: groupbackup',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can backup group settings'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const meta = await sock.groupMetadata(chatId);
         const backup = {
@@ -287,8 +289,8 @@ module.exports = [
     description: 'Restore group name/description from last backup. Usage: groupclone',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can restore group settings'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const backups = loadDB('groupbackups.json');
       const backup = backups[chatId];
       if (!backup) return reply(h.demonFail('no backup found for this group — run .groupbackup first'));
@@ -331,8 +333,8 @@ module.exports = [
     description: 'Set a cosmetic theme for group bot messages. Usage: grouptheme dark | grouptheme light | grouptheme list',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can set group theme'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const themes = {
         dark: { name:'Dark Void', preview:'🌑 Dark background, red accents, savage tone' },
         light: { name:'Angel Mode', preview:'☀️ Light feel, soft colors, chill vibe' },

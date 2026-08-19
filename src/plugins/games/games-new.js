@@ -8,6 +8,8 @@ const globalXP = require('../../lib/global-xp');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (f) => path.join(process.cwd(), 'database', f);
 const loadDB = (f) => { try { return fs.existsSync(DB(f)) ? JSON.parse(fs.readFileSync(DB(f),'utf8')) : {}; } catch { return {}; } };
@@ -293,8 +295,8 @@ module.exports = [
       const action = (args[0] || 'status').toLowerCase();
 
       if (action === 'start') {
-        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can start Survivor.'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const meta = await sock.groupMetadata(chatId);
         const players = meta.participants.map(p => p.id);
         db[chatId] = { active: true, players, eliminated: [], round: 1, votes: {}, startedBy: sender, startedAt: Date.now() };
@@ -320,8 +322,8 @@ module.exports = [
       }
 
       if (action === 'tally') {
-        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can tally votes.'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const game = db[chatId];
         if (!game?.active) return reply(h.demonFail('No active game.'));
         const counts = {};
@@ -515,8 +517,8 @@ module.exports = [
     description: 'Vote to rank group members on a trait. Top vote-getter wins XP. adminOnly to start. Usage: .powerranking <trait>',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, text, args, reply, isOwner, isSudo }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can start a power ranking.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const trait = text || args.join(' ');
       if (!trait) return reply(h.demonError('.powerranking', '.powerranking <trait>', 'e.g. .powerranking most likely to go broke'));
       const db = loadDB('powerrankings.json');
@@ -565,7 +567,7 @@ module.exports = [
         const meta = await sock.groupMetadata(chatId);
         const { botJid: _botJid, botLid: _botLid } = h.getBotJids(sock);
         const members = meta.participants.filter(p => !p.admin && !h.isBotParticipant(p, _botJid, _botLid));
-        if (members.length < 2) return reply(h.demonFail('Not enough non-admin members for this game.'));
+        if (members.length < 2) return reply(p.phrases.adminOnly());
         const target = members[Math.floor(Math.random() * members.length)];
         const num = target.id.split('@')[0];
         await sock.sendMessage(chatId, {
@@ -602,8 +604,8 @@ module.exports = [
     description: 'Admin crowns the best impersonator and awards them XP. Usage: .impersonatorwinner @user',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can crown the winner.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const game = activeGames.get(`impersonate_${chatId}`);
       if (!game) return reply(h.demonFail('No active impersonator round. Start one with .impersonator first.'));
       const winner = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
@@ -630,8 +632,8 @@ module.exports = [
     execute: async ({ sock, msg, chatId, sender, text, args, isGroup, reply }) => {
       const action = (args[0] || '').toLowerCase();
       if (isGroup && (action === 'open' || action === 'close')) {
-        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can open/close the confession box.'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const db = loadDB('confessionbox.json');
         if (!db[chatId]) db[chatId] = { open: false, count: 0 };
         db[chatId].open = action === 'open';
@@ -642,7 +644,7 @@ module.exports = [
       if (!confession) return reply(h.demonFail('Include your confession: .confessionbox <text>'));
       const db = loadDB('confessionbox.json');
       const targetGroup = Object.entries(db).find(([gid, data]) => data?.open && gid !== chatId)?.[0];
-      if (!targetGroup) return reply(h.demonFail('No open confession box found. Ask a group admin to open it with .confessionbox open'));
+      if (!targetGroup) return reply(p.phrases.adminOnly());
       db[targetGroup].count = (db[targetGroup].count || 0) + 1;
       const confNum = db[targetGroup].count;
       saveDB('confessionbox.json', db);

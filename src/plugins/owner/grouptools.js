@@ -7,6 +7,8 @@
 const fs    = require('fs-extra');
 const path  = require('path');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const DB_PATH    = path.join(process.cwd(), 'database', 'grouptools.json');
 const FLOOD_PATH = path.join(process.cwd(), 'database', 'antiflood.json');
@@ -30,8 +32,8 @@ module.exports = [
     command:['softban'], category: 'abysscommands', description:'Kick then re-invite a member', groupOnly:true,
     execute: async({ sock,msg,chatId,sender,isOwner,isSudo,reply }) => {
       const s=msg.key.participant||msg.key.remoteJid;
-      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(h.demonFail('Admins only'));
-      if(!await h.isBotAdmin(sock,chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(p.phrases.adminOnly());
+      if(!await h.isBotAdmin(sock,chatId)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target=h.getTarget(msg, _gtP)?.[0];
@@ -50,8 +52,8 @@ module.exports = [
     command:['antiflood'], category: 'darkprotection', description:'Auto-kick flood spammers — .antiflood 5/10s', groupOnly:true,
     execute: async({ sock,msg,chatId,sender,isOwner,isSudo,args,reply }) => {
       const s=msg.key.participant||msg.key.remoteJid;
-      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       if(args[0]==='off'){ const db=load(DB_PATH); if(db[chatId]) delete db[chatId].antiflood; saveDB(DB_PATH,db); return reply(`✅ antiflood disabled`); }
       const match=args[0]?.match(/(\d+)\/(\d+)([sm])/);
       if(!match) return reply(h.demonError('.antiflood','.antiflood <msgs>/<time><s|m>\nExample: .antiflood 5/10s'));
@@ -78,8 +80,8 @@ module.exports = [
     command:['filterword','addfilter'], category: 'abysscommands', description:'Auto-delete messages containing a word', groupOnly:true,
     execute: async({ msg,chatId,sender,isOwner,isSudo,args,sock,reply }) => {
       const s=msg.key.participant||msg.key.remoteJid;
-      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const word=args.join(' ').toLowerCase().trim();
       if(!word) return reply(h.demonError('.filterword','.filterword <word>'));
       const db=load(DB_PATH); if(!db[chatId]) db[chatId]={}; if(!db[chatId].filterWords) db[chatId].filterWords=[];
@@ -92,8 +94,8 @@ module.exports = [
     command:['unfilterword','removefilter'], category: 'abysscommands', description:'Remove a word from filter list', groupOnly:true,
     execute: async({ msg,chatId,sender,isOwner,isSudo,args,sock,reply }) => {
       const s=msg.key.participant||msg.key.remoteJid;
-      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const word=args.join(' ').toLowerCase().trim();
       const db=load(DB_PATH); if(!db[chatId]?.filterWords?.length) return reply(`😑 no filter words set`);
       db[chatId].filterWords=db[chatId].filterWords.filter(w=>w!==word); saveDB(DB_PATH,db);
@@ -133,8 +135,8 @@ module.exports = [
     command:['autokick'], category: 'darkprotection', description:'Auto-kick anyone who joins matching a pattern', groupOnly:true,
     execute: async({ msg,chatId,sender,isOwner,isSudo,args,sock,reply }) => {
       const s=msg.key.participant||msg.key.remoteJid;
-      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if(!await h.isSenderAdmin(sock,chatId,s)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       if(args[0]==='off'){ const db=load(DB_PATH); if(db[chatId]) delete db[chatId].autokick; saveDB(DB_PATH,db); return reply(`✅ autokick disabled`); }
       const pattern=args.join(' ');
       if(!pattern) return reply(h.demonError('.autokick','.autokick <number pattern>\nExample: .autokick +233 (kicks all Ghana numbers)\n.autokick off to disable'));

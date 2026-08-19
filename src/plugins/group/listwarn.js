@@ -1,5 +1,7 @@
 'use strict';
 const db = require('../../lib/db');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'listwarn',
   category: 'groupanalytics',
@@ -7,8 +9,8 @@ module.exports = {
   groupOnly: true,
   execute: async ({ sock, msg, chatId, sender, isOwner, isSudo, reply }) => {
     const h = require('../../lib/helpers');
-    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply("admins only");
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const allWarns = db.getWarnings(chatId);
     const entries  = Object.entries(allWarns);
     if (!entries.length) return reply('no warnings in this group');

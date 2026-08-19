@@ -8,6 +8,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -22,8 +24,8 @@ module.exports = [
     description: 'Auto-ban users whose number matches a pattern. Usage: autoban on +1234 | autoban off | autoban list',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can set autoban'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const bans = loadDB('autobans.json');
       if (!bans[chatId]) bans[chatId] = [];
       const action = args[0]?.toLowerCase();
@@ -44,8 +46,8 @@ module.exports = [
     description: 'Auto-warn on keyword trigger. Usage: autowarn add <word> | autowarn list | autowarn clear',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can set autowarn'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const warns = loadDB('autowarns.json');
       if (!warns[chatId]) warns[chatId] = [];
       const action = args[0]?.toLowerCase();
@@ -69,8 +71,8 @@ module.exports = [
     description: 'Schedule a one-time message. Usage: scheduledmsg 30m Hello group!',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can schedule messages'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const timeStr = args[0];
       const message = args.slice(1).join(' ');
       if (!timeStr || !message) return reply(h.demonError('.scheduledmsg', '.scheduledmsg <time (5m/1h)> <message>'));
@@ -90,8 +92,8 @@ module.exports = [
     description: 'Schedule a user kick after a delay. Usage: scheduledkick @user 30m',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can schedule kicks'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target = h.getTarget(msg, _gtP)?.[0];
@@ -118,13 +120,13 @@ module.exports = [
     description: 'Kick multiple @mentioned users at once. Usage: bulkkick @user1 @user2 @user3',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can bulk kick'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
       if (!targets?.length) return reply(h.demonError('.bulkkick', '.bulkkick @user1 @user2 @user3'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
-      if (!isBotAdmin) return reply(h.demonFail('Make my Lord Admin'));
+      if (!isBotAdmin) return reply(p.phrases.adminOnly());
       try {
         await sock.groupParticipantsUpdate(chatId, targets, 'remove');
         reply(`✅ *Kicked ${targets.length} user(s)*\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -139,13 +141,13 @@ module.exports = [
     description: 'Promote multiple @mentioned users to admin. Usage: bulkpromote @user1 @user2',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can bulk promote'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
       if (!targets?.length) return reply(h.demonError('.bulkpromote', '.bulkpromote @user1 @user2 ...'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
-      if (!isBotAdmin) return reply(h.demonFail('Make my Lord Admin'));
+      if (!isBotAdmin) return reply(p.phrases.adminOnly());
       try {
         await sock.groupParticipantsUpdate(chatId, targets, 'promote');
         reply(`✅ *Promoted ${targets.length} user(s) to admin*\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -160,11 +162,11 @@ module.exports = [
     description: 'Add multiple phone numbers to the group. Usage: massadd 2348001234567 2348001234568 2348001234569',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can mass-add'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       const numbers = args.filter(a => /^\d{7,15}$/.test(a.replace(/\D/g, '')));
       if (!numbers.length) return reply(h.demonError('.massadd', '.massadd <number1> <number2> ... (international format, no +)'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
-      if (!isBotAdmin) return reply(h.demonFail('Make my Lord Admin'));
+      if (!isBotAdmin) return reply(p.phrases.adminOnly());
       const jids = numbers.map(n => n.replace(/\D/g, '') + '@s.whatsapp.net');
       try {
         const result = await sock.groupParticipantsUpdate(chatId, jids.slice(0, 10), 'add'); // WhatsApp limits ~10 at once
@@ -181,8 +183,8 @@ module.exports = [
     description: 'Toggle silent/ghost moderation mode (no notifs). Usage: ghostmode on | ghostmode off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can toggle ghost mode'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const ghostDB = loadDB('ghostmode.json');
       const action = args[0]?.toLowerCase();
       if (action === 'on') {
@@ -207,9 +209,9 @@ module.exports = [
     description: 'Put group in admin-only mode (lockdown). Usage: lockdown on | lockdown off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can activate lockdown'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
-      if (!isBotAdmin) return reply(h.demonFail('Make my Lord Admin'));
+      if (!isBotAdmin) return reply(p.phrases.adminOnly());
       const action = args[0]?.toLowerCase();
       if (action === 'on') {
         await sock.groupSettingUpdate(chatId, 'announcement');
@@ -230,8 +232,8 @@ module.exports = [
     description: 'Toggle anti-raid mode (spike join detection). Usage: antiraid on | antiraid off | antiraid status',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can toggle anti-raid'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const raidDB = loadDB('antiraid.json');
       const action = args[0]?.toLowerCase() || 'status';
       if (action === 'on') {
@@ -256,8 +258,8 @@ module.exports = [
     description: 'Detect mass kick/demote and auto-revert. Usage: antinuke on | antinuke off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can toggle anti-nuke'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const nukeDB = loadDB('antinuke.json');
       const action = args[0]?.toLowerCase() || 'status';
       if (action === 'on') {
@@ -281,8 +283,8 @@ module.exports = [
     description: 'Save/restore group admin list. Usage: backupadmins save | backupadmins restore | backupadmins list',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can backup admin list'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const adminsDB = loadDB('adminbackups.json');
       const action = args[0]?.toLowerCase() || 'list';
       if (action === 'save') {
@@ -294,9 +296,9 @@ module.exports = [
       }
       if (action === 'restore') {
         const admins = adminsDB[chatId];
-        if (!admins?.length) return reply(h.demonFail('no admin backup found — .backupadmins save first'));
+        if (!admins?.length) return reply(p.phrases.adminOnly());
         const isBotAdmin = await h.isBotAdmin(sock, chatId);
-        if (!isBotAdmin) return reply(h.demonFail('Make my Lord Admin'));
+        if (!isBotAdmin) return reply(p.phrases.adminOnly());
         await sock.groupParticipantsUpdate(chatId, admins, 'promote');
         return reply(`✅ *Admin list restored!*\n\n${admins.length} user(s) promoted to admin.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
@@ -313,7 +315,7 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only the owner can transfer ownership'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target = h.getTarget(msg, _gtP)?.[0];

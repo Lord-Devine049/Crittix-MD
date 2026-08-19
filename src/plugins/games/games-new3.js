@@ -10,6 +10,8 @@ const h = require('../../lib/helpers');
 const vault = require('../../lib/vault');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -49,8 +51,8 @@ module.exports = [
     description: 'Score-based guild vs guild battle event. Usage: guildwar <guild1> vs <guild2>',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, args, reply, isOwner, isSudo, sender }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can declare guild war'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const vsIdx = args.findIndex(a => a.toLowerCase() === 'vs');
       if (vsIdx < 1) return reply(h.demonError('.guildwar', '.guildwar <guild1> vs <guild2>'));
       const g1Name = args.slice(0, vsIdx).join(' ');
@@ -200,7 +202,7 @@ module.exports = [
       try {
         const meta = await sock.groupMetadata(chatId);
         const members = meta.participants.filter(p => !p.admin);
-        if (!members.length) return reply(h.demonFail('not enough non-admin members to pick from'));
+        if (!members.length) return reply(p.phrases.adminOnly());
         const picked = members[Math.floor(Math.random() * members.length)];
         const num = picked.id.split('@')[0];
         await sock.sendMessage(chatId, {
@@ -523,8 +525,8 @@ module.exports = [
       if (action === 'reveal') {
         const game = gameSessions[key];
         if (!game) return reply(h.demonFail('no active game'));
-        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only admins can reveal'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         delete gameSessions[key];
         return sock.sendMessage(chatId, {
           text: `🎭 *IMPOSTOR REVEALED!*\n\nThe impostor was: @${game.impostorNum}\n\nDid the group find them? 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,

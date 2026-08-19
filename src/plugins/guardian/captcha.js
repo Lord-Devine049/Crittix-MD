@@ -6,6 +6,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (f) => path.join(process.cwd(), 'database', f);
 const loadDB = (f) => { try { return fs.existsSync(DB(f)) ? JSON.parse(fs.readFileSync(DB(f),'utf8')) : {}; } catch { return {}; } };
@@ -100,8 +102,8 @@ module.exports = [
     description: 'Toggle captcha verification for new members. adminOnly. Usage: .captcha on|off',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can toggle captcha.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const db = loadDB('captcha.json');
       if (!db[chatId]) db[chatId] = { enabled: false, type: 'math', timeout: 60, stats: { passed: 0, failed: 0 } };
       const action = (args[0] || 'status').toLowerCase();
@@ -126,8 +128,8 @@ module.exports = [
     description: 'Set captcha type. adminOnly. Usage: .captchatype math|emoji|text',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can set captcha type.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const type = (args[0] || '').toLowerCase();
       if (!['math','emoji','text'].includes(type)) return reply(h.demonFail('Valid types: math, emoji, text\nUsage: .captchatype math'));
       const db = loadDB('captcha.json');
@@ -145,8 +147,8 @@ module.exports = [
     description: 'Set captcha timeout in seconds (30-300). adminOnly. Usage: .captchatimeout 60',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can set captcha timeout.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const secs = parseInt(args[0]);
       if (isNaN(secs) || secs < 30 || secs > 300) return reply(h.demonFail('Timeout must be between 30 and 300 seconds.'));
       const db = loadDB('captcha.json');
@@ -164,8 +166,8 @@ module.exports = [
     description: 'Show captcha pass/fail stats for this group. adminOnly.',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can see captcha stats.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const db = loadDB('captcha.json');
       const stats = db[chatId]?.stats || { passed: 0, failed: 0 };
       const total = (stats.passed || 0) + (stats.failed || 0);

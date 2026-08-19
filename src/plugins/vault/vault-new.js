@@ -10,6 +10,8 @@ const vault = require('../../lib/vault');
 const globalXP = require('../../lib/global-xp');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -92,15 +94,15 @@ module.exports = [
       if (!raffles[chatId]) raffles[chatId] = null;
       if (action === 'start') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can start a raffle'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const prize = parseInt(args[1]) || 500;
         raffles[chatId] = { prize, entries: [], started: Date.now() };
         saveDB('raffle.json', raffles);
         return sock.sendMessage(chatId, { text: `🎉 *RAFFLE STARTED!*\n\n🏆 Prize: 🪙 ${prize.toLocaleString()}\n\nType *.raffle join* to enter! Admin draws with *.raffle draw*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
       }
       const raffle = raffles[chatId];
-      if (!raffle) return reply(h.demonFail('no active raffle — ask an admin to start one'));
+      if (!raffle) return reply(p.phrases.adminOnly());
       if (action === 'join') {
         if (raffle.entries.find(e => e.jid === sender)) return reply(h.demonFail('you already entered, greedy'));
         raffle.entries.push({ jid: sender, num: senderNumber });
@@ -109,8 +111,8 @@ module.exports = [
       }
       if (action === 'draw') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can draw'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         if (!raffle.entries.length) { raffles[chatId] = null; saveDB('raffle.json', raffles); return reply(h.demonFail('no entries — not even one person cared')); }
         const winner = raffle.entries[Math.floor(Math.random() * raffle.entries.length)];
         vault.updateBalance(winner.jid, raffle.prize, 0);

@@ -9,6 +9,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (f) => path.join(process.cwd(), 'database', f);
 const loadDB = (f) => { try { return fs.existsSync(DB(f)) ? JSON.parse(fs.readFileSync(DB(f),'utf8')) : {}; } catch { return {}; } };
@@ -21,8 +23,8 @@ const makeToggle = (cmd, dbFile, name, onMsg) => ({
   description: `Toggle ${name}. adminOnly. Usage: .${cmd} on|off`,
   groupOnly: true,
   execute: async ({ sock, chatId, sender, args, reply }) => {
-    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail(`Only admins can configure ${name}.`));
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const db = loadDB(dbFile);
     const action = (args[0] || 'status').toLowerCase();
     if (action === 'on')  { db[chatId] = true;  saveDB(dbFile, db); return reply(`🛡️ *${name}: ON*\n\n${onMsg}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`); }

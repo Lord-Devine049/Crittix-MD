@@ -4,6 +4,8 @@
  */
 const h  = require('../../lib/helpers');
 const db = require('../../lib/db');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'antipromote',
@@ -13,8 +15,8 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, isOwner, isSudo, reply }) => {
     const sender_ = msg.key.participant || msg.key.remoteJid;
     if (!await h.isSenderAdmin(sock, chatId, sender_))
-      return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
 
     const action  = args[0]?.toLowerCase();
     const current = db.getAnti(chatId, 'antipromote');

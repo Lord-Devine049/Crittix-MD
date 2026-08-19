@@ -1,5 +1,6 @@
 /* LISTINACTIVE.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
 const observer = require('../../lib/observer');
 module.exports = {
   command: ['listinactive'],
@@ -11,7 +12,7 @@ module.exports = {
     if (!isGroupMsg) return reply(`✘ ${h.toBoldItalic('Group only you')} ${h.toBoldItalic(h.randomCuss())}! ${h.demonEmoji()}`);
     const groupId = groupMetadata?.id || chatId;
     const senderIsAdmin = await h.isSenderAdmin(sock, groupId, sender);
-    if (!senderIsAdmin) return reply(`✘ ${h.toBoldItalic('Admins only you')} ${h.toBoldItalic(h.randomCuss())}! ${h.demonEmoji()}`);
+    if (!senderIsAdmin) return reply(p.phrases.adminOnly());
     try {
       const daysCutoff = parseInt(args[0]) || 7;
       const cutoffMs = daysCutoff * 24 * 60 * 60 * 1000;

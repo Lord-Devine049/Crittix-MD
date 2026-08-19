@@ -4,6 +4,8 @@
  */
 const h       = require('../../lib/helpers');
 const actTrack = require('../../lib/activity-tracker');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -15,9 +17,9 @@ module.exports = [
     execute: async ({ sock, msg, chatId, sender, isOwner, isSudo, reply }) => {
       const sender_ = msg.key.participant || msg.key.remoteJid;
       if (!await h.isSenderAdmin(sock, chatId, sender_))
-        return reply(h.demonFail('Admins only'));
+        return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId))
-        return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
 
       await reply('🔍 scanning inactive members...');
 
@@ -53,9 +55,9 @@ module.exports = [
     execute: async ({ sock, msg, chatId, sender, isOwner, isSudo, reply }) => {
       const sender_ = msg.key.participant || msg.key.remoteJid;
       if (!await h.isSenderAdmin(sock, chatId, sender_))
-        return reply(h.demonFail('Admins only'));
+        return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId))
-        return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
 
       await reply('🔍 finding inactive members...');
 

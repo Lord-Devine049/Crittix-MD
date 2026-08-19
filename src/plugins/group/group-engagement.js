@@ -8,6 +8,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (f) => path.join(process.cwd(), 'database', f);
 const loadDB = (f) => { try { return fs.existsSync(DB(f)) ? JSON.parse(fs.readFileSync(DB(f),'utf8')) : {}; } catch { return {}; } };
@@ -47,8 +49,8 @@ module.exports = [
     description: 'Send a styled announcement card to the group. adminOnly. Usage: .gannounce <message>',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, text, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can make announcements.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const announcement = text || args.join(' ');
       if (!announcement) return reply(h.demonError('.gannounce', '.gannounce <your announcement text>'));
       const meta = await sock.groupMetadata(chatId).catch(() => ({ subject: 'Group' }));
@@ -65,8 +67,8 @@ module.exports = [
     description: 'Set a group countdown to an event. Usage: .groupcountdown <event name> | <YYYY-MM-DD>',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, text, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can set countdowns.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       if (!text || !text.includes('|')) return reply(h.demonError('.groupcountdown', '.groupcountdown <event> | <YYYY-MM-DD>'));
       const [eventName, dateStr] = text.split('|').map(s => s.trim());
       const target = new Date(dateStr);
@@ -93,8 +95,8 @@ module.exports = [
     description: 'Celebrate a group member milestone. adminOnly. Usage: .groupmilestone',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can trigger milestone celebrations.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       try {
         const meta = await sock.groupMetadata(chatId);
         const count = meta.participants.length;
@@ -166,8 +168,8 @@ module.exports = [
     description: 'Post a group challenge that members can respond to. adminOnly. Usage: .groupchallenge <challenge text>',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, text, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can set challenges.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const challenge = text || args.join(' ');
       if (!challenge) return reply(h.demonError('.groupchallenge', '.groupchallenge <challenge text>'));
       const db = loadDB('groupchallenges.json');
@@ -244,8 +246,8 @@ module.exports = [
     description: 'Pin a highlight message for the weekly summary (admin). Usage: .grouphighlight (reply to message)',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can set highlights.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const ctx = msg.message?.extendedTextMessage?.contextInfo;
       const quoted = ctx?.quotedMessage;
       if (!quoted) return reply(h.demonFail('Reply to the message you want to highlight first.'));

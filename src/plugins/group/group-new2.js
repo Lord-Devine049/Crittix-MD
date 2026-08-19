@@ -7,6 +7,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -83,8 +85,8 @@ module.exports = [
     adminOnly: true,
     execute: async ({ sock, chatId, sender, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const warns = loadDB('warnings.json');
       const groupWarns = warns[chatId] || {};
       const entries = Object.entries(groupWarns).filter(([, w]) => w.count > 0);
@@ -143,8 +145,8 @@ module.exports = [
       const action = args[0]?.toLowerCase();
       if (action === 'start') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
-          return reply(h.demonFail('only admins can start a vote'));
-          if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+          return reply(p.phrases.adminOnly());
+          if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const question = args.slice(1).join(' ');
         if (!question) return reply(h.demonError('.groupvote', '.groupvote start <question>'));
         votes[chatId] = { question, yes: [], no: [], started: Date.now() };
@@ -152,7 +154,7 @@ module.exports = [
         return reply(`🗳️ *GROUP VOTE STARTED*\n\n❓ "${question}"\n\nVote with: *.groupvote yes* or *.groupvote no*\nResults: *.groupvote results*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const vote = votes[chatId];
-      if (!vote) return reply(h.demonFail('no active vote. Admin can start one with .groupvote start <question>'));
+      if (!vote) return reply(p.phrases.adminOnly());
       if (action === 'results') {
         const total = vote.yes.length + vote.no.length;
         const yPct = total ? Math.round((vote.yes.length / total) * 100) : 0;
@@ -179,8 +181,8 @@ module.exports = [
     adminOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const actData = loadDB('activity.json');
       const groupData = actData[chatId] || {};
       const now = Date.now();

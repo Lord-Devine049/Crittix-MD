@@ -9,6 +9,8 @@ const globalXP = require('../../lib/global-xp');
 const h       = require('../../lib/helpers');
 const fs      = require('fs-extra');
 const path    = require('path');
+const p = require('../../lib/phrases');
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GRID_SIZE   = 8;
@@ -479,7 +481,7 @@ module.exports = [
       if (!game) return reply(h.demonFail('No active Word Grid game to stop.'));
       const isHost  = game.startedBy === sender;
       const isAdmin = await h.isSenderAdmin(sock, chatId, sender).catch(() => false);
-      if (!isHost && !isAdmin) return reply(h.demonFail('Only the game starter or an admin can stop the game.'));
+      if (!isHost && !isAdmin) return reply(p.phrases.adminOnly());
 
       activeGames.delete(chatId);
       if (game.timeoutHandle) clearTimeout(game.timeoutHandle);

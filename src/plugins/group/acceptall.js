@@ -1,4 +1,6 @@
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['acceptall', 'approveall'],
@@ -12,7 +14,7 @@ module.exports = {
 
     try {
       const botAdmin = await h.isBotAdmin(sock, chatId);
-      if (!botAdmin) return reply(h.botNeedsAdminMessage('approve join requests'));
+      if (!botAdmin) return reply(p.phrases.botNeedsAdmin());
 
       const requests = await sock.groupRequestParticipantsList(chatId);
       if (!requests || requests.length === 0)
@@ -31,7 +33,7 @@ module.exports = {
 
       reply(h.demonSuccess(`Approved ${approved} join request(s)`));
     } catch {
-      reply(h.demonFail('Failed to approve requests. I My even an admin? you are so dull'));
+      reply(p.phrases.adminOnly());
     }
   }
 };

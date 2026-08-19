@@ -8,6 +8,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -67,8 +69,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const minutes = parseInt(args[0]);
       if (isNaN(minutes) || minutes < 1 || minutes > 1440) return reply(h.demonError('.slowmodetimer', '.slowmodetimer <minutes 1-1440>'));
       try {
@@ -92,8 +94,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const wlData = loadDB('link-whitelist.json');
       if (!wlData[chatId]) wlData[chatId] = [];
       const action = args[0]?.toLowerCase();
@@ -127,8 +129,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const minutes = parseInt(args[0]);
       if (isNaN(minutes) || minutes < 1 || minutes > 480) return reply(h.demonError('.mutealltimer', '.mutealltimer <minutes 1-480>'));
       try {
@@ -152,8 +154,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const cfg = loadDB('warn-expiry.json');
       const input = args[0]?.toLowerCase();
       if (input === 'off') {
@@ -185,8 +187,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
       if (!mentioned) return reply(h.demonError('.groupquarantine', '.groupquarantine @user — or .groupquarantine lift @user to restore'));
       const action = args[0]?.toLowerCase();
@@ -215,8 +217,8 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, args, reply, isOwner, isSudo }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender))
-        return reply(h.demonFail('admins only'));
-        if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+        return reply(p.phrases.adminOnly());
+        if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const announcement = args.join(' ');
       if (!announcement) return reply(h.demonError('.announcementpin', '.announcementpin <your announcement text>'));
       try {

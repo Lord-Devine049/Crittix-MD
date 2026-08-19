@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'kickadmins',
@@ -12,7 +14,7 @@ module.exports = {
   groupOnly: true,
   execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
     
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Bot needs admin'));
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const meta = await sock.groupMetadata(chatId);
     const { botJid, botLid } = h.getBotJids(sock);
     const admins = meta.participants.filter(p => p.admin && !h.isBotParticipant(p, botJid, botLid));

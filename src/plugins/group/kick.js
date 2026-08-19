@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'kick',
@@ -16,8 +18,8 @@ module.exports = {
     const target = h.getTarget(msg, _gtP);
     if (!target.length) return reply(h.demonError('.kick', 'Reply or tag user'));
     const sender_ = msg.key.participant || msg.key.remoteJid;
-    if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(h.demonFail('Admins only'));
-    if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+    if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(p.phrases.adminOnly());
+    if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     try {
       await sock.groupParticipantsUpdate(chatId, target, 'remove');
       reply('✓ Kicked @' + target[0].split('@')[0], { mentions: target });

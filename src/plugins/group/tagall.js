@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'tagall',
@@ -13,8 +15,8 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, isOwner, isSudo, prefix, reply }) => {
     const sender_ = msg.key.participant || msg.key.remoteJid;
     if (!await h.isSenderAdmin(sock, chatId, sender_))
-      return reply(h.demonFail('Admins only'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
 
     const meta     = await sock.groupMetadata(chatId);
     const members  = meta.participants.map(p => p.id);

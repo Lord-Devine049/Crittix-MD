@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'delete',
@@ -31,7 +33,7 @@ module.exports = {
       const sender_ = msg.key.participant || msg.key.remoteJid;
       const senderIsAdmin = await h.isSenderAdmin(sock, chatId, sender_);
       if (!senderIsAdmin && !isOwner && !isSudo) {
-        return reply(h.demonFail('Admins only. Sit down, stupid mf'));
+        return reply(p.phrases.adminOnly());
       }
     }
 

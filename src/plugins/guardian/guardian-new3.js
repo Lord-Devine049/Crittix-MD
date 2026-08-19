@@ -6,6 +6,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -20,8 +22,8 @@ module.exports = [
     description: 'Block numbers outside allowed country codes. Usage: .antiforeign on|off|add <code>|list — e.g. .antiforeign add 234',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('Only admins can configure antiforeign.'));
-      if (!await h.isBotAdmin(sock, chatId)) return reply(h.demonFail('Make my Lord Admin'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
+      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const db = loadDB('antiforeign.json');
       if (!db[chatId]) db[chatId] = { enabled: false, allowedCodes: ['234', '1', '44'] };
       const action = (args[0] || 'status').toLowerCase();
