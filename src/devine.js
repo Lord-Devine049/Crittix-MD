@@ -1508,9 +1508,9 @@ module.exports = (sock, ownerNumber) => {
               await sock.sendMessage(chatId, {
                 [cfg.BOT_PIC_TYPE === 'video' ? 'video' : 'image']: { url: botPic },
                 caption: menu
-              });
+              }, { quoted: msg });
             } else {
-              await sock.sendMessage(chatId, { text: menu });
+              await sock.sendMessage(chatId, { text: menu }, { quoted: msg });
             }
             continue;
           }
