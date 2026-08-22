@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['twitter', 'twdl', 'xdl'],
@@ -8,7 +10,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const url = args[0];
     if (!url || (!url.includes('x.com') && !url.includes('twitter.com'))) {
-      return reply('usage: .xdl <twitter/x video url>');
+      return reply(p.phrases.wrongUsage('provide the twitter or x video url. example! .xdl https://x.com/user/status/xxx'));
     }
 
     await reply('⬇️ downloading twitter/x video...');

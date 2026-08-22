@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['dog', 'dogpic'],
@@ -14,14 +16,14 @@ module.exports = {
     try {
       const res = await axios.get('https://dog.ceo/api/breeds/image/random', { timeout: 10000 });
       const img = res.data?.message;
-      if (!img) return reply(h.demonFail('Dog ran away. Try again.'));
+      if (!img) return reply(p.phrases.error('could not fetch a dog. try again.'));
 
       await sock.sendMessage(chatId, {
         image: { url: img },
         caption: `🐶 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗗𝗼𝗴*`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Dog fetch failed. It went on a walk.'));
+      reply(p.phrases.error('dog fetch failed. try again.'));
     }
   }
 };

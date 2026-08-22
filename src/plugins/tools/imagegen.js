@@ -1,6 +1,8 @@
 /* IMAGEGEN.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'imagegen',
   aliases: ['imagine', 'genimage'],
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Generate an AI image from a text prompt (Pollinations.ai, free)',
   execute: async ({ sock, msg, text, chatId, prefix, reply }) => {
     const prompt = text.replace(/^[^\s]+\s*/, '').trim();
-    if (!prompt) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}imagegen <prompt>\n\n${h.toBoldItalic('Example')}: ${prefix}imagegen dark anime warrior with glowing red eyes`);
+    if (!prompt) return reply(p.phrases.wrongUsage('describe what you want generated. example! .imagegen dark anime warrior with glowing red eyes'));
     try {
       await reply(`🎨 ${h.toBoldItalic('Generating image...')} ${h.demonEmoji()}\n\n📝 ${h.toBoldItalic('Prompt')}: ${prompt}`);
       const encodedPrompt = encodeURIComponent(prompt);

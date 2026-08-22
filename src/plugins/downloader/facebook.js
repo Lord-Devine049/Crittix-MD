@@ -1,4 +1,6 @@
 const downloader = require('../../lib/downloader');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['fb'],
@@ -7,7 +9,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const url = args[0];
     if (!url || !url.includes('facebook.com')) {
-      return reply('usage: .fb <facebook video url>');
+      return reply(p.phrases.wrongUsage('provide the facebook video url. example! .fb https://facebook.com/watch/?v=xxx'));
     }
 
     await reply('⬇️ downloading facebook video...');

@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -8,7 +10,7 @@ module.exports = [
     description: 'Full WHOIS lookup for an IP address. Usage: whoisip 8.8.8.8',
     execute: async ({ args, reply }) => {
       const ip = args[0];
-      if (!ip) return reply('🌐 *Usage:* whoisip 8.8.8.8');
+      if (!ip) return reply(p.phrases.wrongUsage('provide an ip address. example! .whoisip 8.8.8.8'));
       try {
         const r = await axios.get(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query`, { timeout: 8000 });
         if (r.data.status !== 'success') return reply(`❌ *IP lookup failed:* ${r.data.message}`);
@@ -34,7 +36,7 @@ module.exports = [
     description: 'DNS lookup for a domain. Usage: dns google.com',
     execute: async ({ args, reply }) => {
       const domain = args[0];
-      if (!domain) return reply('🌐 *Usage:* dns google.com');
+      if (!domain) return reply(p.phrases.wrongUsage('provide a domain name. example! .dns google.com'));
       try {
         const r = await axios.get(`https://dns.google/resolve?name=${domain}&type=A`, { timeout: 8000 });
         const answers = r.data.Answer || [];
@@ -51,7 +53,7 @@ module.exports = [
     description: 'Check if a port is commonly used. Usage: port 443',
     execute: async ({ args, reply }) => {
       const portNum = parseInt(args[0]);
-      if (!portNum) return reply('🔌 *Usage:* port 443');
+      if (!portNum) return reply(p.phrases.wrongUsage('provide a port number. example! .port 443'));
       const wellKnown = {
         20:'FTP Data', 21:'FTP Control', 22:'SSH', 23:'Telnet', 25:'SMTP',
         53:'DNS', 80:'HTTP', 110:'POP3', 143:'IMAP', 443:'HTTPS',
@@ -78,7 +80,7 @@ module.exports = [
     description: 'Check if a URL is safe. Usage: urlcheck https://example.com',
     execute: async ({ args, reply }) => {
       const url = args[0];
-      if (!url || !url.startsWith('http')) return reply('🔗 *Usage:* urlcheck https://example.com');
+      if (!url || !url.startsWith('http')) return reply(p.phrases.wrongUsage('provide the full url to check. example! .urlcheck https://example.com'));
       try {
         const hostname = new URL(url).hostname;
         const blacklist = ['bit.ly','tinyurl.com','rebrand.ly']; // basic check
@@ -130,7 +132,7 @@ module.exports = [
         429:'Too Many Requests — Rate limited',500:'Internal Server Error',502:'Bad Gateway',
         503:'Service Unavailable',504:'Gateway Timeout',
       };
-      if (!code) return reply('🔢 *Usage:* httpstatus 404\n\n_Enter an HTTP status code_');
+      if (!code) return reply(p.phrases.wrongUsage('provide an http status code. example! .httpstatus 404'));
       const desc = codes[code];
       if (!desc) return reply(`❓ *HTTP ${code}* — Unknown or rarely used status code`);
       const cat = code < 200 ? 'Informational' : code < 300 ? 'Success ✅' : code < 400 ? 'Redirection 🔄' : code < 500 ? 'Client Error ❌' : 'Server Error 🔥';
@@ -144,7 +146,7 @@ module.exports = [
     description: 'Get info about a domain. Usage: domain google.com',
     execute: async ({ args, reply }) => {
       const domain = args[0];
-      if (!domain) return reply('🌐 *Usage:* domain google.com');
+      if (!domain) return reply(p.phrases.wrongUsage('provide the domain name. example! .domain google.com'));
       try {
         const r = await axios.get(`https://api.domainsdb.info/v1/domains/search?domain=${domain}&limit=1`, { timeout: 8000 });
         const d = r.data.domains?.[0];
@@ -182,7 +184,7 @@ module.exports = [
     category: 'soultools',
     description: 'Format/pretty-print JSON. Usage: jsonfmt {"key":"value"}',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📋 *Usage:* jsonfmt {"name":"John","age":30}');
+      if (!text) return reply(p.phrases.wrongUsage('paste your json text after the command. example! .jsonfmt {"name":"john","age":30}'));
       try {
         const parsed = JSON.parse(text);
         const pretty = JSON.stringify(parsed, null, 2);
@@ -196,7 +198,7 @@ module.exports = [
     category: 'soultools',
     description: 'Encode text to Base58. Usage: base58 hello',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔡 *Usage:* base58 your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to encode in base58. example! .base58 hello world'));
       const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
       const bytes = Buffer.from(text, 'utf8');
       let num = BigInt('0x' + bytes.toString('hex'));

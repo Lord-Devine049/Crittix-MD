@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 /*
  * HTML2IMG.JS - Crittix-MD
  * Created by: LORD DEVINE
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Convert HTML code to an image',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const html = args.join(' ').trim();
-    if (!html) return reply('usage: .html2img <html code>');
+    if (!html) return reply(p.phrases.wrongUsage('paste your html code after the command. example! .html2img <h1>hello world</h1>'));
 
     await reply('🖼️ converting HTML to image...');
 

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'getgroups',
@@ -17,6 +19,6 @@ module.exports = {
       if (!ids.length) return reply('Not in any groups');
       const list = ids.map((id,i) => (i+1) + '. ' + (groups[id].subject||id)).join('\n');
       reply('📋 Groups (' + ids.length + '):\n\n' + list);
-    } catch(e) { reply(h.demonFail(e.message)); }
+    } catch(e) { reply(p.phrases.error(e.message)); }
   }
 };

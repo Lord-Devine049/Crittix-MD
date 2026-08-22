@@ -6,6 +6,8 @@
 const fs   = require('fs-extra');
 const path = require('path');
 const h    = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const SOC_PATH = path.join(process.cwd(), 'database', 'social.json');
 const REP_CD   = 24*60*60*1000;
@@ -20,17 +22,17 @@ module.exports = [
   {
     command:['bio'], category: 'groupanalytics', description:'Set your profile bio',
     execute: async({ sender,args,reply }) => {
-      const bio=args.join(' '); if(!bio||bio.length>100) return reply(h.demonError('.bio','.bio <your bio> (max 100 chars)'));
+      const bio=args.join(' '); if(!bio||bio.length>100) return reply(p.phrases.wrongUsage('type your bio after the command. max 100 characters. example! .bio lord of darkness. founder of crittix.'));
       const { db,k,user }=getUser(sender); user.bio=bio; save(db);
-      reply(`✅ bio set:\n_${bio}_`);
+      reply(p.phrases.success('bio set.'));
     }
   },
   {
     command:['title','settitle'], category: 'groupanalytics', description:'Set a custom title shown on your profile',
     execute: async({ sender,args,reply }) => {
-      const title=args.join(' '); if(!title||title.length>30) return reply(h.demonError('.title','.title <title> (max 30 chars)'));
+      const title=args.join(' '); if(!title||title.length>30) return reply(p.phrases.wrongUsage('type your title after the command. max 30 characters. example! .title lord devine'));
       const { db,k,user }=getUser(sender); user.title=title; save(db);
-      reply(`✅ title set: *${title}*`);
+      reply(p.phrases.success("title set."));
     }
   },
   {
@@ -50,7 +52,7 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target=h.getTarget(msg, _gtP)?.[0];
-      if(!target) return reply(h.demonError('.rep','Reply to or tag someone'));
+      if(!target) return reply(p.phrases.wrongUsage('reply to or tag someone to rep them. example! .rep @user'));
       if(target.replace(/:\d+@/,'@')===sender.replace(/:\d+@/,'@')) return reply(`😑 can't rep yourself`);
 
       const { db:sdb,k:sk,user:su }=getUser(sender);
@@ -96,7 +98,7 @@ module.exports = [
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target=h.getTarget(msg, _gtP)?.[0];
       const badge=args.find(a=>!a.includes('@'));
-      if(!target||!badge) return reply(h.demonError('.giftbadge','.giftbadge @user <badge_id>\nBadge IDs: '+Object.keys(BADGES).join(', ')));
+      if(!target||!badge) return reply(p.phrases.wrongUsage('tag a user and provide the badge id. example! .giftbadge @user skull'));
       if(!BADGES[badge]) return reply(`😑 unknown badge. Available: ${Object.keys(BADGES).join(', ')}`);
       const { db,user }=getUser(target);
       if(user.badges.includes(badge)) return reply(`😑 they already have that badge`);

@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['manga', 'searchmanga'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'arena',
   description: 'Search manga info from Jikan (MyAnimeList)',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.manga', '.manga <title>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the manga title. example! .manga one piece'));
 
     try {
       const res = await axios.get('https://api.jikan.moe/v4/manga', {
@@ -20,7 +22,7 @@ module.exports = {
       });
 
       const manga = res.data?.data?.[0];
-      if (!manga) return reply(h.demonFail(`No manga found for "${text}"`));
+      if (!manga) return reply(p.phrases.error(`No manga found for "${text}"`));
 
       const title = manga.title_english || manga.title || manga.titles?.[0]?.title || 'Unknown';
       const desc = (manga.synopsis || 'No description available.').substring(0, 300);
@@ -45,7 +47,7 @@ module.exports = {
         reply(caption);
       }
     } catch {
-      reply(h.demonFail('Manga search failed. Try again later.'));
+      reply(p.phrases.error('Manga search failed. Try again later.'));
     }
   }
 };

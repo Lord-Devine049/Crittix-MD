@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['tiktoksearch'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'darkweb',
   description: 'Search TikTok videos',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.tiktoksearch', '.tiktoksearch <query>'));
+    if (!text) return reply(p.phrases.wrongUsage('type what you want to search on tiktok. example! .tiktoksearch afrobeats dance'));
 
     try {
       const res = await axios.get(
@@ -20,7 +22,7 @@ module.exports = {
       );
 
       if (!res.data?.status || !res.data?.data?.length)
-        return reply(h.demonFail(`No TikTok results for "${text}"`));
+        return reply(p.phrases.error(`No TikTok results for "${text}"`));
 
       const videos = res.data.data.slice(0, 3);
 
@@ -45,7 +47,7 @@ module.exports = {
         }
       }
     } catch (err) {
-      reply(h.demonFail('TikTok search failed. Try again later.'));
+      reply(p.phrases.error('TikTok search failed. Try again later.'));
     }
   }
 };

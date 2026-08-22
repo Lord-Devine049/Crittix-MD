@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'unblock',
@@ -14,8 +16,8 @@ module.exports = {
     let _gtP = [];
     if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
     const target = h.getTarget(msg, _gtP);
-    if (!target.length) return reply(h.demonError('.unblock', 'Reply or tag user'));
+    if (!target.length) return reply(p.phrases.wrongUsage('reply to or tag the person you want to unblock. example! .unblock @user'));
     await sock.updateBlockStatus(target[0], 'unblock');
-    reply('✓ Unblocked @' + target[0].split('@')[0], { mentions: target });
+    reply(p.phrases.success('unblocked @' + target[0].split('@')[0] + '.'), { mentions: target });
   }
 };

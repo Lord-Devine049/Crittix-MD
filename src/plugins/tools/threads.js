@@ -1,13 +1,15 @@
 /* THREADS.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'threads',
   category: 'darkweb',
   description: 'Get info about a Threads post from URL',
   execute: async ({ sock, msg, args, chatId, prefix, reply }) => {
     const threadsUrl = args[0];
-    if (!threadsUrl || !threadsUrl.includes('threads.net')) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}threads <threads.net url>\n\n${h.toBoldItalic('Example')}: ${prefix}threads https://www.threads.net/@username/post/ABC123`);
+    if (!threadsUrl || !threadsUrl.includes('threads.net')) return reply(p.phrases.wrongUsage('provide the full threads.net post url. example! .threads https://www.threads.net/@username/post/abc123'));
     try {
       await reply(`🧵 ${h.toBoldItalic('Fetching thread...')} ${h.demonEmoji()}`);
       const res = await axios.get(`https://www.threads.net/oembed/?url=${encodeURIComponent(threadsUrl)}`, { headers: { 'User-Agent': 'CrittixMD/2.0 (whatsapp-bot)' }, timeout: 15000 });

@@ -1,5 +1,7 @@
 /* DECRYPT.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'decrypt',
   category: 'soultools',
@@ -7,7 +9,7 @@ module.exports = {
   execute: async ({ args, prefix, reply }) => {
     const decKey = args[0];
     const decText = args.slice(1).join(' ');
-    if (!decKey || !decText) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}decrypt <key> <encrypted text>\n\n${h.toBoldItalic('Example')}: ${prefix}decrypt mykey SGVsbG8=`);
+    if (!decKey || !decText) return reply(p.phrases.wrongUsage('provide your key and the encrypted text. example! .decrypt mykey SGVsbG8='));
     try {
       const xorDecrypt = (encoded, key) => {
         const bytes = Buffer.from(encoded, 'base64');

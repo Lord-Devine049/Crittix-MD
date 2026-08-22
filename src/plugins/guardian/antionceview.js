@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'antionceview',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ ANTIONCEVIEW: true }); return reply('✓ antionceview enabled'); }
-    if (action === 'off') { set({ ANTIONCEVIEW: false }); return reply('✓ antionceview disabled'); }
+    if (action === 'on') { set({ ANTIONCEVIEW: true }); return reply(p.phrases.success('antionceview enabled.')); }
+    if (action === 'off') { set({ ANTIONCEVIEW: false }); return reply(p.phrases.success('antionceview disabled.')); }
     reply('ℹ️ antionceview: ' + (getConfig().ANTIONCEVIEW ? 'ON' : 'OFF') + '\n\nUsage: .antionceview on/off');
   }
 };

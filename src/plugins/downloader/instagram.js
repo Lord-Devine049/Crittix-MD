@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['instagram', 'igdl'],
@@ -7,7 +9,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const url = args[0];
     if (!url || !url.includes('instagram')) {
-      return reply('usage: .igdl <instagram reel/video url>');
+      return reply(p.phrases.wrongUsage('provide the instagram reel or video url. example! .igdl https://www.instagram.com/reel/xxx'));
     }
 
     await reply('⬇️ downloading instagram...');

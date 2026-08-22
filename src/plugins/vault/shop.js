@@ -1,6 +1,8 @@
 /* SHOP.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const vault = require('../../lib/vault');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'shop',
   category: 'arena',
@@ -15,7 +17,7 @@ module.exports = {
         if (result.reason === 'already_owned') return reply(`✘ ${h.toBoldItalic('You already own this item')} ${h.demonEmoji()}`);
         return reply(`✘ ${h.toBoldItalic('Purchase failed')} ${h.demonEmoji()}`);
       }
-      return reply(`✅ ${h.toBoldItalic('Purchased!')} ${h.demonEmoji()}\n\n${result.item.emoji} ${h.toBoldItalic(result.item.name)}\n💰 ${h.toBoldItalic('New Balance')}: 🪙 ${vault.formatBalance(result.newBalance)}`);
+      return reply(p.phrases.success(`purchased ${result.item.name}. new balance: ${vault.formatBalance(result.newBalance)} coins.`));
     }
     const items = vault.getShop();
     let txt = `╔═══════════════════════════════╗\n║ 🛒 𝐒𝐇𝐎𝐏\n╚═══════════════════════════════╝\n\n`;

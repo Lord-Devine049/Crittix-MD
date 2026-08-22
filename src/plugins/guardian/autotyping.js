@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'autotyping',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ AUTO_TYPING: true }); return reply('✓ autotyping enabled'); }
-    if (action === 'off') { set({ AUTO_TYPING: false }); return reply('✓ autotyping disabled'); }
+    if (action === 'on') { set({ AUTO_TYPING: true }); return reply(p.phrases.success('autotyping enabled.')); }
+    if (action === 'off') { set({ AUTO_TYPING: false }); return reply(p.phrases.success('autotyping disabled.')); }
     reply('ℹ️ autotyping: ' + (getConfig().AUTO_TYPING ? 'ON' : 'OFF') + '\n\nUsage: .autotyping on/off');
   }
 };

@@ -28,7 +28,7 @@ module.exports = {
         const count = topUsersMap[p.id] || 0;
         return count === 0;
       });
-      if (inactiveList.length === 0) return reply(`✅ ${h.toBoldItalic(`No inactive members found`)} ${h.demonEmoji()}`);
+      if (inactiveList.length === 0) return reply(p.phrases.notFound("no inactive members found." ${h.demonEmoji()}`);
       const top = inactiveList.slice(0, 20);
       let txt = `╔═══════════════════════════════╗\n║ 💀 𝐈𝐍𝐀𝐂𝐓𝐈𝐕𝐄 𝐌𝐄𝐌𝐁𝐄𝐑𝐒\n╚═══════════════════════════════╝\n\n`;
       txt += `👥 ${h.toBoldItalic(`${inactiveList.length} inactive found`)}\n📅 ${h.toBoldItalic('(No commands used in this group)')}\n\n`;

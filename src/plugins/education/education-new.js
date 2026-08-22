@@ -8,6 +8,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -217,7 +219,7 @@ module.exports = [
       }
 
       const cat = MATH_FORMULAS[category];
-      if (!cat) return reply(h.demonFail(`category not found. Try: ${Object.keys(MATH_FORMULAS).join(', ')}`));
+      if (!cat) return reply(p.phrases.error(`category not found. Try: ${Object.keys(MATH_FORMULAS).join(', ')}`));
 
       if (topic && cat[topic]) {
         return reply(
@@ -263,7 +265,7 @@ module.exports = [
       }
 
       const cat = PHYSICS_FORMULAS[category];
-      if (!cat) return reply(h.demonFail(`category not found. Try: ${Object.keys(PHYSICS_FORMULAS).join(', ')}`));
+      if (!cat) return reply(p.phrases.error(`category not found. Try: ${Object.keys(PHYSICS_FORMULAS).join(', ')}`));
 
       if (topic && cat[topic]) {
         return reply(
@@ -294,7 +296,7 @@ module.exports = [
     description: 'Look up a periodic table element by symbol, name, or atomic number. Usage: periodictable <symbol|name|number>',
     execute: async ({ args, reply }) => {
       const query = args.join(' ').trim();
-      if (!query) return reply(h.demonError('periodictable', 'periodictable <symbol | name | atomic number>\nExample: .periodictable Au | .periodictable gold | .periodictable 79'));
+      if (!query) return reply(p.phrases.wrongUsage('provide an element symbol name or atomic number. example! .periodictable gold'));
 
       let found = null;
       const num = parseInt(query);
@@ -310,7 +312,7 @@ module.exports = [
       }
 
       if (!found) {
-        return reply(h.demonFail(`element not found: *${query}*\nTry a symbol (Au, Fe), name (Gold), or atomic number (79)`));
+        return reply(p.phrases.error(`element not found: *${query}*\nTry a symbol (Au, Fe), name (Gold), or atomic number (79)`));
       }
 
       reply(
@@ -340,7 +342,7 @@ module.exports = [
         events = HISTORY_EVENTS.filter(e =>
           e.event.toLowerCase().includes(keyword) || e.year.toLowerCase().includes(keyword)
         );
-        if (!events.length) return reply(h.demonFail(`no events found matching: *${keyword}*`));
+        if (!events.length) return reply(p.phrases.error(`no events found matching: *${keyword}*`));
         events = events.slice(0, 8);
       } else {
         const start = Math.floor(Math.random() * Math.max(0, HISTORY_EVENTS.length - 8));
@@ -366,14 +368,14 @@ module.exports = [
     description: 'Get capital city and info for a country. Usage: capitalcities <country>',
     execute: async ({ args, reply }) => {
       const country = args.join(' ').toLowerCase().replace(/ /g, '');
-      if (!country) return reply(h.demonError('capitalcities', 'capitalcities <country>\nExample: .capitalcities nigeria'));
+      if (!country) return reply(p.phrases.wrongUsage('provide the country name. example! .capitalcities nigeria'));
 
       const info = CAPITALS[country];
       if (!info) {
         try {
           const res = await axios.get(`https://restcountries.com/v3.1/name/${encodeURIComponent(args.join(' '))}?fields=name,capital,currencies,population,region`, { timeout: 10000 });
           const c = res.data?.[0];
-          if (!c) return reply(h.demonFail(`country not found: *${args.join(' ')}*`));
+          if (!c) return reply(p.phrases.error(`country not found: *${args.join(' ')}*`));
           const cap = c.capital?.[0] || 'Unknown';
           const curr = Object.values(c.currencies || {})[0];
           const currStr = curr ? `${curr.name} (${curr.symbol || '?'})` : 'Unknown';
@@ -389,7 +391,7 @@ module.exports = [
             `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
           );
         } catch {
-          return reply(h.demonFail(`country not found: *${args.join(' ')}*\nTry: nigeria, usa, uk, ghana, india, china`));
+          return reply(p.phrases.error(`country not found: *${args.join(' ')}*\nTry: nigeria, usa, uk, ghana, india, china`));
         }
       }
 
@@ -416,7 +418,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const text = args.join(' ');
       const parts = text.toLowerCase().split(' vs ');
-      if (parts.length < 2) return reply(h.demonError('countrycompare', 'countrycompare <country1> vs <country2>\nExample: .countrycompare nigeria vs ghana'));
+      if (parts.length < 2) return reply(p.phrases.wrongUsage('format it correctly. example! .countrycompare nigeria vs ghana'));
 
       const [c1name, c2name] = parts.map(p => p.trim());
 
@@ -430,8 +432,8 @@ module.exports = [
       await reply(`🔍 Comparing *${c1name}* vs *${c2name}*...`);
       const [c1, c2] = await Promise.all([fetch(c1name), fetch(c2name)]);
 
-      if (!c1) return reply(h.demonFail(`couldn't find country: *${c1name}*`));
-      if (!c2) return reply(h.demonFail(`couldn't find country: *${c2name}*`));
+      if (!c1) return reply(p.phrases.error(`couldn't find country: *${c1name}*`));
+      if (!c2) return reply(p.phrases.error(`couldn't find country: *${c2name}*`));
 
       const fmt = (c) => {
         const curr = Object.values(c.currencies || {})[0];

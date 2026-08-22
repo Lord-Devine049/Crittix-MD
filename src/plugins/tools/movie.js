@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['movie'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'soultools',
   description: 'Search movie info from IMDB',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.movie', '.movie <title>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the movie title after the command. example! .movie inception'));
 
     try {
       const res = await axios.get(
@@ -20,7 +22,7 @@ module.exports = {
       );
 
       if (res.data.Response === 'False')
-        return reply(h.demonFail(`Movie "${text}" not found`));
+        return reply(p.phrases.notFound(`movie "${text}" not found.`));
 
       const d = res.data;
       const caption =
@@ -44,7 +46,7 @@ module.exports = {
         reply(caption);
       }
     } catch {
-      reply(h.demonFail('Movie info unavailable. Try again later.'));
+      reply(p.phrases.error('movie info unavailable. try again later.'));
     }
   }
 };

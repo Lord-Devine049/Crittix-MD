@@ -36,7 +36,7 @@ module.exports = {
         `\n\n💡 Use *.acceptall* or *.rejectall* to act on them.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       );
     } catch (e) {
-      reply(h.demonFail(`Couldn't fetch requests: ${e.message}`));
+      reply(p.phrases.error(`Couldn't fetch requests: ${e.message}`));
     }
   }
 };

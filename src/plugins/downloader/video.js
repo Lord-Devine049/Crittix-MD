@@ -1,6 +1,8 @@
 
 const axios = require('axios');
 const yts = require('yt-search');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'video',
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Download YouTube videos',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const text = args.join(' ');
-    if (!text) return reply('usage: .video <video name or YouTube URL>');
+    if (!text) return reply(p.phrases.wrongUsage('type the video name or paste a youtube url. example! .video blinding lights official video'));
 
     let videoUrl = '';
     let videoTitle = '';

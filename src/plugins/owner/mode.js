@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'mode',
@@ -12,9 +14,9 @@ module.exports = {
   execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
     
     const m = args[0]?.toLowerCase();
-    if (!['public','self'].includes(m)) return reply(h.demonError('.mode', '.mode public OR .mode self'));
+    if (!['public','self'].includes(m)) return reply(p.phrases.wrongUsage('use .mode public or .mode self. nothing else.'));
     const { set } = require('../../lib/config');
     set({ MODE: m });
-    reply('✓ Mode set to *' + m + '*');
+    reply(p.phrases.success('mode set to ' + m + '.'));
   }
 };

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'endgame',
@@ -12,9 +14,9 @@ module.exports = {
     
     const multiplayer = require('../../lib/multiplayer');
     const session = multiplayer.getSession(cfg.OWNER_NUMBER, chatId);
-    if (!session) return reply(h.demonFail('No active game in this chat'));
-    if (session.hostId !== sender && !isOwner && !isSudo) return reply(h.demonFail('Only the host or owner can end the game'));
+    if (!session) return reply(p.phrases.error('No active game in this chat'));
+    if (session.hostId !== sender && !isOwner && !isSudo) return reply(p.phrases.error('Only the host or owner can end the game'));
     multiplayer.endSession(cfg.OWNER_NUMBER, chatId);
-    reply('✓ Game ended');
+    reply(p.phrases.success('game ended.'));
   }
 };

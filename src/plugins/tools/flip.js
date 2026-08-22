@@ -2,6 +2,8 @@
 const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'flip',
   category: 'soultools',
@@ -10,7 +12,7 @@ module.exports = {
     const flipDir = args[0]?.toLowerCase() || 'horizontal';
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg || !['horizontal','vertical','both','h','v'].includes(flipDir)) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}flip <horizontal/vertical/both> (reply to image)`);
+    if (!imageMsg || !['horizontal','vertical','both','h','v'].includes(flipDir)) return reply(p.phrases.wrongUsage('reply to an image and pick a direction. example! .flip horizontal. options! horizontal vertical both.'));
     try {
       let imgBuffer;
       if (msg.message?.imageMessage) imgBuffer = await downloadMediaMessage(msg, 'buffer', {});

@@ -1,5 +1,7 @@
 const h = require('../../lib/helpers');
 const db = require('../../lib/db');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -26,7 +28,7 @@ module.exports = [
           `║ 📅 Created: *${new Date(meta.creation * 1000).toLocaleDateString()}*\n` +
           `╚════════════════════════么`
         );
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -47,7 +49,7 @@ module.exports = [
           `📊 Total Admins: *${admins.length}*\n` +
           `👥 Total Members: *${meta.participants.length}*`
         );
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -67,7 +69,7 @@ module.exports = [
           `👤 Regular: *${regular}*\n` +
           `📊 *Total: ${meta.participants.length}*`
         );
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -93,7 +95,7 @@ module.exports = [
           `⏳ Age: *${years}y ${months % 12}m ${days % 30}d*\n` +
           `(${days} days old)`
         );
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -107,7 +109,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'announcement');
         reply('🔇 *Announcement mode ON*\n\nOnly admins can send messages now.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -121,7 +123,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'not_announcement');
         reply('🔊 *Group opened*\n\nEveryone can send messages now.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -135,7 +137,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'locked');
         reply('🔒 *Group info locked*\n\nOnly admins can edit group info now.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -149,7 +151,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'unlocked');
         reply('🔓 *Group info unlocked*\n\nEveryone can edit group info now.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -160,7 +162,7 @@ module.exports = [
     groupOnly: true,
     adminOnly: true,
     execute: async ({ text, chatId, reply }) => {
-      if (!text) return reply('📜 *Usage:* setrules No spam | Respect others | English only');
+      if (!text) return reply(p.phrases.wrongUsage('separate your rules with pipes. example! .setrules no spam "respect everyone" english only.'));
       const rules = text.split('|').map((r,i) => `${i+1}. ${r.trim()}`);
       const stored = rules.join('\n');
       // Store in global for this session
@@ -197,7 +199,7 @@ module.exports = [
           try { db.resetWarns(chatId, p.id); cleared++; } catch(_) {}
         }
         reply(`🗑️ *All warns cleared*\n\nReset warns for ${cleared} members.`);
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -211,7 +213,7 @@ module.exports = [
       try {
         const code = await sock.groupInviteCode(chatId);
         reply(`🔗 *Group Invite Link*\n\nhttps://chat.whatsapp.com/${code}`);
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -225,7 +227,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'announcement');
         reply('🔇 *Group muted*\n\nOnly admins can send messages now. Use .unmuteall to reverse.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {
@@ -239,7 +241,7 @@ module.exports = [
       try {
         await sock.groupSettingUpdate(chatId, 'not_announcement');
         reply('🔊 *Group unmuted*\n\nEveryone can send messages now.');
-      } catch(e) { reply(h.demonFail(e.message)); }
+      } catch(e) { reply(p.phrases.error(e.message)); }
     }
   },
   {

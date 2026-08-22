@@ -24,13 +24,13 @@ module.exports = [
     description: 'Save/apply a named set of group settings for quick reapply. Usage: grouprolepreset save <name> | list | apply <name>',
     groupOnly: true,
     execute: async ({ sock, chatId, sender, args, reply, isOwner, isSudo }) => {
-      if (!isOwner && !isSudo) return reply(h.demonFail('owner/sudo only'));
+      if (!isOwner && !isSudo) return reply(p.phrases.error('owner/sudo only'));
       const presets = loadDB('role-presets.json');
       if (!presets[chatId]) presets[chatId] = {};
       const action = args[0]?.toLowerCase();
       const name = args[1];
       if (action === 'save') {
-        if (!name) return reply(h.demonError('.grouprolepreset', '.grouprolepreset save <name>'));
+        if (!name) return reply(p.phrases.wrongUsage('provide a name for the preset. example! .grouprolepreset save mypreset'));
         try {
           const meta = await sock.groupMetadata(chatId);
           presets[chatId][name] = {
@@ -41,23 +41,23 @@ module.exports = [
             savedAt: Date.now()
           };
           saveDB('role-presets.json', presets);
-          return reply(`✅ *PRESET SAVED: "${name}"*\n\nGroup settings captured for later reapplication.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-        } catch (e) { return reply(h.demonFail(`save failed — ${e.message}`)); }
+          return reply(p.phrases.success(`preset "${name}" saved.`)*\n\nGroup settings captured for later reapplication.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        } catch (e) { return reply(p.phrases.error(`save failed — ${e.message}`)); }
       }
       if (action === 'list') {
         const keys = Object.keys(presets[chatId] || {});
-        if (!keys.length) return reply(h.demonFail('no presets saved for this group yet.'));
+        if (!keys.length) return reply(p.phrases.notFound('no presets saved for this group yet.'));
         return reply(`📋 *SAVED PRESETS*\n\n${keys.map(k => `• ${k} (saved: ${new Date(presets[chatId][k].savedAt).toLocaleDateString()})`).join('\n')}\n\nApply: .grouprolepreset apply <name>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'apply') {
-        if (!name || !presets[chatId][name]) return reply(h.demonFail(`preset "${name}" not found. Check .grouprolepreset list`));
+        if (!name || !presets[chatId][name]) return reply(p.phrases.notFound(`preset "${name}" not found. check .grouprolepreset list.`));
         const p = presets[chatId][name];
         try {
           if (p.announce !== undefined) await sock.groupSettingUpdate(chatId, p.announce ? 'announcement' : 'not_announcement');
-          return reply(`✅ *PRESET APPLIED: "${name}"*\n\nGroup settings restored from preset.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-        } catch (e) { return reply(h.demonFail(`apply failed — ${e.message}`)); }
+          return reply(p.phrases.success(`preset "${name}" applied.`)*\n\nGroup settings restored from preset.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        } catch (e) { return reply(p.phrases.error(`apply failed — ${e.message}`)); }
       }
-      reply(h.demonError('.grouprolepreset', '.grouprolepreset save <name> | list | apply <name>'));
+      reply(p.phrases.wrongUsage('use .grouprolepreset save name to save. or list to view all. or apply name to use one.'));
     }
   },
 
@@ -72,7 +72,7 @@ module.exports = [
         return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const minutes = parseInt(args[0]);
-      if (isNaN(minutes) || minutes < 1 || minutes > 1440) return reply(h.demonError('.slowmodetimer', '.slowmodetimer <minutes 1-1440>'));
+      if (isNaN(minutes) || minutes < 1 || minutes > 1440) return reply(p.phrases.wrongUsage('provide minutes between 1 and 1440. example! .slowmodetimer 5'));
       try {
         await sock.groupSettingUpdate(chatId, 'announcement');
         reply(`⏱️ *SLOWMODE TIMER*\n\nGroup locked for *${minutes} minute(s)*.\nAuto-unlocks after the timer.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -82,7 +82,7 @@ module.exports = [
             await sock.sendMessage(chatId, { text: `✅ *SLOWMODE ENDED*\n\nTimer expired. Group is now open again.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` });
           } catch {}
         }, minutes * 60000);
-      } catch (e) { reply(h.demonFail(`slowmode failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`slowmode failed — ${e.message}`)); }
     }
   },
 
@@ -101,14 +101,14 @@ module.exports = [
       const action = args[0]?.toLowerCase();
       const domain = args[1]?.toLowerCase();
       if (action === 'add') {
-        if (!domain) return reply(h.demonError('.antilinkwhitelist', '.antilinkwhitelist add <domain.com>'));
-        if (wlData[chatId].includes(domain)) return reply(h.demonFail(`"${domain}" is already whitelisted`));
+        if (!domain) return reply(p.phrases.wrongUsage('provide the domain to add. example! .antilinkwhitelist add google.com'));
+        if (wlData[chatId].includes(domain)) return reply(p.phrases.error(`"${domain}" is already whitelisted`));
         wlData[chatId].push(domain);
         saveDB('link-whitelist.json', wlData);
-        return reply(`✅ *WHITELISTED*: ${domain}\n\nAntilink will no longer flag this domain.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`${domain} whitelisted from antilink.`)\n\nAntilink will no longer flag this domain.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'remove') {
-        if (!domain) return reply(h.demonError('.antilinkwhitelist', '.antilinkwhitelist remove <domain.com>'));
+        if (!domain) return reply(p.phrases.wrongUsage('provide the domain to remove. example! .antilinkwhitelist remove google.com'));
         wlData[chatId] = wlData[chatId].filter(d => d !== domain);
         saveDB('link-whitelist.json', wlData);
         return reply(`🗑️ *REMOVED*: ${domain} from whitelist.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -117,7 +117,7 @@ module.exports = [
         if (!wlData[chatId].length) return reply(`📋 No whitelisted domains for this group yet.\n\nAdd with: .antilinkwhitelist add <domain>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         return reply(`📋 *WHITELISTED DOMAINS*\n\n${wlData[chatId].map(d => `• ${d}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply(h.demonError('.antilinkwhitelist', '.antilinkwhitelist add <domain> | list | remove <domain>'));
+      reply(p.phrases.wrongUsage('use .antilinkwhitelist add domain.com. or list. or remove domain.com.'));
     }
   },
 
@@ -132,7 +132,7 @@ module.exports = [
         return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const minutes = parseInt(args[0]);
-      if (isNaN(minutes) || minutes < 1 || minutes > 480) return reply(h.demonError('.mutealltimer', '.mutealltimer <minutes 1-480>'));
+      if (isNaN(minutes) || minutes < 1 || minutes > 480) return reply(p.phrases.wrongUsage('provide minutes between 1 and 480. example! .mutealltimer 30'));
       try {
         await sock.groupSettingUpdate(chatId, 'announcement');
         reply(`🔇 *TIMED MUTE*\n\nAll members muted for *${minutes} minute(s)*.\nBot will auto-unmute after timer expires.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -142,7 +142,7 @@ module.exports = [
             await sock.sendMessage(chatId, { text: `🔊 *AUTO-UNMUTED*\n\n${minutes}-minute mute expired. Members can speak again.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` });
           } catch {}
         }, minutes * 60000);
-      } catch (e) { reply(h.demonFail(`mute timer failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`mute timer failed — ${e.message}`)); }
     }
   },
 
@@ -164,7 +164,7 @@ module.exports = [
         return reply(`🔄 *WARN EXPIRY — OFF*\n\nWarnings in this group no longer expire. They're permanent until manually cleared.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const days = parseInt(input);
-      if (isNaN(days) || days < 1) return reply(h.demonError('.warnexpiry', '.warnexpiry <days 1-365> | .warnexpiry off'));
+      if (isNaN(days) || days < 1) return reply(p.phrases.wrongUsage('provide a number of days between 1 and 365. example! .warnexpiry 7. or .warnexpiry off to disable.'));
       cfg[chatId] = { days, setAt: Date.now() };
       saveDB('warn-expiry.json', cfg);
       const warnData = loadDB('warnings.json');
@@ -190,7 +190,7 @@ module.exports = [
         return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
-      if (!mentioned) return reply(h.demonError('.groupquarantine', '.groupquarantine @user — or .groupquarantine lift @user to restore'));
+      if (!mentioned) return reply(p.phrases.wrongUsage('tag the person to quarantine. example! .groupquarantine @user. or .groupquarantine lift @user to restore them.'));
       const action = args[0]?.toLowerCase();
       const num = mentioned.split('@')[0];
       const qData = loadDB('quarantine.json');
@@ -220,7 +220,7 @@ module.exports = [
         return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const announcement = args.join(' ');
-      if (!announcement) return reply(h.demonError('.announcementpin', '.announcementpin <your announcement text>'));
+      if (!announcement) return reply(p.phrases.wrongUsage('type your announcement after the command. example! .announcementpin game night is tonight at 9pm.'));
       try {
         const sent = await sock.sendMessage(chatId, {
           text: `📌 *ANNOUNCEMENT*\n\n${announcement}\n\n— Crittix Empire 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
@@ -229,8 +229,8 @@ module.exports = [
           try { await sock.sendMessage(chatId, { pin: sent.key, type: 1 }); }
           catch {}
         }
-        reply(`✅ Announcement posted${sent?.key ? ' and pinned' : ''}.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`announcement failed — ${e.message}`)); }
+        reply(p.phrases.success("announcement posted."${sent?.key ? ' and pinned' : ''}.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      } catch (e) { reply(p.phrases.error(`announcement failed — ${e.message}`)); }
     }
   }
 

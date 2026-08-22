@@ -1,6 +1,8 @@
 /* AUTOLIKESTATUS.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const { getConfig, set } = require('../../lib/config');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'autolikestatus',
@@ -18,7 +20,7 @@ module.exports = {
 
     if (action === 'off') {
       set({ AUTO_LIKE_STATUS: false });
-      return reply(`✓ ${h.toBoldItalic('Auto like status deactivated')}`);
+      return reply(p.phrases.success('auto like status disabled.'));
     }
 
     const current = cfg.AUTO_LIKE_STATUS ? '🟢 ON' : '🔴 OFF';

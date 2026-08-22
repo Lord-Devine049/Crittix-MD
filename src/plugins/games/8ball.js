@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: '8ball',
@@ -12,7 +14,7 @@ module.exports = {
     
     const answers = ['Yes definitely','It is certain','Without a doubt','Yes','Most likely','Signs point to yes','Reply hazy try again','Ask again later','Better not tell you now','Cannot predict now','Don\'t count on it','My reply is no','My sources say no','Outlook not so good','Very doubtful'];
     const q = args.join(' ');
-    if (!q) return reply(h.demonError('.8ball', '.8ball <question>'));
+    if (!q) return reply(p.phrases.wrongUsage('ask me a yes or no question. example! .8ball will i be rich'));
     reply('🎱 *' + answers[Math.floor(Math.random()*answers.length)] + '*');
   }
 };

@@ -11,6 +11,8 @@ const path = require('path');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const exif = require('../../lib/exif');
 const crittixStickers = require('../../lib/crittix-stickers');
+const p = require('../../lib/phrases');
+
 
 // Pack DB — stores pack name/author per sender number
 const PACK_DB = path.join(process.cwd(), 'database', 'sticker-packs.json');
@@ -43,7 +45,7 @@ module.exports = [
       const imageMsg  = quoted?.imageMessage  || msg.message?.imageMessage;
 
       if (!stickerMsg && !imageMsg) {
-        return reply(h.demonFail('reply to a *sticker* (or image) to add it to your pack'));
+        return reply(p.phrases.error('reply to a *sticker* (or image) to add it to your pack'));
       }
 
       const db  = loadPackDB();
@@ -90,9 +92,9 @@ module.exports = [
         // Save to local collection so .stickerrandom can pick from it
         await crittixStickers.saveSticker(stickerBuf);
 
-        reply(`✅ *Added to pack "${packname}"*\nAll stickers with this pack name appear together in your WA sticker tray ✨\n\nTip: *.stickerpack New Name* to rename your pack\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        reply(p.phrases.success(`sticker added to pack "${packname}".`)*\nAll stickers with this pack name appear together in your WA sticker tray ✨\n\nTip: *.stickerpack New Name* to rename your pack\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       } catch (e) {
-        reply(h.demonFail(`sticker creation failed — ${e.message}`));
+        reply(p.phrases.error(`sticker creation failed — ${e.message}`));
       }
     }
   },
@@ -105,14 +107,14 @@ module.exports = [
     description: 'Search for a GIF/sticker by keyword. Usage: .stickersearch cat',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.stickersearch', '.stickersearch <keyword>'));
+      if (!query) return reply(p.phrases.wrongUsage('type the keyword to search for stickers. example! .stickersearch anime'));
       try {
         const { data } = await axios.get(
           `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=LIVDSRZULELA096&limit=5&media_filter=gif`,
           { timeout: 15000 }
         );
         const results = data?.results;
-        if (!results?.length) return reply(h.demonFail(`no stickers/GIFs found for "${query}"`));
+        if (!results?.length) return reply(p.phrases.error(`no stickers/GIFs found for "${query}"`));
         const items = results.map((r, i) =>
           `${i + 1}. 🔗 ${r.media_formats?.gif?.url || r.url || ''}`
         ).join('\n');
@@ -120,7 +122,7 @@ module.exports = [
           `🔍 *STICKER SEARCH: ${query}*\n\n_GIF results — send the URL then use .sticker to convert:_\n\n${items}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`sticker search failed — ${e.message}`));
+        reply(p.phrases.error(`sticker search failed — ${e.message}`));
       }
     }
   },
@@ -142,7 +144,7 @@ module.exports = [
         const buffer = fs.readFileSync(result.filepath);
         await sock.sendMessage(chatId, { sticker: buffer }, { quoted: msg });
       } catch (e) {
-        reply(h.demonFail(`random sticker failed — ${e.message}`));
+        reply(p.phrases.error(`random sticker failed — ${e.message}`));
       }
     }
   },
@@ -158,7 +160,7 @@ module.exports = [
       const quoted = ctx?.quotedMessage;
       const media = quoted?.videoMessage || quoted?.imageMessage
                  || msg.message?.videoMessage || msg.message?.imageMessage;
-      if (!media) return reply(h.demonFail('reply to a GIF or short video to animate it as a sticker'));
+      if (!media) return reply(p.phrases.error('reply to a GIF or short video to animate it as a sticker'));
       await reply('🎨 converting to animated sticker...');
       try {
         const isVideo = !!(quoted?.videoMessage || msg.message?.videoMessage);
@@ -175,7 +177,7 @@ module.exports = [
         }
         await sock.sendMessage(chatId, { sticker: stickerBuf }, { quoted: msg });
       } catch (e) {
-        reply(h.demonFail(`animated sticker failed — ${e.message}`));
+        reply(p.phrases.error(`animated sticker failed — ${e.message}`));
       }
     }
   },
@@ -190,7 +192,7 @@ module.exports = [
       const ctx = msg.message?.extendedTextMessage?.contextInfo;
       const quoted = ctx?.quotedMessage;
       const stickerMsg = quoted?.stickerMessage || msg.message?.stickerMessage;
-      if (!stickerMsg) return reply(h.demonFail('reply to a sticker to export it as an image'));
+      if (!stickerMsg) return reply(p.phrases.error('reply to a sticker to export it as an image'));
       await reply('🖼️ exporting sticker...');
       try {
         const Jimp = require('jimp');
@@ -207,7 +209,7 @@ module.exports = [
         );
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`sticker export failed — ${e.message}`));
+        reply(p.phrases.error(`sticker export failed — ${e.message}`));
       }
     }
   },

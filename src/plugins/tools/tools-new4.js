@@ -8,6 +8,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const ask = async (prompt, system = 'You are a helpful assistant.') => {
   const res = await axios.post('https://chateverywhere.app/api/chat/', {
@@ -26,7 +28,7 @@ module.exports = [
     category: 'soultools',
     description: 'Show diff between two text blocks. Usage: textdiff old text | new text',
     execute: async ({ text, reply }) => {
-      if (!text || !text.includes('|')) return reply(h.demonError('.textdiff', '.textdiff <old text> | <new text>'));
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('separate your old and new text with a pipe. example! .textdiff old text here "new text here"'));
       const [old, newText] = text.split('|').map(s => s.trim());
       const oldWords = old.split(/\s+/);
       const newWords = newText.split(/\s+/);
@@ -49,11 +51,11 @@ module.exports = [
     description: 'Validate JSON text. Usage: jsonvalidate {"key":"value"}',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.jsonvalidate', '.jsonvalidate <json text>'));
+      if (!input) return reply(p.phrases.wrongUsage('paste your json text to validate it. example! .jsonvalidate {"name":"john"}'));
       try {
         const parsed = JSON.parse(input);
         const keys = typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : 0;
-        reply(`✅ *Valid JSON!*\n\nType: ${Array.isArray(parsed) ? 'Array' : typeof parsed}\n${keys ? `Keys: ${keys}` : ''}\n\nLooks clean — for once.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        reply(p.phrases.success('valid json.'));
       } catch (e) {
         reply(`❌ *Invalid JSON!*\n\nError: ${e.message}\n\nFix your JSON, clown.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
@@ -67,7 +69,7 @@ module.exports = [
     description: 'Convert CSV text to JSON. Usage: csvtojson name,age\\nAlice,25\\nBob,30',
     execute: async ({ text, args, reply }) => {
       const input = (text || args.join(' ')).replace(/\\n/g, '\n').trim();
-      if (!input) return reply(h.demonError('.csvtojson', '.csvtojson <csv text with headers on first line>'));
+      if (!input) return reply(p.phrases.wrongUsage('paste your csv text with headers on the first line. example! .csvtojson name,age john,25'));
       try {
         const lines = input.split('\n').filter(l => l.trim());
         const headers = lines[0].split(',').map(h => h.trim());
@@ -79,7 +81,7 @@ module.exports = [
         });
         const json = JSON.stringify(rows, null, 2);
         reply(`📊 *CSV → JSON*\n\nRows: ${rows.length} | Columns: ${headers.length}\n\n\`\`\`json\n${json.substring(0, 2000)}\`\`\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`CSV parse failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`CSV parse failed — ${e.message}`)); }
     }
   },
 
@@ -90,7 +92,7 @@ module.exports = [
     description: 'Check if a domain is available. Usage: domainavailability mysite.com',
     execute: async ({ args, reply }) => {
       const domain = args[0]?.toLowerCase();
-      if (!domain || !domain.includes('.')) return reply(h.demonError('.domainavailability', '.domainavailability <domain.tld>'));
+      if (!domain || !domain.includes('.')) return reply(p.phrases.wrongUsage('provide the full domain you want to check. example! .domainavailability crittix.com'));
       try {
         const { data } = await axios.get(`https://rdap.org/domain/${encodeURIComponent(domain)}`, { timeout: 10000 });
         reply(`🔴 *${domain.toUpperCase()} is TAKEN*\n\nRegistrar: ${data?.entities?.[0]?.vcardArray?.[1]?.[1]?.[3] || 'N/A'}\nStatus: ${data?.status?.join(', ') || 'registered'}\n\nSorry to crush your dreams 💀\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -98,7 +100,7 @@ module.exports = [
         if (e.response?.status === 404 || e.message?.includes('404')) {
           reply(`🟢 *${domain.toUpperCase()} may be AVAILABLE!*\n\nNo registration found. Go grab it before someone else does 😤\n\n_Note: Always verify on a registrar before paying._\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         } else {
-          reply(h.demonFail(`domain check failed — ${e.message}`));
+          reply(p.phrases.error(`domain check failed — ${e.message}`));
         }
       }
     }
@@ -111,7 +113,7 @@ module.exports = [
     description: 'Get WHOIS info for a domain. Usage: whoisdomain google.com',
     execute: async ({ args, reply }) => {
       const domain = args[0]?.toLowerCase();
-      if (!domain) return reply(h.demonError('.whoisdomain', '.whoisdomain <domain.tld>'));
+      if (!domain) return reply(p.phrases.wrongUsage('provide the domain to look up. example! .whoisdomain google.com'));
       try {
         const { data } = await axios.get(`https://api.whoisfreaks.com/v1.0/whois?whois=live&domainName=${encodeURIComponent(domain)}&apiKey=free`, { timeout: 15000 });
         if (data?.domain_name) {
@@ -126,9 +128,9 @@ module.exports = [
             `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
           );
         } else {
-          reply(h.demonFail(`no WHOIS data found for "${domain}"`));
+          reply(p.phrases.error(`no WHOIS data found for "${domain}"`));
         }
-      } catch (e) { reply(h.demonFail(`WHOIS failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`WHOIS failed — ${e.message}`)); }
     }
   },
 
@@ -139,7 +141,7 @@ module.exports = [
     description: 'Check SSL certificate validity for a domain. Usage: sslcheck google.com',
     execute: async ({ args, reply }) => {
       const domain = args[0]?.replace(/^https?:\/\//, '').split('/')[0];
-      if (!domain) return reply(h.demonError('.sslcheck', '.sslcheck <domain.com>'));
+      if (!domain) return reply(p.phrases.wrongUsage('provide the domain to check ssl for. example! .sslcheck google.com'));
       try {
         const { data } = await axios.get(`https://api.ssllabs.com/api/v3/analyze?host=${encodeURIComponent(domain)}&fromCache=on&maxAge=24`, { timeout: 20000 });
         const status = data?.status;
@@ -156,7 +158,7 @@ module.exports = [
         } else {
           reply(`🔒 *SSL CHECK: ${domain}*\n\nStatus: ${status || 'Checking...'}\n\nSSL Labs is still analyzing. Try again in 30 seconds.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
-      } catch (e) { reply(h.demonFail(`SSL check failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`SSL check failed — ${e.message}`)); }
     }
   },
 
@@ -168,7 +170,7 @@ module.exports = [
     description: 'Get HTTP response headers for a URL. Usage: headers https://google.com',
     execute: async ({ args, reply }) => {
       const url = args[0];
-      if (!url || !url.startsWith('http')) return reply(h.demonError('.headers', '.headers <https://url>'));
+      if (!url || !url.startsWith('http')) return reply(p.phrases.wrongUsage('provide the full url to fetch headers from. example! .headers https://google.com'));
       try {
         const res = await axios.head(url, { timeout: 10000, maxRedirects: 3 });
         const hs = res.headers;
@@ -177,7 +179,7 @@ module.exports = [
         important.forEach(k => { if (hs[k]) txt += `• *${k}*: ${String(hs[k]).substring(0, 60)}\n`; });
         txt += `\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`;
         reply(txt);
-      } catch (e) { reply(h.demonFail(`header fetch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`header fetch failed — ${e.message}`)); }
     }
   },
 
@@ -189,7 +191,7 @@ module.exports = [
     execute: async ({ sock, msg, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const audioMsg = quoted?.audioMessage || msg.message?.audioMessage;
-      if (!audioMsg) return reply(h.demonFail('reply to a voice note to transcribe it'));
+      if (!audioMsg) return reply(p.phrases.error('reply to a voice note to transcribe it'));
       await reply('🎙️ transcribing... give me a sec');
       try {
         const buffer = await sock.downloadMediaMessage(msg);
@@ -204,7 +206,7 @@ module.exports = [
         // Fallback: transcription note
         require('fs-extra').removeSync(tmpPath);
         reply(`🎙️ *Voice Transcription*\n\n⚠️ _Automatic transcription requires an external API key (AssemblyAI/Whisper). Configure ASSEMBLYAI_KEY in your .env to enable this feature._\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`transcription failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`transcription failed — ${e.message}`)); }
     }
   },
 
@@ -215,12 +217,12 @@ module.exports = [
     description: 'AI grammar check your text. Usage: grammarcheck Your text here',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.grammarcheck', '.grammarcheck <your text>'));
+      if (!input) return reply(p.phrases.wrongUsage('type the text you want grammar checked. example! .grammarcheck i is going to school'));
       await reply('📝 checking your grammar — brace yourself');
       try {
         const result = await ask(`Check the grammar of the following text. List specific errors found, then provide the corrected version. Be concise:\n\n"${input}"`, 'You are a grammar expert. Be direct and precise.');
         reply(`📝 *GRAMMAR CHECK*\n\n${result}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`grammar AI down — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`grammar AI down — ${e.message}`)); }
     }
   },
 
@@ -231,7 +233,7 @@ module.exports = [
     description: 'Heuristic similarity/originality check on text. Usage: plagiarismcheck <text>',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input || input.split(' ').length < 10) return reply(h.demonError('.plagiarismcheck', '.plagiarismcheck <text — at least 10 words>'));
+      if (!input || input.split(' ').length < 10) return reply(p.phrases.wrongUsage('paste at least 10 words of text. example! .plagiarismcheck paste your paragraph here'));
       // Heuristic check: common phrase detection
       const commonPhrases = ['to be or not to be','the quick brown fox','lorem ipsum','once upon a time','in conclusion','it is important to note','as stated above'];
       const matches = commonPhrases.filter(p => input.toLowerCase().includes(p));
@@ -257,7 +259,7 @@ module.exports = [
     description: 'Extract top keywords from text. Usage: keywordextract <your text>',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.keywordextract', '.keywordextract <paste your text>'));
+      if (!input) return reply(p.phrases.wrongUsage('paste your text to extract keywords from it. example! .keywordextract paste your article here'));
       const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','this','that','these','those','it','its','they','them','their','we','our','you','your','he','she','his','her']);
       const words = input.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
       const freq = {};
@@ -278,7 +280,7 @@ module.exports = [
     description: 'Get numeric sentiment score for text. Usage: sentimentscore I love this bot',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.sentimentscore', '.sentimentscore <your text>'));
+      if (!input) return reply(p.phrases.wrongUsage('type the text you want sentiment analyzed. example! .sentimentscore i love this bot so much'));
       const positive = ['good','great','amazing','love','excellent','wonderful','happy','fantastic','awesome','nice','perfect','beautiful','best','brilliant','superb','enjoy','pleased','joyful','excited','delightful'];
       const negative = ['bad','terrible','awful','hate','horrible','disgusting','worst','ugly','boring','stupid','idiot','fail','useless','pathetic','trash','garbage','annoying','frustrating','disappointed','angry'];
       const words = input.toLowerCase().split(/\s+/);
@@ -307,7 +309,7 @@ module.exports = [
     execute: async ({ args, text, reply }) => {
       const mode = args[0]?.toLowerCase();
       const input = (text || args.join(' ')).replace(/^(slang|formal)\s+/i, '').trim();
-      if (!mode || !input) return reply(h.demonError('.slangtranslate', '.slangtranslate slang <informal text>  OR  .slangtranslate formal <text>'));
+      if (!mode || !input) return reply(p.phrases.wrongUsage('use slang or formal then your text. example! .slangtranslate slang on god bro this is fire'));
       await reply('🔄 translating...');
       try {
         const prompt = mode === 'slang'
@@ -315,7 +317,7 @@ module.exports = [
           : `Translate this slang/informal text into formal, professional English:\n\n"${input}"`;
         const result = await ask(prompt, 'You are a linguistics expert. Provide only the translation, no explanations.');
         reply(`🔄 *SLANG TRANSLATOR*\n\n📥 Input: ${input}\n📤 Output: *${result}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`translation AI unavailable — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`translation AI unavailable — ${e.message}`)); }
     }
   },
 
@@ -326,13 +328,13 @@ module.exports = [
     description: 'Find rhyming words. Usage: rhymefind orange',
     execute: async ({ args, reply }) => {
       const word = args[0]?.toLowerCase();
-      if (!word) return reply(h.demonError('.rhymefind', '.rhymefind <word>'));
+      if (!word) return reply(p.phrases.wrongUsage('provide a word to find rhymes for. example! .rhymefind moon'));
       try {
         const { data } = await axios.get(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(word)}&max=30&md=sf`, { timeout: 10000 });
-        if (!data?.length) return reply(h.demonFail(`no rhymes found for "${word}" — it's basically a loner word, respect`));
+        if (!data?.length) return reply(p.phrases.error(`no rhymes found for "${word}" — it's basically a loner word, respect`));
         const results = data.map(w => `• *${w.word}* ${w.numSyllables ? `(${w.numSyllables} syl.)` : ''}`).join('\n');
         reply(`🎵 *RHYMES FOR: ${word.toUpperCase()}*\n\n${results}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`rhyme finder down — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`rhyme finder down — ${e.message}`)); }
     }
   }
 

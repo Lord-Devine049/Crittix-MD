@@ -35,16 +35,16 @@ module.exports = [
         if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const bio = args.slice(1).join(' ') || text?.replace(/^set\s+/i, '');
-        if (!bio) return reply(h.demonError('.groupbio set', '.groupbio set <your bio text>'));
+        if (!bio) return reply(p.phrases.wrongUsage('type the bio text after the command. example! .groupbio set the realest group alive.'));
         bios[chatId] = bio;
         saveDB('groupbios.json', bios);
         // Also try to set WhatsApp group description
         try {
           await sock.groupUpdateDescription(chatId, bio.substring(0, 512));
         } catch {}
-        return reply(`✅ *Group bio updated!*\n\n${bio}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success('group bio updated.'));
       }
-      reply('Usage: .groupbio set <text> | .groupbio show');
+      reply(p.phrases.wrongUsage('use .groupbio set your text here. or .groupbio show to display the current bio.'));
     }
   },
 
@@ -56,7 +56,7 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, args, text, reply }) => {
       const name = text || args.join(' ');
-      if (!name) return reply(h.demonError('.groupbanner', '.groupbanner <group name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide the group name after the command. example! .groupbanner night raiders.'));
       try {
         const { createCanvas } = require('canvas');
         const width = 800, height = 200;
@@ -85,7 +85,7 @@ module.exports = [
         fs.writeFileSync(tmpPath, buf);
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `🎨 *Group Banner: ${name}*\n\nAdmin can set this as group icon.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`banner generation failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`banner generation failed — ${e.message}`)); }
     }
   },
 
@@ -104,22 +104,22 @@ module.exports = [
       if (action === 'set') {
         const time = args[1];
         const message = args.slice(2).join(' ');
-        if (!time || !message) return reply(h.demonError('.groupschedule set', '.groupschedule set HH:MM <your message>'));
+        if (!time || !message) return reply(p.phrases.wrongUsage('format it correctly. example! .groupschedule set 09:00 good morning everyone.'));
         schedules[chatId].push({ time, message, created: Date.now() });
         saveDB('groupschedules.json', schedules);
-        return reply(`✅ *Schedule set!*\n\n⏰ Time: *${time}*\n📝 Message: "${message}"\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`schedule set for ${time}.`));
       }
       if (action === 'list') {
         const list = schedules[chatId];
-        if (!list.length) return reply(h.demonFail('no schedules set for this group'));
+        if (!list.length) return reply(p.phrases.notFound('no schedules set for this group yet.'));
         return reply(`📅 *SCHEDULED MESSAGES*\n\n${list.map((s, i) => `${i+1}. ⏰ ${s.time} — "${s.message}"`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'clear') {
         schedules[chatId] = [];
         saveDB('groupschedules.json', schedules);
-        return reply('✅ All schedules cleared.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_');
+        return reply(p.phrases.success('all schedules cleared.'));
       }
-      reply('Usage: .groupschedule set HH:MM <message> | list | clear');
+      reply(p.phrases.wrongUsage('use .groupschedule set HH:MM your message. or list to view. or clear to remove all.'));
     }
   },
 
@@ -143,7 +143,7 @@ module.exports = [
         { q:'Who created CrittixMD?', a:'lord divine', hint:'The legend himself' },
       ];
       if (action === 'start') {
-        if (quizzes[chatId]?.active) return reply(h.demonFail('quiz already active — answer it first'));
+        if (quizzes[chatId]?.active) return reply(p.phrases.alreadyEnabled('quiz already active. answer it first.'));
         const q = questions[Math.floor(Math.random() * questions.length)];
         quizzes[chatId] = { active: true, question: q.q, answer: q.a, hint: q.hint, started: Date.now() };
         saveDB('groupquiz.json', quizzes);
@@ -151,21 +151,21 @@ module.exports = [
       }
       if (action === 'hint') {
         const quiz = quizzes[chatId];
-        if (!quiz?.active) return reply(h.demonFail('no active quiz'));
+        if (!quiz?.active) return reply(p.phrases.notFound('no active quiz running right now.'));
         return reply(`💡 Hint: ${quiz.hint}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'answer' || action === 'ans') {
         const quiz = quizzes[chatId];
-        if (!quiz?.active) return reply(h.demonFail(`no active quiz — start one with ${prefix}groupquiz start`));
+        if (!quiz?.active) return reply(p.phrases.notFound('no active quiz. start one first.'));
         if (Date.now() - quiz.started > 30000) { delete quizzes[chatId]; saveDB('groupquiz.json', quizzes); return reply(`⏰ Time's up! Answer was: *${quiz.answer}*`); }
         const guess = args.slice(1).join(' ').toLowerCase().trim();
         if (guess === quiz.answer || quiz.answer.includes(guess) || guess.includes(quiz.answer)) {
           delete quizzes[chatId]; saveDB('groupquiz.json', quizzes);
-          return reply(`✅ *CORRECT!* @${sender.split('@')[0]} got it!\n\n${quiz.question}\n📝 Answer: *${quiz.answer}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+          return reply(p.phrases.success(`correct! @${sender.split('@')[0]} got it.`)\n\n${quiz.question}\n📝 Answer: *${quiz.answer}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
         return reply(`❌ Wrong — try again. Hint: ${prefix}groupquiz hint`);
       }
-      reply(`Usage: ${prefix}groupquiz start | answer <text> | hint`);
+      reply(p.phrases.wrongUsage('use .groupquiz start to begin. .groupquiz answer your answer to respond. .groupquiz hint for a clue.'));
     }
   },
 
@@ -181,7 +181,7 @@ module.exports = [
       const name = args[0];
       const date = args[1];
       const time = args[2];
-      if (!name || !date) return reply(h.demonError('.groupevent', '.groupevent "<event name>" <YYYY-MM-DD> [HH:MM]'));
+      if (!name || !date) return reply(p.phrases.wrongUsage('format it correctly. example! .groupevent "game night" 2025-12-25 20:00'));
       const event = { name, date, time: time || 'TBD', created_by: senderNumber, rsvp: [senderNumber], id: Date.now() };
       events[chatId].push(event);
       saveDB('groupevents.json', events);
@@ -203,11 +203,11 @@ module.exports = [
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const timeStr = args[0];
       const message = args.slice(1).join(' ');
-      if (!timeStr || !message) return reply(h.demonError('.groupreminder', '.groupreminder <time (5m/1h/2h)> <message>'));
+      if (!timeStr || !message) return reply(p.phrases.wrongUsage('format it correctly. example! .groupreminder 30m team meeting starts soon.'));
       const match = timeStr.match(/^(\d+)(m|h|s)$/);
-      if (!match) return reply(h.demonFail('invalid time format — use like 30m, 1h, 2h'));
+      if (!match) return reply(p.phrases.error('invalid time format — use like 30m, 1h, 2h'));
       const ms = parseInt(match[1]) * (match[2] === 'h' ? 3600000 : match[2] === 'm' ? 60000 : 1000);
-      if (ms > 24 * 3600000) return reply(h.demonFail('max reminder time is 24 hours'));
+      if (ms > 24 * 3600000) return reply(p.phrases.error('max reminder time is 24 hours'));
       reply(`⏰ *Reminder set!*\n\nI'll notify the group in *${timeStr}*\n📝 Message: "${message}"\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       setTimeout(async () => {
         try {
@@ -245,7 +245,7 @@ module.exports = [
           caption: `📋 *Member List Exported*\n\n👥 ${members.length} members\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`export failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`export failed — ${e.message}`)); }
     }
   },
 
@@ -278,7 +278,7 @@ module.exports = [
           `📅 Saved: ${backup.backed_up_at}\n\n` +
           `Restore with: *.groupclone* (settings only)\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`backup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`backup failed — ${e.message}`)); }
     }
   },
 
@@ -293,12 +293,12 @@ module.exports = [
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const backups = loadDB('groupbackups.json');
       const backup = backups[chatId];
-      if (!backup) return reply(h.demonFail('no backup found for this group — run .groupbackup first'));
+      if (!backup) return reply(p.phrases.error('no backup found for this group — run .groupbackup first'));
       try {
         await sock.groupUpdateSubject(chatId, backup.name);
         if (backup.description) await sock.groupUpdateDescription(chatId, backup.description);
-        reply(`✅ *Group settings restored!*\n\n📌 Name: ${backup.name}\n📝 Description: ${backup.description ? 'restored' : 'N/A'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`restore failed — ${e.message}`)); }
+        reply(p.phrases.success('group settings restored.'));
+      } catch (e) { reply(p.phrases.error(`restore failed — ${e.message}`)); }
     }
   },
 
@@ -318,11 +318,11 @@ module.exports = [
           .filter(m => m.xp > 0)
           .sort((a, b) => b.xp - a.xp)
           .slice(0, 10);
-        if (!ranked.length) return reply(h.demonFail('no XP data for this group yet — use bot commands to earn XP'));
+        if (!ranked.length) return reply(p.phrases.error('no XP data for this group yet — use bot commands to earn XP'));
         const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
         const txt = ranked.map((m, i) => `${medals[i]} @${m.num} — ${m.xp} XP`).join('\n');
         reply(`📊 *GROUP RANKING*\n\n${txt}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`ranking failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`ranking failed — ${e.message}`)); }
     }
   },
 
@@ -346,7 +346,7 @@ module.exports = [
       if (!theme || theme === 'list') {
         return reply(`🎨 *GROUP THEMES*\n\n${Object.entries(themes).map(([k,v]) => `• *${k}* — ${v.preview}`).join('\n')}\n\nSet: .grouptheme <name>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      if (!themes[theme]) return reply(h.demonFail(`unknown theme — .grouptheme list`));
+      if (!themes[theme]) return reply(p.phrases.error(`unknown theme — .grouptheme list`));
       const themeDB = loadDB('groupthemes.json');
       themeDB[chatId] = theme;
       saveDB('groupthemes.json', themeDB);

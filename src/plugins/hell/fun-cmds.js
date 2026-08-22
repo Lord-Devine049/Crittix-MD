@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL    = 'llama-3.3-70b-versatile';
@@ -89,7 +91,7 @@ const cmds = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets=h.getTarget(msg, _gtP); const cat=args.filter(a=>!a.includes('@')).join(' ')||'overall aura';
-      if(targets.length<2) return reply(h.demonError('.ranking','Tag at least 2 people\nExample: .ranking @a @b richness'));
+      if(targets.length<2) return reply(p.phrases.wrongUsage('tag at least 2 people and provide a trait. example! .ranking @a @b richness'));
       try {
         const ans=await ai(`${CRITTIX_BASE} Power rank these people by the category. Savage, biased, brutal. Number them.`,`Rank by ${cat}: ${targets.map(t=>`@${t.split('@')[0]}`).join(', ')}`,1.5,400);
         await sock.sendMessage(chatId,{ text:`📊 *RANKING: ${cat.toUpperCase()}*\n\n${ans}`,mentions:targets },{ quoted:msg });
@@ -101,7 +103,7 @@ const cmds = [
     execute: async({ sock,msg,chatId,reply }) => {
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
-      const t=h.getTarget(msg, _gtP); if(t.length<2) return reply(h.demonError('.compatibility','Tag two people'));
+      const t=h.getTarget(msg, _gtP); if(t.length<2) return reply(p.phrases.wrongUsage('tag two people to check their compatibility. example! .compatibility @person1 @person2'));
       try {
         const ans=await ai(`${CRITTIX_BASE} Compatibility report: friendship, romance, business, chaos potential. Rate each /100. Brutal.`,`Compatibility: @${t[0].split('@')[0]} and @${t[1].split('@')[0]}`,1.4,400);
         await sock.sendMessage(chatId,{ text:`💘 *COMPATIBILITY REPORT*\n\n${ans}`,mentions:t },{ quoted:msg });

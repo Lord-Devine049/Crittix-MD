@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['sciencefact', 'funfact'],
@@ -14,10 +16,10 @@ module.exports = {
     try {
       const res = await axios.get('https://uselessfacts.jsph.pl/random.json?language=en', { timeout: 8000 });
       const fact = res.data?.text;
-      if (!fact) return reply(h.demonFail('No fact found. Universe is weird.'));
+      if (!fact) return reply(p.phrases.error('No fact found. Universe is weird.'));
       reply(`🔬 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗙𝗮𝗰𝘁*\n\n_${fact}_`);
     } catch {
-      reply(h.demonFail('Fact machine broke. Try again.'));
+      reply(p.phrases.error('Fact machine broke. Try again.'));
     }
   }
 };

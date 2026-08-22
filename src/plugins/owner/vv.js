@@ -4,6 +4,8 @@
  */
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 async function streamToBuffer(stream) {
   const chunks = [];
@@ -22,7 +24,7 @@ module.exports = {
     const quoted = ctx?.quotedMessage;
 
     if (!quoted)
-      return reply(h.demonError('.vv', '.vv — reply to a view-once media'));
+      return reply(p.phrases.wrongUsage('reply to a view once media to reveal it.'));
 
     const innerMsg =
       quoted.viewOnceMessageV2?.message ||
@@ -35,7 +37,7 @@ module.exports = {
     const isAudio = msgType === 'audioMessage';
 
     if (!isImage && !isVideo && !isAudio)
-      return reply(h.demonFail('Reply to a view-once image, video, or audio message'));
+      return reply(p.phrases.error('Reply to a view-once image, video, or audio message'));
 
     try {
       const mediaMsg = innerMsg[msgType];
@@ -45,7 +47,7 @@ module.exports = {
       else stream = await downloadContentFromMessage(mediaMsg, 'audio');
 
       const buf = await streamToBuffer(stream);
-      if (!buf || buf.length === 0) return reply(h.demonFail('Download failed. Media may have expired.'));
+      if (!buf || buf.length === 0) return reply(p.phrases.error('Download failed. Media may have expired.'));
 
       const senderNum = sender.split('@')[0];
       const caption = `👁️ *View-Once Unveiled*\nFrom: @${senderNum}`;
@@ -60,7 +62,7 @@ module.exports = {
 
       console.log('[VV] View-once media revealed — chat:', chatId, '| from:', senderNum);
     } catch (err) {
-      reply(h.demonFail('Failed to read view-once media: ' + err.message));
+      reply(p.phrases.error('failed to read view-once media. ' + err.message));
     }
   }
 };

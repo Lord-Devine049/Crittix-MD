@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'setbotpic',
@@ -17,8 +19,8 @@ module.exports = {
     const fs = require('fs');
     const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imgUrl = args[0];
-    if (!quoted?.imageMessage && !imgUrl) return reply(h.demonError('.setbotpic', 'Reply to image or .setbotpic <url>'));
-    if (imgUrl) { set({ BOT_PIC: imgUrl, BOT_PIC_TYPE: 'image' }); return reply('✓ Bot pic set from URL'); }
+    if (!quoted?.imageMessage && !imgUrl) return reply(p.phrases.wrongUsage('reply to an image or provide an image url. example! .setbotpic https://image.url'));
+    if (imgUrl) { set({ BOT_PIC: imgUrl, BOT_PIC_TYPE: 'image' }); return reply(p.phrases.success('bot picture set from url.')); }
     try {
       const stream = await downloadContentFromMessage(quoted.imageMessage, 'image');
       let buf = Buffer.from([]);
@@ -26,7 +28,7 @@ module.exports = {
       const picPath = path.join(process.cwd(), 'database', 'bot-pic.jpg');
       fs.writeFileSync(picPath, buf);
       set({ BOT_PIC: picPath, BOT_PIC_TYPE: 'image' });
-      reply('✓ Bot pic saved! Use .menu to preview');
-    } catch(e) { reply(h.demonFail('Failed: ' + e.message)); }
+      reply(p.phrases.success('bot picture saved.'));
+    } catch(e) { reply(p.phrases.error('failed to set bot picture. ' + e.message)); }
   }
 };

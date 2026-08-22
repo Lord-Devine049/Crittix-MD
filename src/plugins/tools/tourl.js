@@ -4,6 +4,8 @@
  */
 const h = require('../../lib/helpers');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 
 const MIME_EXT = [
   [/image\/png/,               'png'],
@@ -60,14 +62,14 @@ module.exports = {
 
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     if (!quotedMsg)
-      return reply(h.demonError('.tourl', 'Reply to an image, video, audio, or sticker'));
+      return reply(p.phrases.wrongUsage('reply to an image video audio or sticker to upload it and get a url.'));
 
     let mediaKey = null;
     for (const key of Object.keys(MEDIA_MAP)) {
       if (quotedMsg[key]) { mediaKey = key; break; }
     }
     if (!mediaKey)
-      return reply(h.demonError('.tourl', 'Replied message has no supported media (image, video, audio, sticker, document)'));
+      return reply(p.phrases.wrongUsage('the message you replied to has no supported media. try an image video audio or sticker.'));
 
     const { dlType, ext: defaultExt, mime: defaultMime } = MEDIA_MAP[mediaKey];
     const mediaDef = quotedMsg[mediaKey];
@@ -82,7 +84,7 @@ module.exports = {
       for await (const chunk of stream) buf = Buffer.concat([buf, chunk]);
 
       if (!buf || buf.length === 0)
-        return reply(h.demonFail('Failed to download the media. It may have expired.'));
+        return reply(p.phrases.error('Failed to download the media. It may have expired.'));
 
       await reply('⏳ *Uploading to catbox...*');
 
@@ -98,7 +100,7 @@ module.exports = {
       );
     } catch (e) {
       await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }).catch(() => {});
-      reply(h.demonFail('Upload failed: ' + e.message.slice(0, 200)));
+      reply(p.phrases.error('upload failed. ' + e.message.slice(0, 200)));
     }
   }
 };

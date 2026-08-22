@@ -4,6 +4,8 @@
  * Category: darkcraft | Special visual effects via Prexzyvilla API
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const ABYSS_EFFECTS = [
   { cmd: 'flagtext',        label: 'Flag Text',          emoji: '🏳️' },
@@ -47,7 +49,7 @@ module.exports = ABYSS_EFFECTS.map(({ cmd, label, emoji }) => ({
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail(`${label} generation failed — API may be down`));
+      reply(p.phrases.error(`${label} generation failed — API may be down`));
     }
   }
 }));

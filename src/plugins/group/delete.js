@@ -16,7 +16,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, isGroupMsg, isOwner, isSudo, reply }) => {
 
     const ctx = msg.message?.extendedTextMessage?.contextInfo;
-    if (!ctx?.stanzaId) return reply(h.demonError('.delete', 'Reply to a message to delete, dumbass'));
+    if (!ctx?.stanzaId) return reply(p.phrases.wrongUsage('reply to the message you want deleted. simple!'));
 
     // Resolve bot JIDs
     const botJid = sock.authState?.creds?.me?.id?.replace(/:\d+@/, '@');
@@ -28,7 +28,7 @@ module.exports = {
 
     if (isGroupMsg && !isBotOwnMessage) {
       const botIsAdmin = await h.isBotAdmin(sock, chatId);
-      if (!botIsAdmin) return reply(h.demonFail(`Give me admin first. I can't delete anything sitting here powerless.`));
+      if (!botIsAdmin) return reply(p.phrases.botNeedsAdmin('delete messages'));
 
       const sender_ = msg.key.participant || msg.key.remoteJid;
       const senderIsAdmin = await h.isSenderAdmin(sock, chatId, sender_);
@@ -59,7 +59,7 @@ module.exports = {
       });
 
     } catch (e) {
-      reply(h.demonFail(e.message));
+      reply(p.phrases.error(e.message));
     }
   }
 };

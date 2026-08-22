@@ -1,5 +1,7 @@
 /* TIMER.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'timer',
   category: 'soultools',
@@ -7,7 +9,7 @@ module.exports = {
   execute: async ({ sock, msg, args, sender, senderNumber, chatId, prefix, reply }) => {
     const timerArg = args[0]?.toLowerCase();
     const timerLabel = args.slice(1).join(' ') || 'Timer';
-    if (!timerArg) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}timer <time> <label>\n\n${h.toBoldItalic('Examples')}:\n${prefix}timer 30s check food\n${prefix}timer 5m meeting starts\n${prefix}timer 1h take break\n\n💀 ${h.toBoldItalic('Max: 1 hour')}`);
+    if (!timerArg) return reply(p.phrases.wrongUsage('provide a time and a label. example! .timer 30s check food. max is 1 hour.'));
     let ms = 0;
     if (timerArg.endsWith('s')) ms = parseInt(timerArg) * 1000;
     else if (timerArg.endsWith('m')) ms = parseInt(timerArg) * 60 * 1000;

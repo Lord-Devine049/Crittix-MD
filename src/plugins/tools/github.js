@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'github',
@@ -6,7 +8,7 @@ module.exports = {
   category: 'soultools',
   description: 'Look up a GitHub user profile',
   execute: async ({ sock, msg, text, chatId, reply }) => {
-    if (!text) return reply('👨‍💻 *Usage:* .github username');
+    if (!text) return reply(p.phrases.wrongUsage('provide the github username. example! .github torvalds'));
 
     try {
       const res = await axios.get(

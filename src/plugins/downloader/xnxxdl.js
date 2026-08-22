@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['xnxxdl', 'xvideodl'],
@@ -13,13 +15,13 @@ module.exports = {
   ownerOnly: true,
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply, command }) => {
     const cmd = (command || 'xnxxdl').toLowerCase();
-    if (!text) return reply(h.demonError(`.${cmd}`, `.${cmd} <video url>`));
+    if (!text) return reply(p.phrases.wrongUsage(`provide the video url. example! .${cmd} https://yourvideourl.com`));
 
     const isXnxx = cmd === 'xnxxdl';
     const domain = isXnxx ? 'xnxx.com' : 'xvideos.com';
 
     if (!text.includes(domain))
-      return reply(h.demonFail(`Link must be from ${domain}`));
+      return reply(p.phrases.error(`Link must be from ${domain}`));
 
     try {
       const apiUrl = isXnxx
@@ -29,7 +31,7 @@ module.exports = {
       const res = await axios.get(apiUrl, { timeout: 30000 });
       const data = res.data?.data || res.data;
 
-      if (!data?.url) return reply(h.demonFail('Video not found or unavailable'));
+      if (!data?.url) return reply(p.phrases.error('Video not found or unavailable'));
 
       await sock.sendMessage(chatId, {
         video: { url: data.url },
@@ -39,7 +41,7 @@ module.exports = {
           `👍 Likes: ${data.like_count || 'N/A'}`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Download failed. Link may be invalid or unavailable.'));
+      reply(p.phrases.error('Download failed. Link may be invalid or unavailable.'));
     }
   }
 };

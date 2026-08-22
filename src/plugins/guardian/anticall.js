@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'anticall',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ ANTICALL: true }); return reply('✓ anticall enabled'); }
-    if (action === 'off') { set({ ANTICALL: false }); return reply('✓ anticall disabled'); }
+    if (action === 'on') { set({ ANTICALL: true }); return reply(p.phrases.success('anticall enabled.')); }
+    if (action === 'off') { set({ ANTICALL: false }); return reply(p.phrases.success('anticall disabled.')); }
     reply('ℹ️ anticall: ' + (getConfig().ANTICALL ? 'ON' : 'OFF') + '\n\nUsage: .anticall on/off');
   }
 };

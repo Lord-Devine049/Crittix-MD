@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'weather',
@@ -12,10 +14,10 @@ module.exports = {
     
     const axios = require('axios');
     const loc = args.join(' ');
-    if (!loc) return reply(h.demonError('.weather', '.weather <city>'));
+    if (!loc) return reply(p.phrases.wrongUsage('type the city name after the command. example! .weather lagos'));
     try {
       const res = await axios.get('https://wttr.in/' + encodeURIComponent(loc) + '?format=3', { timeout: 8000 });
       reply('🌤️ ' + res.data);
-    } catch(e) { reply(h.demonFail('Weather API error')); }
+    } catch(e) { reply(p.phrases.error('Weather API error')); }
   }
 };

@@ -2,6 +2,8 @@ const axios = require('axios');
 const crypto = require('crypto');
 const exif = require('../../lib/exif');
 const crittixStickers = require('../../lib/crittix-stickers');
+const p = require('../../lib/phrases');
+
 
 const TG_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const BASE      = `https://api.telegram.org/bot${TG_BOT_TOKEN}`;
@@ -15,7 +17,7 @@ module.exports = {
   category: 'shadowutilities',
   description: 'Download a Telegram sticker pack and send as WhatsApp stickers. Usage: .tgstickers https://t.me/addstickers/PackName',
   execute: async ({ sock, msg, text, chatId, reply }) => {
-    if (!text) return reply('❌ *Usage:* .tgstickers https://t.me/addstickers/AnimePack');
+    if (!text) return reply(p.phrases.wrongUsage('provide the telegram sticker pack link. example! .tgstickers https://t.me/addstickers/animepack'));
 
     const link = text.trim();
     if (!link.includes('t.me/addstickers/')) {

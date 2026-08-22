@@ -8,6 +8,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -18,17 +20,17 @@ module.exports = [
     description: 'Find lyrics with fuzzy search. Usage: lyricsfind Blinding Lights The Weeknd',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.lyricsfind', '.lyricsfind <song name> [artist]'));
+      if (!query) return reply(p.phrases.wrongUsage('type the song name. optionally add the artist. example! .lyricsfind blinding lights weeknd'));
       await reply('🎵 finding lyrics...');
       try {
         const { data } = await axios.get(`https://api.lyrics.ovh/suggest/${encodeURIComponent(query)}`, { timeout: 15000 });
-        if (!data?.data?.length) return reply(h.demonFail(`no results for "${query}"`));
+        if (!data?.data?.length) return reply(p.phrases.error(`no results for "${query}"`));
         const song = data.data[0];
         const { data: lyricsData } = await axios.get(`https://api.lyrics.ovh/v1/${encodeURIComponent(song.artist.name)}/${encodeURIComponent(song.title)}`, { timeout: 15000 });
         const lyrics = lyricsData?.lyrics?.substring(0, 3000);
-        if (!lyrics) return reply(h.demonFail(`found the song but no lyrics available`));
+        if (!lyrics) return reply(p.phrases.error(`found the song but no lyrics available`));
         reply(`🎵 *${song.title}*\n👤 ${song.artist.name}\n\n${lyrics}${lyricsData.lyrics.length > 3000 ? '\n\n_...truncated_' : ''}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`lyrics search failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`lyrics search failed — ${e.message}`)); }
     }
   },
 
@@ -39,11 +41,11 @@ module.exports = [
     description: 'Get time-synced lyrics info for a song. Usage: karaoke Blinding Lights',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.karaoke', '.karaoke <song name>'));
+      if (!query) return reply(p.phrases.wrongUsage('type the song name. example! .karaoke bohemian rhapsody'));
       await reply('🎤 searching synced lyrics...');
       try {
         const { data } = await axios.get(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}&limit=3`, { timeout: 15000 });
-        if (!data?.length) return reply(h.demonFail(`no synced lyrics found for "${query}"`));
+        if (!data?.length) return reply(p.phrases.error(`no synced lyrics found for "${query}"`));
         const song = data.find(s => s.syncedLyrics) || data[0];
         if (song.syncedLyrics) {
           const lines = song.syncedLyrics.split('\n').slice(0, 30).join('\n');
@@ -52,7 +54,7 @@ module.exports = [
           const lines = song.plainLyrics?.substring(0, 1500) || 'No lyrics available';
           reply(`🎵 *${song.trackName}*\n👤 ${song.artistName}\n\n_⚠️ No synced lyrics — plain text:_\n\n${lines}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
-      } catch (e) { reply(h.demonFail(`karaoke fetch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`karaoke fetch failed — ${e.message}`)); }
     }
   },
 
@@ -63,7 +65,7 @@ module.exports = [
     description: 'Generate a funny remix description for a track. Usage: remix Blinding Lights',
     execute: async ({ text, args, reply }) => {
       const track = text || args.join(' ');
-      if (!track) return reply(h.demonError('.remix', '.remix <track name>'));
+      if (!track) return reply(p.phrases.wrongUsage('type the track name to remix. example! .remix sunflower post malone'));
       const styles = ['Afrobeats', 'Drill', 'Phonk', 'Lofi Hip-Hop', 'Jersey Club', 'Amapiano', 'Hyperpop', 'Reggaeton', 'Dembow', 'UK Drill', 'Trap Soul', 'Latin Trap'];
       const producers = ['Adekunle Beats', 'Shadow Prodz', 'Night Raiders Studio', 'Crittix Audio Lab', 'LORD DEVINE Productions', 'Void Sounds'];
       const features = ['ft. no one because you have no friends', 'ft. the ghost of your career', 'ft. Crittix (who did all the work)', '(featuring an AI that has more talent)'];
@@ -103,10 +105,10 @@ module.exports = [
       const sound = args[0]?.toLowerCase();
       if (!sound || sound === 'list') return reply(`🔊 *SOUNDBOARD*\n\nAvailable sounds:\n${Object.keys(sounds).map(s => `• ${s}`).join('\n')}\n\nPlay: .soundboard <name>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       const url = sounds[sound];
-      if (!url) return reply(h.demonFail(`sound "${sound}" not found — .soundboard list`));
+      if (!url) return reply(p.phrases.error(`sound "${sound}" not found — .soundboard list`));
       try {
         await sock.sendMessage(chatId, { audio: { url }, mimetype: 'audio/mp4' }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`sound play failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`sound play failed — ${e.message}`)); }
     }
   },
 
@@ -118,10 +120,10 @@ module.exports = [
     execute: async ({ sock, msg, chatId, args, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const audioMsg = quoted?.audioMessage || msg.message?.audioMessage;
-      if (!audioMsg) return reply(h.demonFail('reply to an audio message to cut it'));
+      if (!audioMsg) return reply(p.phrases.error('reply to an audio message to cut it'));
       const start = parseInt(args[0] || 0);
       const duration = Math.min(60, parseInt(args[1] || 30) - start);
-      if (duration <= 0) return reply(h.demonError('.ringtone', '.ringtone <start_sec> <end_sec> — e.g. ringtone 10 40'));
+      if (duration <= 0) return reply(p.phrases.wrongUsage('reply to audio and provide start and end seconds. example! .ringtone 10 40'));
       await reply(`✂️ cutting ${duration}s clip starting at ${start}s...`);
       try {
         const ffmpeg = require('fluent-ffmpeg');
@@ -137,7 +139,7 @@ module.exports = [
         await sock.sendMessage(chatId, { audio: out, mimetype: 'audio/mp3' }, { quoted: msg });
         fs.removeSync(tmpIn);
         fs.removeSync(tmpOut);
-      } catch (e) { reply(h.demonFail(`ringtone cut failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`ringtone cut failed — ${e.message}`)); }
     }
   },
 
@@ -148,15 +150,15 @@ module.exports = [
     description: 'Search podcasts by name. Usage: podcastsearch true crime',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.podcastsearch', '.podcastsearch <podcast name>'));
+      if (!query) return reply(p.phrases.wrongUsage('type the podcast name. example! .podcastsearch joe rogan experience'));
       try {
         const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=podcast&limit=5`, { timeout: 15000 });
-        if (!data?.results?.length) return reply(h.demonFail(`no podcasts found for "${query}"`));
+        if (!data?.results?.length) return reply(p.phrases.error(`no podcasts found for "${query}"`));
         const results = data.results.map((p, i) =>
           `${i+1}. 🎙️ *${p.collectionName}*\n   👤 ${p.artistName}\n   📻 ${p.trackCount || '?'} episodes\n   🔗 ${p.collectionViewUrl || ''}`
         ).join('\n\n');
         reply(`🎙️ *PODCAST SEARCH: ${query}*\n\n${results}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`podcast search failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`podcast search failed — ${e.message}`)); }
     }
   },
 
@@ -167,16 +169,16 @@ module.exports = [
     description: 'Search public domain audiobooks (LibriVox). Usage: audiobookdl Dracula',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.audiobookdl', '.audiobookdl <book title>'));
+      if (!query) return reply(p.phrases.wrongUsage('type the audiobook title. example! .audiobookdl atomic habits'));
       try {
         const { data } = await axios.get(`https://librivox.org/api/feed/audiobooks/?title=^${encodeURIComponent(query)}&format=json&extended=1&limit=5`, { timeout: 15000 });
         const books = data?.books;
-        if (!books?.length) return reply(h.demonFail(`no public domain audiobooks found for "${query}" on LibriVox`));
+        if (!books?.length) return reply(p.phrases.error(`no public domain audiobooks found for "${query}" on LibriVox`));
         const results = books.slice(0, 5).map((b, i) =>
           `${i+1}. 📚 *${b.title}*\n   👤 ${b.authors?.map(a => a.first_name + ' ' + a.last_name).join(', ') || 'Unknown'}\n   ⏱️ ${b.totaltimesecs ? Math.floor(b.totaltimesecs/3600) + 'h' : '?'}\n   🔗 ${b.url_librivox}`
         ).join('\n\n');
         reply(`📚 *AUDIOBOOKS: ${query}*\n\n${results}\n\n✅ All books are public domain (free, legal)\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`audiobook search failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`audiobook search failed — ${e.message}`)); }
     }
   },
 
@@ -222,7 +224,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, args, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const audioMsg = quoted?.audioMessage || msg.message?.audioMessage;
-      if (!audioMsg) return reply(h.demonFail('reply to an audio message to bass boost it'));
+      if (!audioMsg) return reply(p.phrases.error('reply to an audio message to bass boost it'));
       const level = Math.min(10, Math.max(1, parseInt(args[0] || 5)));
       await reply(`🔊 applying bass boost (level ${level})...`);
       try {
@@ -243,7 +245,7 @@ module.exports = [
         await sock.sendMessage(chatId, { audio: out, mimetype: 'audio/mp3' }, { quoted: msg });
         fs.removeSync(tmpIn);
         fs.removeSync(tmpOut);
-      } catch (e) { reply(h.demonFail(`bass boost failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`bass boost failed — ${e.message}`)); }
     }
   }
 

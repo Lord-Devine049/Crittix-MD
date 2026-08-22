@@ -11,6 +11,8 @@ const vault = require('../../lib/vault');
 const globalXP = require('../../lib/global-xp');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -25,10 +27,10 @@ module.exports = [
     description: 'Adopt a virtual pet. Usage: petadopt dog | petadopt cat | petadopt dragon',
     execute: async ({ sender, args, reply }) => {
       const pets = loadDB('pets.json');
-      if (pets[sender]) return reply(h.demonFail(`you already have a *${pets[sender].species}* named *${pets[sender].name}*. one is enough`));
+      if (pets[sender]) return reply(p.phrases.error(`you already have a *${pets[sender].species}* named *${pets[sender].name}*. one is enough`));
       const types = { dog:'🐕', cat:'🐈', dragon:'🐉', fox:'🦊', wolf:'🐺', rabbit:'🐰', bear:'🐻', bird:'🦜' };
       const species = (args[0] || 'dog').toLowerCase();
-      if (!types[species]) return reply(h.demonFail(`pick: ${Object.keys(types).join(', ')}`));
+      if (!types[species]) return reply(p.phrases.error(`pick: ${Object.keys(types).join(', ')}`));
       const names = ['Shadow','Blaze','Nova','Void','Storm','Luna','Rex','Ash'];
       const name = args[1] || names[Math.floor(Math.random() * names.length)];
       pets[sender] = { species, name, emoji: types[species], hunger: 100, happiness: 100, xp: 0, level: 1, born: Date.now() };
@@ -45,12 +47,12 @@ module.exports = [
     execute: async ({ sender, reply }) => {
       const pets = loadDB('pets.json');
       const pet = pets[sender];
-      if (!pet) return reply(h.demonFail('you don\'t have a pet — adopt one with .petadopt'));
+      if (!pet) return reply(p.phrases.notFound('you do not have a pet yet. adopt one with .petadopt.'));
       const last = pet.lastFed || 0;
-      if (Date.now() - last < 1800000) return reply(h.demonFail(`${pet.name} isn't hungry yet — come back in ${Math.ceil((1800000 - (Date.now() - last)) / 60000)} min`));
+      if (Date.now() - last < 1800000) return reply(p.phrases.error(`${pet.name} isn't hungry yet — come back in ${Math.ceil((1800000 - (Date.now() - last)) / 60000)} min`));
       const bal = vault.getBalance(sender);
       const COST = 20;
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to feed ${pet.name}`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to feed ${pet.name}`));
       vault.updateBalance(sender, -COST, 0);
       pet.hunger = Math.min(100, (pet.hunger || 0) + 25);
       pet.happiness = Math.min(100, (pet.happiness || 0) + 10);
@@ -74,11 +76,11 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target = h.getTarget(msg, _gtP)?.[0];
-      if (!target) return reply(h.demonError('.petbattle', '.petbattle @opponent'));
+      if (!target) return reply(p.phrases.wrongUsage('tag your opponent to battle pets. example! .petbattle @user'));
       const myPet = pets[sender];
       const theirPet = pets[target];
-      if (!myPet) return reply(h.demonFail('you don\'t have a pet — .petadopt first'));
-      if (!theirPet) return reply(h.demonFail('that user doesn\'t have a pet'));
+      if (!myPet) return reply(p.phrases.notFound('you do not have a pet. use .petadopt first.'));
+      if (!theirPet) return reply(p.phrases.notFound('that user does not have a pet.'));
       const myPow = myPet.level * 10 + myPet.xp + Math.random() * 30;
       const theirPow = theirPet.level * 10 + theirPet.xp + Math.random() * 30;
       const won = myPow > theirPow;
@@ -100,7 +102,7 @@ module.exports = [
       const COOLDOWN = 900000; // 15min
       const fishing = loadDB('fishing.json');
       const last = fishing[sender] || 0;
-      if (Date.now() - last < COOLDOWN) return reply(h.demonFail(`bait's not ready — come back in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
+      if (Date.now() - last < COOLDOWN) return reply(p.phrases.error(`bait's not ready — come back in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
       const catches = [
         { name:'🐟 Sardine', prize:10, chance:35 }, { name:'🐠 Clownfish', prize:25, chance:25 },
         { name:'🐡 Pufferfish', prize:50, chance:15 }, { name:'🦈 Small Shark', prize:150, chance:10 },
@@ -126,7 +128,7 @@ module.exports = [
       const COOLDOWN = 1800000; // 30min
       const hunts = loadDB('treasurehunt.json');
       const last = hunts[sender] || 0;
-      if (Date.now() - last < COOLDOWN) return reply(h.demonFail(`map isn't ready — try again in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
+      if (Date.now() - last < COOLDOWN) return reply(p.phrases.error(`map isn't ready — try again in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
       const outcomes = [
         { desc:'dug up an old chest', prize:500, chance:5 },
         { desc:'found a buried pouch of coins', prize:200, chance:15 },
@@ -210,7 +212,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, sender, senderNumber, args, prefix, reply }) => {
       const bosses = loadDB('bossfight.json');
       if (args[0] === 'start') {
-        if (bosses[chatId]?.active) return reply(h.demonFail('boss fight already in progress'));
+        if (bosses[chatId]?.active) return reply(p.phrases.error('boss fight already in progress'));
         const bossNames = ['🔥 Inferno Titan','💀 Lord Void','🐉 Shadow Drake','😈 Demon King','👹 Ancient Troll'];
         const bossName = bossNames[Math.floor(Math.random() * bossNames.length)];
         const bossHp = 5000;
@@ -219,10 +221,10 @@ module.exports = [
         return sock.sendMessage(chatId, { text: `👹 *BOSS FIGHT!*\n\n*${bossName}* has appeared!\n❤️ HP: ${bossHp.toLocaleString()}\n\nEveryone attack with: ${prefix}bossfight attack\nFight for 5 minutes — winner split the loot!\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
       }
       const fight = bosses[chatId];
-      if (!fight?.active) return reply(h.demonFail(`no boss fight active — start one with ${prefix}bossfight start`));
+      if (!fight?.active) return reply(p.phrases.error(`no boss fight active — start one with ${prefix}bossfight start`));
       const ATTACK_CD = 10000;
       const lastAttack = fight.participants[sender] || 0;
-      if (Date.now() - lastAttack < ATTACK_CD) return reply(h.demonFail(`cooldown — attack again in ${Math.ceil((ATTACK_CD - (Date.now() - lastAttack)) / 1000)}s`));
+      if (Date.now() - lastAttack < ATTACK_CD) return reply(p.phrases.error(`cooldown — attack again in ${Math.ceil((ATTACK_CD - (Date.now() - lastAttack)) / 1000)}s`));
       const dmg = 50 + Math.floor(Math.random() * 150);
       fight.hp = Math.max(0, fight.hp - dmg);
       fight.participants[sender] = Date.now();
@@ -277,7 +279,7 @@ module.exports = [
       const COOLDOWN = 86400000;
       const quests = loadDB('dailyquests.json');
       const last = quests[sender]?.last || 0;
-      if (Date.now() - last < COOLDOWN) return reply(h.demonFail(`daily quest already claimed — reset in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 3600000)}h`));
+      if (Date.now() - last < COOLDOWN) return reply(p.phrases.error(`daily quest already claimed — reset in ${Math.ceil((COOLDOWN - (Date.now() - last)) / 3600000)}h`));
       const questList = [
         { name:'Send 5 messages', reward:50 }, { name:'Use .fishinggame once', reward:100 },
         { name:'Check your .balance', reward:25 }, { name:'Use .gamble once', reward:75 },
@@ -346,9 +348,9 @@ module.exports = [
       const COST = 150, COOLDOWN = 3600000;
       const boxes = loadDB('lootboxes.json');
       const last = boxes[sender] || 0;
-      if (Date.now() - last < COOLDOWN) return reply(h.demonFail(`lootbox not ready — ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
+      if (Date.now() - last < COOLDOWN) return reply(p.phrases.error(`lootbox not ready — ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to open a lootbox`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to open a lootbox`));
       vault.updateBalance(sender, -COST, 0);
       const rewards = [
         { name:'🪙 Coins', prize:50, chance:30 }, { name:'💰 Big Coins', prize:300, chance:20 },
@@ -374,9 +376,9 @@ module.exports = [
       const COST = 100, COOLDOWN = 1800000;
       const pulls = loadDB('gacha.json');
       const last = pulls[sender] || 0;
-      if (Date.now() - last < COOLDOWN) return reply(h.demonFail(`pull not ready — ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
+      if (Date.now() - last < COOLDOWN) return reply(p.phrases.error(`pull not ready — ${Math.ceil((COOLDOWN - (Date.now() - last)) / 60000)} min`));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to pull`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to pull`));
       vault.updateBalance(sender, -COST, 0);
       const items = [
         { rarity:'⚪ Common', item:'Basic Sword', value:50, chance:40 },
@@ -406,22 +408,22 @@ module.exports = [
       if (!guilds[chatId]) guilds[chatId] = {};
       if (args[0] === 'join') {
         const guildName = args.slice(1).join(' ');
-        if (!guilds[chatId][guildName]) return reply(h.demonFail(`guild "${guildName}" doesn't exist here`));
-        if (guilds[chatId][guildName].members.includes(sender)) return reply(h.demonFail('already in this guild'));
+        if (!guilds[chatId][guildName]) return reply(p.phrases.error(`guild "${guildName}" doesn't exist here`));
+        if (guilds[chatId][guildName].members.includes(sender)) return reply(p.phrases.error('already in this guild'));
         guilds[chatId][guildName].members.push(sender);
         saveDB('guilds.json', guilds);
         return reply(`🏰 *Joined guild: ${guildName}*\n\nMembers: ${guilds[chatId][guildName].members.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (args[0] === 'list') {
-        if (!Object.keys(guilds[chatId]).length) return reply(h.demonFail('no guilds in this group yet — create one!'));
+        if (!Object.keys(guilds[chatId]).length) return reply(p.phrases.error('no guilds in this group yet — create one!'));
         return reply(`🏰 *GUILDS IN THIS GROUP*\n\n${Object.entries(guilds[chatId]).map(([n, g]) => `• *${n}* — ${g.members.length} members`).join('\n')}\n\nJoin: ${prefix}guildcreate join <name>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const name = args.join(' ');
-      if (!name) return reply(h.demonError('.guildcreate', `.guildcreate <guild name> | ${prefix}guildcreate join <name>`));
-      if (guilds[chatId][name]) return reply(h.demonFail(`guild "${name}" already exists`));
+      if (!name) return reply(p.phrases.wrongUsage('provide a guild name. example! .guildcreate night raiders'));
+      if (guilds[chatId][name]) return reply(p.phrases.error(`guild "${name}" already exists`));
       const COST = 500;
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to create a guild`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to create a guild`));
       vault.updateBalance(sender, -COST, 0);
       guilds[chatId][name] = { leader: sender, members: [sender], created: Date.now() };
       saveDB('guilds.json', guilds);
@@ -437,7 +439,7 @@ module.exports = [
     execute: async ({ sender, senderNumber, reply }) => {
       const xp = globalXP.getXP(sender) || 0;
       const level = Math.floor(xp / 100) + 1;
-      if (level < 15) return reply(h.demonFail(`need level 15 to prestige — you're level ${level}. keep grinding`));
+      if (level < 15) return reply(p.phrases.error(`need level 15 to prestige — you're level ${level}. keep grinding`));
       const prestigeDB = loadDB('prestige.json');
       const current = prestigeDB[sender] || 0;
       prestigeDB[sender] = current + 1;
@@ -461,7 +463,7 @@ module.exports = [
       const item = args.join(' ') || 'your item';
       const COST = 100;
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to enchant`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to enchant`));
       vault.updateBalance(sender, -COST, 0);
       const enchants = ['🔥 Fiery (+20% dmg)','❄️ Frost (slows enemy)','⚡ Lightning (chain dmg)','💀 Death (instant kill 5%)','🛡️ Guard (+30% defense)','🌟 Luck (rare drops +50%)',  '☠️ Cursed (-10% all stats, oops)'];
       const e = enchants[Math.floor(Math.random() * enchants.length)];
@@ -489,26 +491,26 @@ module.exports = [
       if (action === 'sell') {
         const price = parseInt(args[args.length - 1]);
         const itemName = args.slice(1, -1).join(' ');
-        if (!itemName || isNaN(price)) return reply(h.demonError('.marketplace sell', '.marketplace sell <item name> <price>'));
+        if (!itemName || isNaN(price)) return reply(p.phrases.wrongUsage('provide the item name and price. example! .marketplace sell sword 500'));
         const id = Date.now().toString(36);
         items.listings[id] = { item: itemName, price, seller: (sender.split('@')[0]).slice(0,10), sellerJid: sender, listed: Date.now() };
         saveDB('marketplace.json', items);
-        return reply(`✅ *Listed!*\n\n📦 Item: *${itemName}*\n💰 Price: 🪙 ${price}\n🆔 ID: \`${id}\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success("item listed on marketplace."\n\n📦 Item: *${itemName}*\n💰 Price: 🪙 ${price}\n🆔 ID: \`${id}\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'buy') {
         const id = args[1];
         const listing = items.listings[id];
-        if (!listing) return reply(h.demonFail(`listing ID not found`));
+        if (!listing) return reply(p.phrases.error(`listing ID not found`));
         const bal = vault.getBalance(sender);
-        if (!bal || bal.balance < listing.price) return reply(h.demonFail(`need 🪙 ${listing.price}`));
+        if (!bal || bal.balance < listing.price) return reply(p.phrases.error(`need 🪙 ${listing.price}`));
         vault.updateBalance(sender, -listing.price, 0);
         vault.updateBalance(listing.sellerJid, listing.price, 0);
         const bought = listing.item;
         delete items.listings[id];
         saveDB('marketplace.json', items);
-        return reply(`✅ *Purchased!*\n\n📦 Item: *${bought}*\n💸 Paid: 🪙 ${listing.price}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success("item purchased."\n\n📦 Item: *${bought}*\n💸 Paid: 🪙 ${listing.price}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply('Usage: .marketplace list | sell <item> <price> | buy <ID>');
+      reply(p.phrases.wrongUsage('use .marketplace list. or sell item price. or buy id.'));
     }
   },
 
@@ -531,11 +533,11 @@ module.exports = [
         return reply(txt + `\nCraft: .craftitem <recipe name>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const recipe = recipes[args.join(' ').toLowerCase()];
-      if (!recipe) return reply(h.demonFail(`recipe not found — .craftitem list`));
+      if (!recipe) return reply(p.phrases.error(`recipe not found — .craftitem list`));
       // Auto-craft and give value (simplified — real inventory system would check items)
       const bal = vault.getBalance(sender);
       const CRAFT_COST = Math.floor(recipe.value * 0.5);
-      if (!bal || bal.balance < CRAFT_COST) return reply(h.demonFail(`need 🪙 ${CRAFT_COST} in materials/coins`));
+      if (!bal || bal.balance < CRAFT_COST) return reply(p.phrases.error(`need 🪙 ${CRAFT_COST} in materials/coins`));
       vault.updateBalance(sender, -CRAFT_COST + recipe.value, 0);
       reply(`⚒️ *ITEM CRAFTED!*\n\n${recipe.result}\n\n📦 Materials: ${recipe.needs.join(', ')}\n💸 Net gain: 🪙 ${recipe.value - CRAFT_COST}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }

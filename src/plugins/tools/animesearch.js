@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'animesearch',
@@ -6,7 +8,7 @@ module.exports = {
   category: 'soultools',
   description: 'Search anime info. Usage: animesearch One Piece',
   execute: async ({ sock, msg, text, chatId, reply }) => {
-    if (!text) return reply('🔍 *Usage:* animesearch One Piece');
+    if (!text) return reply(p.phrases.wrongUsage('type the anime name after the command. example! .animesearch one piece'));
 
     const query = `
       query ($search: String) {

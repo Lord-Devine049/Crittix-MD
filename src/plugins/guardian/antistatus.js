@@ -29,7 +29,7 @@ module.exports = {
 
     if (action === 'off') {
       db.setAnti(groupId, 'antistatusmention', false);
-      return reply(`✓ *Anti-Status Mention OFF*`);
+      return reply(p.phrases.success('anti-status mention disabled.'));
     }
 
     const current = db.getAnti(groupId, 'antistatusmention');

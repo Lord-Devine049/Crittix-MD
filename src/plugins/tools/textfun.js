@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 const owoMap = { r: 'w', l: 'w', R: 'W', L: 'W' };
 const leetMap = { a:'4',e:'3',i:'1',o:'0',s:'5',t:'7',g:'9',b:'8' };
@@ -52,7 +54,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to OwO speech',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('💬 *Usage:* owoify your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want owoified. example! .owoify hello world'));
       const r = text.replace(/[rl]/gi, c => owoMap[c] || c)
         .replace(/n([aeiou])/gi, 'ny$1')
         .replace(/!/g, '! UwU');
@@ -65,7 +67,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to mocking SpongeBob style',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🧽 *Usage:* mocktext your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want mocked. example! .mocktext i am the best'));
       reply(`🧽 *mOcKiNg TeXt:*\n\n${mockText(text)}`);
     }
   },
@@ -75,7 +77,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to vaporwave full-width style',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🌊 *Usage:* vaporwave your text');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want vapourwaved. example! .vaporwave crittix'));
       reply(`🌊 *Vaporwave:*\n\n${toFullWidth(text)}`);
     }
   },
@@ -85,7 +87,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Reverse a string of text',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔄 *Usage:* reverse your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want reversed. example! .reverse hello'));
       reply(`🔄 *Reversed:*\n\n${text.split('').reverse().join('')}`);
     }
   },
@@ -95,7 +97,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Add 👏 between every word',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('👏 *Usage:* clap your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want clapped. example! .clap stop the cap'));
       reply(`👏 *Clap text:*\n\n${text.split(' ').join(' 👏 ')} 👏`);
     }
   },
@@ -105,7 +107,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Translate text to pig latin',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🐷 *Usage:* piglatin your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to convert to pig latin. example! .piglatin hello world'));
       const out = text.split(' ').map(piglatin).join(' ');
       reply(`🐷 *Pig Latin:*\n\n${out}`);
     }
@@ -116,7 +118,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Corrupt text with zalgo glitch effect',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('💀 *Usage:* zalgo your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want corrupted with zalgo. example! .zalgo crittix md'));
       reply(`💀 *Zalgo:*\n\n${zalgo(text)}`);
     }
   },
@@ -126,7 +128,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to tiny superscript',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔡 *Usage:* tinytext your text');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want made tiny. example! .tinytext lord devine'));
       reply(`🔡 *Tiny Text:*\n\n${toSuperscript(text)}`);
     }
   },
@@ -136,7 +138,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to leet speak (1337)',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('💻 *Usage:* leet your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want in leet speak. example! .leet crittix'));
       const out = text.toLowerCase().split('').map(c => leetMap[c] || c).join('');
       reply(`💻 *L33t:*\n\n${out}`);
     }
@@ -147,7 +149,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to NATO phonetic alphabet',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('✈️ *Usage:* nato your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to convert to nato alphabet. example! .nato hello'));
       const out = text.toLowerCase().split('').map(c => natoAlpha[c] ? natoAlpha[c] : (c===' ' ? '/ ' : c.toUpperCase())).join(' - ');
       reply(`✈️ *NATO Phonetic:*\n\n${out}`);
     }
@@ -158,7 +160,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Count words, characters, and lines in text',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📊 *Usage:* wordcount your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want counted. example! .wordcount how many words is this'));
       const words = text.trim().split(/\s+/).filter(Boolean).length;
       const chars = text.length;
       const charNoSpace = text.replace(/\s/g,'').length;
@@ -172,7 +174,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Check if text is a palindrome',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔁 *Usage:* palindrome racecar');
+      if (!text) return reply(p.phrases.wrongUsage('type the word to check if it\'s a palindrome. example! .palindrome racecar'));
       const clean = text.toLowerCase().replace(/[^a-z0-9]/g,'');
       const rev = clean.split('').reverse().join('');
       const is = clean === rev;
@@ -185,7 +187,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to camelCase',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🐪 *Usage:* camelcase my example text');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to convert to camel case. example! .camelcase my example text'));
       const out = text.toLowerCase().split(/[\s_\-]+/).map((w,i) => i===0 ? w : w.charAt(0).toUpperCase()+w.slice(1)).join('');
       reply(`🐪 *camelCase:*\n\n${out}`);
     }
@@ -196,7 +198,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to snake_case',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🐍 *Usage:* snakecase my example text');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to convert to snake case. example! .snakecase my example text'));
       const out = text.toLowerCase().replace(/[\s\-]+/g,'_');
       reply(`🐍 *snake_case:*\n\n${out}`);
     }
@@ -207,7 +209,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to kebab-case',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🍢 *Usage:* kebabcase my example text');
+      if (!text) return reply(p.phrases.wrongUsage('type the text to convert to kebab case. example! .kebabcase my example text'));
       const out = text.toLowerCase().replace(/[\s_]+/g,'-');
       reply(`🍢 *kebab-case:*\n\n${out}`);
     }
@@ -218,7 +220,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Convert text to Title Case',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📖 *Usage:* titlecase my text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want in title case. example! .titlecase the dark knight rises'));
       const out = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
       reply(`📖 *Title Case:*\n\n${out}`);
     }
@@ -229,7 +231,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Add random emojis after each word',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('😂 *Usage:* emojify your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want emojified. example! .emojify hello world'));
       const emojis = ['😂','🔥','💯','😎','🤩','✨','🎉','👏','😍','🫡','💀','👀','🙌','⚡','🌊'];
       const out = text.split(' ').map(w => w + emojis[Math.floor(Math.random()*emojis.length)]).join(' ');
       reply(`😂 *Emojified:*\n\n${out}`);
@@ -241,7 +243,7 @@ module.exports = [
     category: 'creativetools',
     description: 'SHOUT text in all caps with emphasis',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📣 *Usage:* shout your message');
+      if (!text) return reply(p.phrases.wrongUsage('type the message you want shouted. example! .shout crittix is the best'));
       reply(`📣 *SHOUTING:*\n\n${text.toUpperCase()}!!!`);
     }
   },
@@ -251,7 +253,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Format text as a quiet whisper',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🤫 *Usage:* whisper your secret message');
+      if (!text) return reply(p.phrases.wrongUsage('type your secret message. example! .whisper nobody knows this'));
       reply(`🤫 _(whispers)_\n\n_${text.toLowerCase()}..._`);
     }
   }

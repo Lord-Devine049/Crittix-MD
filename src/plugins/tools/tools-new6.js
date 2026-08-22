@@ -9,6 +9,8 @@ const h = require('../../lib/helpers');
 const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB_TMP = () => path.join(process.cwd(), 'tmp');
 
@@ -22,7 +24,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const docMsg = quoted?.documentMessage || msg.message?.documentMessage;
-      if (!docMsg) return reply(h.demonFail('reply to a PDF document to start merging. attach the second PDF in the same message or next step.'));
+      if (!docMsg) return reply(p.phrases.error('reply to a PDF document to start merging. attach the second PDF in the same message or next step.'));
       try {
         const PDFLib = require('pdf-lib');
         const buffer = await sock.downloadMediaMessage(msg);
@@ -38,7 +40,7 @@ module.exports = [
           caption: `📎 *PDF Merged*\n\nYour PDF is ready. Crittix does what Adobe charges for, for free. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`PDF merge failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`PDF merge failed — ${e.message}`)); }
     }
   },
 
@@ -50,7 +52,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, args, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const docMsg = quoted?.documentMessage || msg.message?.documentMessage;
-      if (!docMsg) return reply(h.demonFail('reply to a PDF document with pdfsplit [pages]'));
+      if (!docMsg) return reply(p.phrases.error('reply to a PDF document with pdfsplit [pages]'));
       const pages = args[0] ? args[0].split(',').map(p => parseInt(p.trim()) - 1).filter(p => !isNaN(p) && p >= 0) : null;
       try {
         const PDFLib = require('pdf-lib');
@@ -58,7 +60,7 @@ module.exports = [
         const srcDoc = await PDFLib.PDFDocument.load(buffer);
         const totalPages = srcDoc.getPageCount();
         const wantedPages = pages ? pages.filter(p => p < totalPages) : Array.from({ length: totalPages }, (_, i) => i);
-        if (!wantedPages.length) return reply(h.demonFail(`PDF only has ${totalPages} pages — your page numbers are out of range`));
+        if (!wantedPages.length) return reply(p.phrases.error(`PDF only has ${totalPages} pages — your page numbers are out of range`));
         const newDoc = await PDFLib.PDFDocument.create();
         const copied = await newDoc.copyPages(srcDoc, wantedPages);
         copied.forEach(p => newDoc.addPage(p));
@@ -73,7 +75,7 @@ module.exports = [
           caption: `✂️ *PDF Split*\n\nExtracted pages: ${wantedPages.map(p => p + 1).join(', ')} of ${totalPages}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`PDF split failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`PDF split failed — ${e.message}`)); }
     }
   },
 
@@ -85,7 +87,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const docMsg = quoted?.documentMessage || msg.message?.documentMessage;
-      if (!docMsg) return reply(h.demonFail('reply to a PDF document to convert it to an image'));
+      if (!docMsg) return reply(p.phrases.error('reply to a PDF document to convert it to an image'));
       try {
         const pdfParse = require('pdf-parse');
         const buffer = await sock.downloadMediaMessage(msg);
@@ -93,7 +95,7 @@ module.exports = [
         const pageCount = data.numpages;
         const text = data.text.slice(0, 1500).trim();
         reply(`📄 *PDF → Text Preview*\n\nPages: *${pageCount}*\n\n${text || '(no readable text found)'}${data.text.length > 1500 ? '\n\n_...truncated_' : ''}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`PDF read failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`PDF read failed — ${e.message}`)); }
     }
   },
 
@@ -105,7 +107,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const imgMsg = quoted?.imageMessage || msg.message?.imageMessage;
-      if (!imgMsg) return reply(h.demonFail('reply to an image to convert it to a PDF'));
+      if (!imgMsg) return reply(p.phrases.error('reply to an image to convert it to a PDF'));
       try {
         const PDFLib = require('pdf-lib');
         const buffer = await sock.downloadMediaMessage(msg);
@@ -125,7 +127,7 @@ module.exports = [
           caption: `📄 *Image → PDF*\n\nYour image has been wrapped in a PDF. You're welcome. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`image to PDF failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`image to PDF failed — ${e.message}`)); }
     }
   },
 
@@ -141,7 +143,7 @@ module.exports = [
         const latency = Date.now() - start;
         const quality = latency < 200 ? '🟢 Excellent' : latency < 500 ? '🟡 Good' : latency < 1000 ? '🟠 Moderate' : '🔴 Poor';
         reply(`📡 *CRITTIX SPEED ESTIMATE*\n\nLatency: *${latency}ms*\nQuality: ${quality}\n\n⚠️ This is a rough latency estimate, not a real speedtest. Don't @ me about accuracy.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`connection test failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`connection test failed — ${e.message}`)); }
     }
   },
 
@@ -152,14 +154,14 @@ module.exports = [
     description: 'Decode a vehicle VIN number. Usage: vinlookup <VIN>',
     execute: async ({ args, reply }) => {
       const vin = args[0]?.toUpperCase();
-      if (!vin || vin.length !== 17) return reply(h.demonError('.vinlookup', '.vinlookup <17-char VIN>'));
+      if (!vin || vin.length !== 17) return reply(p.phrases.wrongUsage('provide the 17 character vin. example! .vinlookup 1HGCM82633A123456'));
       try {
         const res = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`, { timeout: 10000 });
         const results = res.data?.Results || [];
         const get = (label) => results.find(r => r.Variable === label)?.Value || 'N/A';
         const make = get('Make'), model = get('Model'), year = get('Model Year'), type = get('Vehicle Type'), country = get('Plant Country');
         reply(`🚗 *VIN DECODER*\n\nVIN: \`${vin}\`\n\n🏭 Make: *${make}*\n🚘 Model: *${model}*\n📅 Year: *${year}*\n🏷️ Type: *${type}*\n🌍 Built in: *${country}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`VIN lookup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`VIN lookup failed — ${e.message}`)); }
     }
   },
 
@@ -170,14 +172,14 @@ module.exports = [
     description: 'Find a stock ticker symbol by company name. Usage: stocksearch Apple',
     execute: async ({ args, reply }) => {
       const query = args.join(' ');
-      if (!query) return reply(h.demonError('.stocksearch', '.stocksearch <company name>'));
+      if (!query) return reply(p.phrases.wrongUsage('type the company name to search for its stock. example! .stocksearch apple'));
       try {
         const res = await axios.get(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=5&newsCount=0`, { timeout: 10000 });
         const quotes = res.data?.quotes?.slice(0, 5) || [];
-        if (!quotes.length) return reply(h.demonFail(`no ticker found for "${query}" — maybe it doesn't exist or you spelled it wrong`));
+        if (!quotes.length) return reply(p.phrases.error(`no ticker found for "${query}" — maybe it doesn't exist or you spelled it wrong`));
         const lines = quotes.map(q => `• *${q.symbol}* — ${q.shortname || q.longname || 'Unknown'} (${q.exchDisp || q.exchange || '?'})`).join('\n');
         reply(`📈 *TICKER SEARCH — "${query}"*\n\n${lines}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`stock search failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`stock search failed — ${e.message}`)); }
     }
   },
 
@@ -189,7 +191,7 @@ module.exports = [
     description: 'Calculate GCD and LCM of two numbers. Usage: gcdlcm 12 18',
     execute: async ({ args, reply }) => {
       const [a, b] = args.map(Number);
-      if (!a || !b || isNaN(a) || isNaN(b)) return reply(h.demonError('.gcdlcm', '.gcdlcm <num1> <num2>'));
+      if (!a || !b || isNaN(a) || isNaN(b)) return reply(p.phrases.wrongUsage('provide two numbers. example! .gcdlcm 12 18'));
       const gcd = (x, y) => y === 0 ? x : gcd(y, x % y);
       const ia = Math.abs(Math.round(a)), ib = Math.abs(Math.round(b));
       const g = gcd(ia, ib);
@@ -206,7 +208,7 @@ module.exports = [
     description: 'Generate multiple QR codes from newline-separated inputs. Usage: qrbatch item1\\nitem2\\nitem3',
     execute: async ({ sock, msg, chatId, text, reply }) => {
       const lines = text.split(/\n|\\n/).map(l => l.trim()).filter(Boolean).slice(0, 5);
-      if (!lines.length) return reply(h.demonError('.qrbatch', '.qrbatch <text1>\\n<text2>\\n<text3> (max 5)'));
+      if (!lines.length) return reply(p.phrases.wrongUsage('provide up to 5 texts each on a new line. max 5 qr codes at once.'));
       try {
         const QRCode = require('qrcode');
         fs.ensureDirSync(DB_TMP());
@@ -219,7 +221,7 @@ module.exports = [
           }, { quoted: msg });
           fs.removeSync(tmpPath);
         }
-      } catch (e) { reply(h.demonFail(`QR batch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`QR batch failed — ${e.message}`)); }
     }
   },
 
@@ -288,7 +290,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const mode = args[0]?.toLowerCase();
       const input = args.slice(1).join(' ');
-      if (!mode || !input || !['encode', 'decode'].includes(mode)) return reply(h.demonError('.base85', '.base85 encode <text> OR .base85 decode <encoded>'));
+      if (!mode || !input || !['encode', 'decode'].includes(mode)) return reply(p.phrases.wrongUsage('use encode or decode then your text. example! .base85 encode hello world'));
       try {
         if (mode === 'encode') {
           const buf = Buffer.from(input, 'utf8');
@@ -318,7 +320,7 @@ module.exports = [
           }
           reply(`🔓 *BASE85 DECODED*\n\n${Buffer.from(bytes).toString('utf8')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
-      } catch (e) { reply(h.demonFail(`base85 operation failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`base85 operation failed — ${e.message}`)); }
     }
   },
 
@@ -329,7 +331,7 @@ module.exports = [
     description: 'Shorten multiple URLs at once (newline-separated, max 5). Usage: urlshortenbatch url1\\nurl2',
     execute: async ({ text, reply }) => {
       const urls = text.split(/\n|\\n/).map(u => u.trim()).filter(u => u.startsWith('http')).slice(0, 5);
-      if (!urls.length) return reply(h.demonError('.urlshortenbatch', '.urlshortenbatch <url1>\\n<url2> (max 5 URLs, must start with http)'));
+      if (!urls.length) return reply(p.phrases.wrongUsage('provide up to 5 urls each on a new line. they must start with http.'));
       try {
         const results = [];
         for (const url of urls) {
@@ -339,7 +341,7 @@ module.exports = [
           } catch { results.push(`• ❌ Failed: ${url.slice(0, 40)}...`); }
         }
         reply(`🔗 *BATCH URL SHORTENER*\n\n${results.join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`batch shortener failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`batch shortener failed — ${e.message}`)); }
     }
   },
 
@@ -350,12 +352,12 @@ module.exports = [
     description: 'Minify pasted JSON into a single line. Usage: jsonminify <json>',
     execute: async ({ args, text, reply }) => {
       const rawJson = text.replace(/^jsonminify\s*/i, '').trim();
-      if (!rawJson) return reply(h.demonError('.jsonminify', '.jsonminify <your json text>'));
+      if (!rawJson) return reply(p.phrases.wrongUsage('paste your json text to minify it. example! .jsonminify { "name": "john" }'));
       try {
         const parsed = JSON.parse(rawJson);
         const result = JSON.stringify(parsed);
         reply(`📦 *JSON MINIFIED*\n\n\`\`\`\n${result.slice(0, 3000)}\`\`\`${result.length > 3000 ? '\n\n_...truncated_' : ''}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`invalid JSON — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`invalid JSON — ${e.message}`)); }
     }
   },
 
@@ -367,7 +369,7 @@ module.exports = [
     execute: async ({ sock, msg, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const imgMsg = quoted?.imageMessage || msg.message?.imageMessage;
-      if (!imgMsg) return reply(h.demonFail('reply to an image to get its info'));
+      if (!imgMsg) return reply(p.phrases.error('reply to an image to get its info'));
       try {
         const Jimp = require('jimp');
         const buffer = await sock.downloadMediaMessage(msg);
@@ -382,7 +384,7 @@ module.exports = [
           `📷 Has EXIF: *No (stripped on load)*\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`image info failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`image info failed — ${e.message}`)); }
     }
   }
 

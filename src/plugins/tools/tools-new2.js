@@ -10,6 +10,8 @@ const QRCode = require('qrcode');
 const { createCanvas } = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -20,13 +22,13 @@ module.exports = [
     description: 'Find anagrams of a word. Usage: anagramsolver listen',
     execute: async ({ args, reply }) => {
       const word = args[0]?.toLowerCase().replace(/[^a-z]/g, '');
-      if (!word || word.length < 2) return reply(h.demonError('.anagramsolver', '.anagramsolver <word>'));
+      if (!word || word.length < 2) return reply(p.phrases.wrongUsage('provide a word to solve anagrams for. example! .anagramsolver listen'));
       try {
         const { data } = await axios.get(`https://api.datamuse.com/words?sp=${word.split('').sort().join('')}&max=20&md=f`, { timeout: 10000 });
-        if (!data?.length) return reply(h.demonFail(`no anagrams found for "${word}" — what kind of scrambled mess did you give me?`));
+        if (!data?.length) return reply(p.phrases.notFound(`no anagrams found for "${word}".`));
         const sorted = word.split('').sort().join('');
         const anagrams = data.filter(w => w.word !== word && w.word.split('').sort().join('') === sorted);
-        if (!anagrams.length) return reply(h.demonFail(`no proper anagrams found for "${word}"`));
+        if (!anagrams.length) return reply(p.phrases.notFound(`no proper anagrams found for "${word}".`));
         reply(
           `🔤 *ANAGRAM SOLVER*\n\n` +
           `📝 Input: *${word}*\n` +
@@ -35,7 +37,7 @@ module.exports = [
           `\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`anagram solver down — ${e.message}`));
+        reply(p.phrases.error(`anagram solver down — ${e.message}`));
       }
     }
   },
@@ -48,8 +50,8 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const start = args[0]?.toLowerCase().replace(/[^a-z]/g, '');
       const end = args[1]?.toLowerCase().replace(/[^a-z]/g, '');
-      if (!start || !end) return reply(h.demonError('.wordladder', '.wordladder <word1> <word2> — must be same length, e.g. wordladder cat dog'));
-      if (start.length !== end.length) return reply(h.demonFail(`"${start}" and "${end}" must be the same length — ${start.length} vs ${end.length} letters. try again`));
+      if (!start || !end) return reply(p.phrases.wrongUsage('provide two words of the same length. example! .wordladder cat dog'));
+      if (start.length !== end.length) return reply(p.phrases.error(`"${start}" and "${end}" must be the same length.`));
       // BFS on common short words
       const commonWords3 = ['cat','bat','bad','bag','ban','bar','bas','bat','bay','bed','bet','big','bit','bog','bow','box','boy','bud','bug','bun','bus','but','buy','cab','can','cap','car','cut','dab','dad','dam','day','dig','dim','dip','dog','dot','dry','dug','duo','ear','eat','egg','elm','end','era','eve','eye','fan','far','fat','few','fig','fin','fit','fix','fly','fog','for','fox','fry','fun','gap','gas','gel','gem','get','god','got','gum','gun','gut','guy','had','ham','has','hat','hay','hen','her','hid','him','hip','his','hit','hog','hop','hot','how','hug','hum','hut','ice','ill','inn','ion','ire','ivy','jab','jab','jam','jar','jaw','jet','jig','job','jog','joy','jug','jut','keg','key','kid','kin','kit','lab','lad','lap','law','lay','led','leg','let','lid','lip','lit','log','lot','low','lug','mad','man','map','mar','mat','max','may','men','met','mix','mob','mop','mud','mug','nag','nap','nip','nit','nod','nor','not','now','nun','nut','oar','odd','ode','off','oil','old','orb','ore','our','out','owe','own','pad','pal','pan','pap','par','pat','paw','pay','peg','pen','pep','pet','pie','pig','pin','pit','ply','pod','pop','pot','pow','pro','pub','pug','pun','pup','put','rag','ram','ran','rap','rat','raw','red','ref','rib','rid','rig','rim','rip','rob','rod','rot','row','rub','rug','rum','run','rut','sad','sag','sap','sat','saw','say','set','sew','she','shy','sin','sip','sit','six','ski','sky','sly','sob','sod','son','sop','sot','sow','soy','spa','spy','sub','sue','sum','sun','tab','tan','tap','tar','tea','ten','the','tie','tin','tip','toe','too','top','toy','try','tub','tug','two','use','van','vat','via','vow','wag','war','was','wax','way','web','wed','wet','who','why','wig','win','wit','woe','won','woo','wow','yam','yap','yaw','yew','you','zap','zip','zit','zoo'];
       if (start.length !== 3) {
@@ -150,7 +152,7 @@ module.exports = [
     description: 'Generate a QR code for text/URL. Usage: qrlogo https://example.com',
     execute: async ({ text, args, sock, chatId, msg, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.qrlogo', '.qrlogo <text or URL>'));
+      if (!input) return reply(p.phrases.wrongUsage('type your text or url to generate a qr code. example! .qrlogo https://crittix.com'));
       try {
         const tmpPath = path.join(process.cwd(), 'tmp', `qr_${Date.now()}.png`);
         fs.ensureDirSync(path.dirname(tmpPath));
@@ -158,7 +160,7 @@ module.exports = [
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `📱 *QR Code Generated*\n\n🔗 Content: ${input.substring(0, 80)}${input.length > 80 ? '...' : ''}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`QR generation failed — ${e.message}`));
+        reply(p.phrases.error(`QR generation failed — ${e.message}`));
       }
     }
   },
@@ -170,7 +172,7 @@ module.exports = [
     description: 'Generate a barcode image from text/number. Usage: barcodegen 1234567890',
     execute: async ({ text, args, sock, chatId, msg, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.barcodegen', '.barcodegen <text or numbers>'));
+      if (!input) return reply(p.phrases.wrongUsage('type your text or numbers to generate a barcode. example! .barcodegen 1234567890'));
       try {
         const width = 300, height = 100;
         const canvas = createCanvas(width, height);
@@ -198,7 +200,7 @@ module.exports = [
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `📊 *Barcode Generated*\n\n📝 Input: \`${chars}\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`barcode generation failed — ${e.message}`));
+        reply(p.phrases.error(`barcode generation failed — ${e.message}`));
       }
     }
   },
@@ -211,7 +213,7 @@ module.exports = [
     execute: async ({ sock, msg, chatId, reply }) => {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const imgMsg = quoted?.imageMessage || msg.message?.imageMessage;
-      if (!imgMsg) return reply(h.demonFail('reply to an image containing a barcode'));
+      if (!imgMsg) return reply(p.phrases.error('reply to an image containing a barcode'));
       try {
         const buffer = await sock.downloadMediaMessage(msg);
         const jsQR = require('jsqr');
@@ -223,10 +225,10 @@ module.exports = [
           height: img.bitmap.height
         };
         const code = jsQR(imgData.data, imgData.width, imgData.height);
-        if (!code) return reply(h.demonFail('no barcode/QR found in that image — make sure it\'s clear and well-lit'));
+        if (!code) return reply(p.phrases.notFound('no barcode or qr found in that image. make sure it\'s clear and well-lit'));
         reply(`📊 *Barcode Scanned!*\n\n🔍 Decoded: *${code.data}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       } catch (e) {
-        reply(h.demonFail(`barcode scan failed — ${e.message}`));
+        reply(p.phrases.error(`barcode scan failed — ${e.message}`));
       }
     }
   },
@@ -304,7 +306,7 @@ module.exports = [
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `🌈 *Gradient*\n\nFrom: \`#${c1}\`  →  To: \`#${c2}\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`gradient generation failed — ${e.message}`));
+        reply(p.phrases.error(`gradient generation failed — ${e.message}`));
       }
     }
   }

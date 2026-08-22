@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -35,7 +37,7 @@ module.exports = [
       const choices = ['rock','paper','scissors'];
       const emoji = { rock:'🪨', paper:'📄', scissors:'✂️' };
       const userChoice = (args[0]||'').toLowerCase();
-      if (!choices.includes(userChoice)) return reply(`✂️ *Usage:* rpsgame rock\n\n_Choices: rock, paper, scissors_`);
+      if (!choices.includes(userChoice)) return reply(p.phrases.wrongUsage('pick rock paper or scissors. example! .rpsgame rock'));
       const botChoice = choices[Math.floor(Math.random()*3)];
       let result;
       if (userChoice === botChoice) result = "🤝 *Draw!*";
@@ -51,7 +53,7 @@ module.exports = [
     category: 'soultools',
     description: 'Check password strength. Usage: passwordstrength MyPass123!',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔐 *Usage:* passwordstrength YourPassword123!');
+      if (!text) return reply(p.phrases.wrongUsage('type the password you want tested. example! .passwordstrength YourPassword123!'));
       const pass = text.trim();
       let score = 0;
       const checks = [
@@ -77,7 +79,7 @@ module.exports = [
     description: 'Roll multiple dice. Usage: diceroll 2d6',
     execute: async ({ text, reply }) => {
       const match = (text||'1d6').match(/(\d+)d(\d+)/i);
-      if (!match) return reply('🎲 *Usage:* diceroll 2d6\n\n_Format: [count]d[sides] e.g. 2d6, 1d20_');
+      if (!match) return reply(p.phrases.wrongUsage('use the format count then d then sides. example! .diceroll 2d6'));
       const count = Math.min(parseInt(match[1]), 10);
       const sides = Math.min(parseInt(match[2]), 100);
       const rolls = Array.from({length:count}, () => Math.floor(Math.random()*sides)+1);
@@ -91,7 +93,7 @@ module.exports = [
     category: 'soultools',
     description: 'Spin a wheel to pick a random choice. Usage: spinner Pizza | Burger | Sushi',
     execute: async ({ text, reply }) => {
-      if (!text || !text.includes('|')) return reply('🎡 *Usage:* spinner Option1 | Option2 | Option3');
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('separate your options with pipes. example! .spinner option1 "option2" option3'));
       const choices = text.split('|').map(s => s.trim()).filter(Boolean);
       if (choices.length < 2) return reply('❌ *Need at least 2 options separated by |*');
       const winner = choices[Math.floor(Math.random()*choices.length)];
@@ -106,7 +108,7 @@ module.exports = [
     description: 'Convert decimal number to binary. Usage: numbertobinary 255',
     execute: async ({ text, reply }) => {
       const num = parseInt(text);
-      if (isNaN(num)) return reply('🔢 *Usage:* numbertobinary 255');
+      if (isNaN(num)) return reply(p.phrases.wrongUsage('provide a number to convert. example! .numbertobinary 255'));
       reply(`🔢 *Decimal → Binary*\n\n${num} = \`${num.toString(2)}\`\n\nHex: \`0x${num.toString(16).toUpperCase()}\`\nOctal: \`${num.toString(8)}\``);
     }
   },
@@ -117,7 +119,7 @@ module.exports = [
     description: 'Convert binary to decimal. Usage: binarytodec 11111111',
     execute: async ({ text, reply }) => {
       const bin = (text||'').trim();
-      if (!/^[01]+$/.test(bin)) return reply('🔢 *Usage:* binarytodec 11111111\n\n_Binary digits only (0 and 1)_');
+      if (!/^[01]+$/.test(bin)) return reply(p.phrases.wrongUsage('provide a binary number using only 0 and 1. example! .binarytodec 11111111'));
       const dec = parseInt(bin, 2);
       reply(`🔢 *Binary → Decimal*\n\n\`${bin}\` = *${dec}*\n\nHex: \`0x${dec.toString(16).toUpperCase()}\``);
     }
@@ -199,7 +201,7 @@ module.exports = [
     category: 'soultools',
     description: 'Guess age based on a name. Usage: agify John',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🎂 *Usage:* agify John');
+      if (!text) return reply(p.phrases.wrongUsage('provide a first name. example! .agify john'));
       try {
         const r = await axios.get(`https://api.agify.io?name=${encodeURIComponent(text.trim())}`, { timeout: 8000 });
         if (!r.data.age) return reply(`❓ *Can't guess age for "${text}"*`);
@@ -213,7 +215,7 @@ module.exports = [
     category: 'soultools',
     description: 'Guess gender from a name. Usage: genderify Alex',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('👤 *Usage:* genderify Alex');
+      if (!text) return reply(p.phrases.wrongUsage('provide a first name. example! .genderify alex'));
       try {
         const r = await axios.get(`https://api.genderize.io?name=${encodeURIComponent(text.trim())}`, { timeout: 8000 });
         const pct = Math.round((r.data.probability || 0) * 100);
@@ -228,7 +230,7 @@ module.exports = [
     category: 'soultools',
     description: 'Guess nationality from a name. Usage: nationality Arjun',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🌍 *Usage:* nationality Arjun');
+      if (!text) return reply(p.phrases.wrongUsage('provide a first name. example! .nationality arjun'));
       try {
         const r = await axios.get(`https://api.nationalize.io?name=${encodeURIComponent(text.trim())}`, { timeout: 8000 });
         const top = (r.data.country || []).slice(0, 5);

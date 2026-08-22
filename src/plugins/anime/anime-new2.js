@@ -6,6 +6,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const jikan = async (endpoint) => {
   const r = await axios.get(`https://api.jikan.moe/v4/${endpoint}`, { timeout: 15000 });
@@ -48,7 +50,7 @@ module.exports = [
     description: 'Pit two anime characters in a stat-based battle. Usage: .animefight <char1> vs <char2>',
     execute: async ({ text, args, reply }) => {
       const input = text || args.join(' ');
-      if (!input || !input.toLowerCase().includes(' vs ')) return reply(h.demonError('.animefight', '.animefight <char1> vs <char2>'));
+      if (!input || !input.toLowerCase().includes(' vs ')) return reply(p.phrases.wrongUsage('format it correctly. example! .animefight goku vs naruto'));
       const [name1, name2] = input.split(/ vs /i).map(s => s.trim());
       try {
         const [r1, r2] = await Promise.all([
@@ -57,7 +59,7 @@ module.exports = [
         ]);
         const c1 = r1.data?.[0];
         const c2 = r2.data?.[0];
-        if (!c1 || !c2) return reply(h.demonFail('One or both characters not found. Check the names.'));
+        if (!c1 || !c2) return reply(p.phrases.error('One or both characters not found. Check the names.'));
         const fav1 = c1.favorites || 100;
         const fav2 = c2.favorites || 100;
         const power1 = fav1 + Math.floor(Math.random() * 2000);
@@ -76,7 +78,7 @@ module.exports = [
           `📊 Margin: *${ratio}%* power difference\n\n` +
           `_(Results are random + fan-powered. Don't @ me.)_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`Fight setup failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Fight setup failed: ${e.message}`)); }
     }
   },
 
@@ -86,7 +88,7 @@ module.exports = [
     category: 'shadowutilities',
     description: 'Anime-specific single trivia question with 30s timer. Usage: .animetrivia',
     execute: async ({ sock, msg, chatId, reply }) => {
-      if (activeAnimeTrivia.has(chatId)) return reply(h.demonFail('An anime trivia question is already active! Answer it first.'));
+      if (activeAnimeTrivia.has(chatId)) return reply(p.phrases.error('An anime trivia question is already active! Answer it first.'));
       const q = ANIME_TRIVIA[Math.floor(Math.random() * ANIME_TRIVIA.length)];
       const expires = Date.now() + 30000;
       activeAnimeTrivia.set(chatId, { ...q, expires });
@@ -107,11 +109,11 @@ module.exports = [
     description: 'Get latest chapter info for a manga. Usage: .mangachapter <manga title>',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.mangachapter', '.mangachapter <manga title>'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the manga title. example! .mangachapter one piece'));
       try {
         const res = await jikan(`manga?q=${encodeURIComponent(query)}&limit=1`);
         const manga = res.data?.[0];
-        if (!manga) return reply(h.demonFail(`No manga found for "${query}".`));
+        if (!manga) return reply(p.phrases.error(`No manga found for "${query}".`));
         reply(
           `📖 *${manga.title}* (${manga.title_japanese || ''})\n\n` +
           `📚 Chapters: *${manga.chapters || 'Ongoing'}*\n` +
@@ -121,7 +123,7 @@ module.exports = [
           `📝 ${manga.synopsis?.substring(0, 200) || 'No synopsis.'}...\n\n` +
           `🔗 ${manga.url}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`Manga lookup failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Manga lookup failed: ${e.message}`)); }
     }
   },
 
@@ -132,17 +134,17 @@ module.exports = [
     description: 'Get the ending theme of an anime. Usage: .animeending <anime title>',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.animeending', '.animeending <anime title>'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the anime title. example! .animeending demon slayer'));
       try {
         const res = await jikan(`anime?q=${encodeURIComponent(query)}&limit=1`);
         const anime = res.data?.[0];
-        if (!anime) return reply(h.demonFail(`No anime found for "${query}".`));
+        if (!anime) return reply(p.phrases.error(`No anime found for "${query}".`));
         const fullRes = await jikan(`anime/${anime.mal_id}/themes`);
         const endings = fullRes.data?.endings || [];
         if (!endings.length) return reply(`🎵 *${anime.title}*\n\nNo ending themes found in database.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         const list = endings.slice(0, 5).join('\n');
         reply(`🎵 *${anime.title} — ENDING THEMES*\n\n${list}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`Ending theme lookup failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Ending theme lookup failed: ${e.message}`)); }
     }
   },
 
@@ -153,11 +155,11 @@ module.exports = [
     description: 'Look up an anime production studio and their works. Usage: .animestudio <studio name>',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.animestudio', '.animestudio <studio name>'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the studio name. example! .animestudio mappa'));
       try {
         const res = await axios.get(`https://api.jikan.moe/v4/producers?q=${encodeURIComponent(query)}&limit=1`, { timeout: 12000 });
         const studio = res.data?.data?.[0];
-        if (!studio) return reply(h.demonFail(`No studio found for "${query}".`));
+        if (!studio) return reply(p.phrases.error(`No studio found for "${query}".`));
         const worksRes = await jikan(`producers/${studio.mal_id}/anime?limit=8`);
         const works = worksRes.data?.map(a => `• *${a.title}* (${a.year || '?'})`).join('\n') || 'No works found.';
         reply(
@@ -165,7 +167,7 @@ module.exports = [
           `📺 *Notable Works:*\n${works}\n\n` +
           `⭐ Established: ${studio.established || 'Unknown'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`Studio lookup failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Studio lookup failed: ${e.message}`)); }
     }
   },
 
@@ -178,11 +180,11 @@ module.exports = [
       try {
         const res = await jikan('seasons/now?limit=10');
         const animes = res.data?.slice(0, 8) || [];
-        if (!animes.length) return reply(h.demonFail('No trending anime found right now.'));
+        if (!animes.length) return reply(p.phrases.error('No trending anime found right now.'));
         const list = animes.map((a, i) => `${i+1}. *${a.title}* ⭐ ${a.score || 'N/A'} | ${a.episodes || '?'} eps`).join('\n');
         const season = res.pagination?.current_page ? '' : '';
         reply(`📺 *TRENDING ANIME THIS SEASON*\n\n${list}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`Trending anime fetch failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Trending anime fetch failed: ${e.message}`)); }
     }
   },
 
@@ -193,7 +195,7 @@ module.exports = [
     description: 'Get the canon watch order for an anime series. Usage: .animecanon <anime title>',
     execute: async ({ text, args, reply }) => {
       const query = (text || args.join(' ')).toLowerCase().trim();
-      if (!query) return reply(h.demonError('.animecanon', '.animecanon <anime title>'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the anime title. example! .animecanon naruto shippuden'));
       const found = Object.keys(WATCH_ORDERS).find(k => query.includes(k) || k.includes(query));
       if (found) {
         return reply(`📋 *WATCH ORDER: ${found.toUpperCase()}*\n\n${WATCH_ORDERS[found]}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);

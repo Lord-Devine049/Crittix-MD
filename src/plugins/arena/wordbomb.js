@@ -10,6 +10,8 @@ const arena  = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
 
 const fetch  = require('node-fetch');
+const p = require('../../lib/phrases');
+
 
 const LOBBY_SECONDS = 120;
 const TURN_SECONDS  = 10;
@@ -313,7 +315,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}wordbomb start\` or \`${prefix}wordbomb stop\``);
+      return reply(p.phrases.wrongUsage('use .wordbomb start to begin. or .wordbomb stop to end it.'));
     }
 
     if (arena.hasActiveGame(chatId)) {

@@ -14,6 +14,8 @@ const path = require('path');
 const renderStyle = async (text, preset) => {
   const { createCanvas } = require('canvas');
 const { registerFont: _rf } = require('canvas'); const GlobalFonts = { registerFromPath: (p, n) => { try { _rf(p, { family: n }); } catch(e){} } };
+const p = require('../../lib/phrases');
+
   
 
   const W = preset.width || 800;
@@ -267,9 +269,9 @@ module.exports = {
   execute: async ({ sock, msg, chatId, args, text, command, reply }) => {
     const cmd = (command || cmdList[0]).toLowerCase();
     const inputText = text || args.join(' ');
-    if (!inputText) return reply(h.demonError(`.${cmd}`, `.${cmd} <your text>`, 'Give me something to style, genius.'));
+    if (!inputText) return reply(p.phrases.wrongUsage(`type your text after the command. example! .${cmd} crittix md`));
     const preset = presets[cmd];
-    if (!preset) return reply(h.demonFail(`Unknown style: ${cmd}`));
+    if (!preset) return reply(p.phrases.notFound(`unknown style "${cmd}".`));
     try {
       await reply(`🎨 *Generating ${preset.caption.replace(/[*]/g, '')} ...*`);
       const buf = await renderStyle(inputText.substring(0, 40), preset);
@@ -282,7 +284,7 @@ module.exports = {
       }, { quoted: msg });
       fs.removeSync(tmpPath);
     } catch (e) {
-      reply(h.demonFail(`Style render failed: ${e.message}`));
+      reply(p.phrases.error(`Style render failed: ${e.message}`));
     }
   }
 };

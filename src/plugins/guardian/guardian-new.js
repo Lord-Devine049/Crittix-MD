@@ -75,7 +75,7 @@ module.exports = [
         const keyword = args.slice(1).join(' ').toLowerCase();
         scamDB[chatId].keywords.push(keyword);
         saveDB('antiscam.json', scamDB);
-        return reply(`✅ *Scam keyword added:* "${keyword}"\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`scam keyword "${keyword}" added.`));
       }
       if (action === 'list') return reply(`🛡️ *SCAM KEYWORDS*\n\n${scamDB[chatId].keywords.join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       reply(`Anti-Scam: *${scamDB[chatId].enabled ? 'ON' : 'OFF'}*\n\n.antiscam on | off | add <keyword> | list`);

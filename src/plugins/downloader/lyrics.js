@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['lyrics', 'lyric'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'darkweb',
   description: 'Search song lyrics',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.lyrics', '.lyrics <song title>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the song title after the command. example! .lyrics blinding lights'));
 
     try {
       const res = await axios.get(
@@ -20,7 +22,7 @@ module.exports = {
       );
 
       if (!res.data?.status || !res.data?.data?.lyrics)
-        return reply(h.demonFail(`No lyrics found for "${text}"`));
+        return reply(p.phrases.error(`No lyrics found for "${text}"`));
 
       const { title, artist, album, lyrics } = res.data.data;
       const chunks = lyrics.match(/[\s\S]{1,3500}/g) || [lyrics];
@@ -33,7 +35,7 @@ module.exports = {
         await h.sleep(500);
       }
     } catch {
-      reply(h.demonFail('Lyrics fetch failed. Try again later.'));
+      reply(p.phrases.error('Lyrics fetch failed. Try again later.'));
     }
   }
 };

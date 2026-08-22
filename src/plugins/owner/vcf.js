@@ -6,6 +6,8 @@
 const fs   = require('fs-extra');
 const path = require('path');
 const h    = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['vcf', 'exportcontacts'],
@@ -17,7 +19,7 @@ module.exports = {
     try {
       const meta    = await sock.groupMetadata(chatId);
       const members = meta.participants;
-      if (!members.length) return reply(h.demonFail('No members found'));
+      if (!members.length) return reply(p.phrases.error('No members found'));
 
       // Build VCF content
       let vcf = '';

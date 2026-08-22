@@ -6,6 +6,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -29,7 +31,7 @@ module.exports = [
         const recent = entries.filter(ts => ts > weekAgo).length;
         if (recent > 0) tallied[cmd] = recent;
       }
-      if (!Object.keys(tallied).length) return reply(h.demonFail('no command usage data for this group in the past week. Use some commands first.'));
+      if (!Object.keys(tallied).length) return reply(p.phrases.error('no command usage data for this group in the past week. Use some commands first.'));
       const sorted = Object.entries(tallied).sort((a, b) => b[1] - a[1]).slice(0, 15);
       const max = sorted[0][1];
       const bar = (count) => {

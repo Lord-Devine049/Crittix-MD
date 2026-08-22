@@ -1,6 +1,8 @@
 /* IMAGE.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['image', 'img'],
@@ -9,7 +11,7 @@ module.exports = {
   description: 'Search and fetch a real image by query',
   execute: async ({ sock, msg, args, chatId, prefix, reply }) => {
     if (!args || args.length === 0)
-      return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}image <search term> ${h.demonEmoji()}`);
+      return reply(p.phrases.wrongUsage('type what you want to search for. example! .image dark anime warrior'));
 
     const query = args.join(' ');
     await reply(`🔍 Fetching image for "${query}"...`);

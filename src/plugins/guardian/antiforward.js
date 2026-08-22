@@ -4,6 +4,8 @@
  */
 const db                = require('../../lib/db');
 const { checkBotAdmin } = require('../../lib/anti-handlers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command:     'antiforward',
@@ -26,7 +28,7 @@ module.exports = {
 
     if (action === 'off') {
       db.setAnti(chatId, 'antiforward', false);
-      return reply(`✓ antiforward off`);
+      return reply(p.phrases.success('antiforward disabled.'));
     }
 
     const botIsAdmin = await checkBotAdmin(sock, chatId);
@@ -41,6 +43,6 @@ module.exports = {
     db.setAnti(chatId, 'antiforward', mode);
 
     const labels = { warn: 'warn 3x then kick', kick: 'instant kick', delete: 'delete only' };
-    reply(`✓ antiforward — ${labels[mode]}`);
+    reply(p.phrases.success(`antiforward set to ${labels[mode]}.`));
   }
 };

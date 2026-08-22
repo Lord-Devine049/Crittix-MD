@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 
 const ANIMALS = {
   cow: [
@@ -59,7 +61,7 @@ module.exports = {
       msg = args.slice(1).join(' ');
     }
 
-    if (!msg) return reply(`🐄 *Usage:* cowsay [animal] text\n_Animals:_ cow, cat, ghost`);
+    if (!msg) return reply(p.phrases.wrongUsage('type your message after the command. example! .cowsay moo. optional animals! cow cat ghost.'));
 
     const art = `\`\`\`\n${bubble(msg)}\n${(ANIMALS[animal] || ANIMALS.cow).join('\n')}\n\`\`\``;
     reply(`${art}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);

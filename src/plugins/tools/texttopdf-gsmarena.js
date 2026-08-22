@@ -7,6 +7,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -17,7 +19,7 @@ module.exports = [
     description: 'Convert plain text to a downloadable PDF. Usage: .texttopdf <your text>',
     execute: async ({ sock, msg, chatId, text, args, reply }) => {
       const content = text || args.join(' ');
-      if (!content) return reply(h.demonError('.texttopdf', '.texttopdf <your text here>', 'Give me text to convert, clown.'));
+      if (!content) return reply(p.phrases.wrongUsage('type or paste the text you want converted to pdf. example! .texttopdf this is my document content'));
       try {
         const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
         const pdfDoc = await PDFDocument.create();
@@ -90,7 +92,7 @@ module.exports = [
 
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`PDF generation failed: ${e.message}\nMake sure pdf-lib is installed.`));
+        reply(p.phrases.error(`PDF generation failed: ${e.message}\nMake sure pdf-lib is installed.`));
       }
     }
   },
@@ -102,7 +104,7 @@ module.exports = [
     description: 'Look up phone specs on GSMArena. Usage: .gsmarena Samsung Galaxy S24',
     execute: async ({ text, args, reply }) => {
       const query = text || args.join(' ');
-      if (!query) return reply(h.demonError('.gsmarena', '.gsmarena <phone model>', 'e.g. .gsmarena iPhone 15 Pro'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the phone model name. example! .gsmarena iphone 15 pro'));
       try {
         const cheerio = require('cheerio');
         const searchUrl = `https://www.gsmarena.com/results.php3?sQuickSearch=yes&sName=${encodeURIComponent(query)}`;
@@ -112,7 +114,7 @@ module.exports = [
         });
         const $ = cheerio.load(searchRes.data);
         const firstResult = $('.makers ul li a').first();
-        if (!firstResult.length) return reply(h.demonFail(`No results for "${query}" on GSMArena. It doesn't exist or you typed wrong.`));
+        if (!firstResult.length) return reply(p.phrases.notFound(`no results for "${query}" on gsmarena.`));
 
         const deviceUrl = 'https://www.gsmarena.com' + firstResult.attr('href');
         const deviceRes = await axios.get(deviceUrl, {
@@ -138,7 +140,7 @@ module.exports = [
         msg += `\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`;
         reply(msg);
       } catch (e) {
-        reply(h.demonFail(`GSMArena scrape failed: ${e.message}`));
+        reply(p.phrases.error(`GSMArena scrape failed: ${e.message}`));
       }
     }
   }

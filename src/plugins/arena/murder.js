@@ -8,6 +8,8 @@
 
 const arena = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
+const p = require('../../lib/phrases');
+
 
 
 const LOBBY_SECONDS   = 120;
@@ -344,7 +346,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}murder start\` or \`${prefix}murder stop\``);
+      return reply(p.phrases.wrongUsage('use .murder start to begin. or .murder stop to end it.'));
     }
 
     if (arena.hasActiveGame(chatId)) {

@@ -7,6 +7,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB_FILE = 'bot-banlist.json';
 const DB = () => path.join(process.cwd(), 'database', DB_FILE);
@@ -25,13 +27,13 @@ module.exports = [
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.participant;
       const targetJid = mentioned || quoted;
-      if (!targetJid) return reply(h.demonError('.ban', '.ban @user [reason]', 'Mention or reply to the user to ban.'));
+      if (!targetJid) return reply(p.phrases.wrongUsage('tag or reply to the user you want to ban. optionally add a reason. example! .ban @user spamming'));
 
       const num = targetJid.split('@')[0];
       const reason = args.slice(mentioned ? 1 : 0).join(' ') || 'No reason given. You know what you did.';
       const data = loadBans();
 
-      if (data.banned[targetJid]) return reply(h.demonFail(`@${num} is already bot-banned. Already done.`));
+      if (data.banned[targetJid]) return reply(p.phrases.error(`@${num} is already bot-banned. Already done.`));
 
       data.banned[targetJid] = { reason, bannedAt: Date.now(), bannedBy: msg.key?.participant || msg.key?.remoteJid };
       saveBans(data);
@@ -72,16 +74,16 @@ module.exports = [
     execute: async ({ msg, args, reply }) => {
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
       const targetJid = mentioned || (args[0] ? `${args[0].replace(/[^0-9]/g, '')}@s.whatsapp.net` : null);
-      if (!targetJid) return reply(h.demonError('.unban', '.unban @user', 'Mention the user to unban.'));
+      if (!targetJid) return reply(p.phrases.wrongUsage('tag the user you want to unban. example! .unban @user'));
 
       const num = targetJid.split('@')[0];
       const data = loadBans();
 
-      if (!data.banned[targetJid]) return reply(h.demonFail(`@${num} isn't bot-banned. Check your list.`));
+      if (!data.banned[targetJid]) return reply(p.phrases.error(`@${num} isn't bot-banned. Check your list.`));
 
       delete data.banned[targetJid];
       saveBans(data);
-      reply(h.demonSuccess(`@${num} unbanned globally. They live to annoy another day.`));
+      reply(p.phrases.success(`@${num} unbanned.`));
     }
   },
 

@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -77,7 +79,7 @@ module.exports = [
     category: 'creativetools',
     description: 'Rate something out of 10. Usage: wouldyourate pizza',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('⭐ *Usage:* wouldyourate pineapple on pizza');
+      if (!text) return reply(p.phrases.wrongUsage('type the thing you want rated. example! .wouldyourate pineapple on pizza'));
       const score = Math.floor(Math.random() * 10) + 1;
       const stars = '⭐'.repeat(score) + '☆'.repeat(10-score);
       const comments = ['Terrible!','Pretty bad.','Meh.','Below average.','Average.','Not bad.','Decent.','Good.','Really good!','Absolutely amazing! 🔥'];
@@ -190,7 +192,7 @@ module.exports = [
       const sign = (text||'').toLowerCase().trim();
       if (!sign || !data[sign]) {
         const all = Object.keys(data).join(', ');
-        return reply(`♈ *Usage:* starfact aries\n\n_Signs: ${all}_`);
+        return reply(p.phrases.wrongUsage('provide your star sign. example! .starfact aries'));
       }
       const d = data[sign];
       reply(`⭐ *${sign.charAt(0).toUpperCase()+sign.slice(1)}*\n\n📅 Dates: ${d.date}\n\n💫 ${d.trait}`);

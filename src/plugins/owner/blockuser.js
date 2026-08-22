@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['block', 'unblock'],
@@ -21,14 +23,14 @@ module.exports = {
     const target = mentioned || quotedParticipant || fromText;
 
     if (!target || target === '@s.whatsapp.net')
-      return reply(h.demonError(`.${cmd}`, `.${cmd} @user OR reply to user`));
+      return reply(p.phrases.wrongUsage(`tag someone or reply to their message. example! .${cmd} @user`));
 
     try {
       await sock.updateBlockStatus(target, cmd === 'block' ? 'block' : 'unblock');
       const action = cmd === 'block' ? '🚫 Blocked' : '✅ Unblocked';
       reply(`${action}: @${target.split('@')[0]}`);
     } catch {
-      reply(h.demonFail(`Failed to ${cmd} user. Check number format.`));
+      reply(p.phrases.error(`Failed to ${cmd} user. Check number format.`));
     }
   }
 };

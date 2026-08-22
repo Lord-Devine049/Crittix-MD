@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -9,7 +11,7 @@ module.exports = [
     description: 'Download from MediaFire link. Usage: mediafire [link]',
     execute: async ({ args, reply }) => {
       const url = args[0];
-      if (!url || !url.includes('mediafire.com')) return reply('📥 *Usage:* mediafire https://mediafire.com/...');
+      if (!url || !url.includes('mediafire.com')) return reply(p.phrases.wrongUsage('provide the full mediafire link. example! .mediafire https://mediafire.com/yourfile'));
       try {
         const r = await axios.get(`https://api.nexoracle.com/downloader/mediafire?url=${encodeURIComponent(url)}&apikey=free@nexoracle`, { timeout: 15000 });
         const data = r.data?.result || r.data;
@@ -27,7 +29,7 @@ module.exports = [
     category: 'soultools',
     description: 'Post text to Telegraph (Telegra.ph). Usage: telegraph Title | Content',
     execute: async ({ text, reply }) => {
-      if (!text || !text.includes('|')) return reply('📝 *Usage:* telegraph My Title | My content here...');
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('format it correctly. example! .telegraph my title "my content here"'));
       const [title, ...contentParts] = text.split('|');
       const content = contentParts.join('|').trim();
       try {
@@ -53,7 +55,7 @@ module.exports = [
     description: 'Fetch and send an image from URL. Usage: imgurls https://example.com/img.jpg',
     execute: async ({ args, sock, chatId, msg, reply }) => {
       const url = args[0];
-      if (!url || !url.startsWith('http')) return reply('🖼️ *Usage:* imgurls https://example.com/image.jpg');
+      if (!url || !url.startsWith('http')) return reply(p.phrases.wrongUsage('provide the full image url. example! .imgurls https://example.com/image.jpg'));
       try {
         await sock.sendMessage(chatId, {
           image: { url },
@@ -92,7 +94,7 @@ module.exports = [
     description: 'Get SoundCloud track info. Usage: soundcloudinfo [url]',
     execute: async ({ args, reply }) => {
       const url = args[0];
-      if (!url || !url.includes('soundcloud.com')) return reply('🎵 *Usage:* soundcloudinfo https://soundcloud.com/...');
+      if (!url || !url.includes('soundcloud.com')) return reply(p.phrases.wrongUsage('provide the full soundcloud link. example! .soundcloudinfo https://soundcloud.com/artist/track'));
       try {
         const r = await axios.get(`https://api.nexoracle.com/downloader/soundcloud?url=${encodeURIComponent(url)}&apikey=free@nexoracle`, { timeout: 15000 });
         const d = r.data?.result || r.data;
@@ -114,7 +116,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const url = args[0];
       if (!url || (!url.includes('twitter.com') && !url.includes('x.com')))
-        return reply('🐦 *Usage:* twitterdl https://twitter.com/...');
+        return reply(p.phrases.wrongUsage('provide the full twitter video link. example! .twitterdl https://twitter.com/user/status/123'));
       try {
         const r = await axios.get(`https://api.nexoracle.com/downloader/twitter?url=${encodeURIComponent(url)}&apikey=free@nexoracle`, { timeout: 20000 });
         const data = r.data?.result || r.data;
@@ -133,7 +135,7 @@ module.exports = [
     description: 'Download CapCut template/video. Usage: capcut [url]',
     execute: async ({ args, reply }) => {
       const url = args[0];
-      if (!url || !url.includes('capcut')) return reply('🎬 *Usage:* capcut https://www.capcut.com/...');
+      if (!url || !url.includes('capcut')) return reply(p.phrases.wrongUsage('provide the full capcut link. example! .capcut https://www.capcut.com/yourlink'));
       try {
         const r = await axios.get(`https://api.nexoracle.com/downloader/capcut?url=${encodeURIComponent(url)}&apikey=free@nexoracle`, { timeout: 15000 });
         const d = r.data?.result || r.data;
@@ -149,7 +151,7 @@ module.exports = [
     description: 'Get direct download link for Google Drive file. Usage: gdrive [file-id or url]',
     execute: async ({ args, reply }) => {
       const input = args[0];
-      if (!input) return reply('📁 *Usage:* gdrive https://drive.google.com/file/d/FILE_ID/view\n\n_Or just the File ID_');
+      if (!input) return reply(p.phrases.wrongUsage('provide the google drive link or just the file id. example! .gdrive https://drive.google.com/file/d/FILEID/view'));
       const idMatch = input.match(/\/d\/([a-zA-Z0-9_-]+)/) || input.match(/^([a-zA-Z0-9_-]{25,})$/);
       if (!idMatch) return reply('❌ *Invalid Google Drive URL or File ID*');
       const fileId = idMatch[1];
@@ -164,7 +166,7 @@ module.exports = [
     category: 'soultools',
     description: 'Paste text online and get a shareable link. Usage: paste your text here',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📋 *Usage:* paste your text or code here');
+      if (!text) return reply(p.phrases.wrongUsage('type or paste your text after the command. example! .paste your code here'));
       try {
         const r = await axios.post('https://hastebin.com/documents', text, {
           headers: { 'Content-Type': 'text/plain' },

@@ -5,6 +5,8 @@
  */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -15,7 +17,7 @@ module.exports = [
     description: 'Look up a chemical compound\'s formula and properties. Usage: chemcompound water',
     execute: async ({ args, reply }) => {
       const query = args.join(' ').toLowerCase().trim();
-      if (!query) return reply(h.demonError('.chemcompound', '.chemcompound <compound name>'));
+      if (!query) return reply(p.phrases.wrongUsage('provide the chemical compound name. example! .chemcompound water'));
       const compounds = {
         water: { formula: 'H₂O', name: 'Water', molar: '18.015 g/mol', state: 'Liquid (at room temp)', bp: '100°C', mp: '0°C', notes: 'Universal solvent. Essential for life.' },
         salt: { formula: 'NaCl', name: 'Sodium Chloride (Table Salt)', molar: '58.44 g/mol', state: 'Solid', bp: '1413°C', mp: '801°C', notes: 'Ionic compound. Food seasoning and preservative.' },
@@ -38,9 +40,9 @@ module.exports = [
         try {
           const res = await axios.get(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(query)}/property/MolecularFormula,MolecularWeight,IUPACName/JSON`, { timeout: 8000 });
           const props = res.data?.PropertyTable?.Properties?.[0];
-          if (!props) return reply(h.demonFail(`couldn't find info on "${query}". Try a more common compound name.`));
+          if (!props) return reply(p.phrases.error(`couldn't find info on "${query}". Try a more common compound name.`));
           return reply(`🧪 *CHEMICAL COMPOUND*\n\n🏷️ Name: *${props.IUPACName || query}*\n⚗️ Formula: *${props.MolecularFormula}*\n⚖️ Molar Mass: *${parseFloat(props.MolecularWeight).toFixed(3)} g/mol*\n\nData via PubChem.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-        } catch { return reply(h.demonFail(`compound "${query}" not found. Try names like: water, salt, ethanol, caffeine`)); }
+        } catch { return reply(p.phrases.error(`compound "${query}" not found. Try names like: water, salt, ethanol, caffeine`)); }
       }
       reply(
         `🧪 *CHEMICAL COMPOUND*\n\n` +

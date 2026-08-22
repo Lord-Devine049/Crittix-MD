@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'trivia',
@@ -14,10 +16,10 @@ module.exports = {
     try {
       const res = await axios.get('https://opentdb.com/api.php?amount=1&type=multiple', { timeout: 8000 });
       const q = res.data.results[0];
-      if (!q) return reply(h.demonFail('Could not fetch trivia'));
+      if (!q) return reply(p.phrases.error('Could not fetch trivia'));
       const decode = s => s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#039;/g,"'");
       const answers = [...q.incorrect_answers, q.correct_answer].sort(() => Math.random()-0.5).map(decode);
       reply('🎯 TRIVIA (' + decode(q.category) + ')\n\n❓ ' + decode(q.question) + '\n\n' + answers.map((a,i) => (i+1) + '. ' + a).join('\n') + '\n\n_Spoiler: ||' + decode(q.correct_answer) + '||_');
-    } catch(e) { reply(h.demonFail('Trivia API error')); }
+    } catch(e) { reply(p.phrases.error('Trivia API error')); }
   }
 };

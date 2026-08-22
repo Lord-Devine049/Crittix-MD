@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['wyr', 'wyr2'],
@@ -14,10 +16,10 @@ module.exports = {
     try {
       const res = await axios.get('https://api.truthordarebot.xyz/v1/wyr', { timeout: 8000 });
       const q = res.data?.question;
-      if (!q) return reply(h.demonFail('No question found. Ask yourself.'));
+      if (!q) return reply(p.phrases.error('No question found. Ask yourself.'));
       reply(`🤔 *𝗪𝗼𝘂𝗹𝗱 𝗬𝗼𝘂 𝗥𝗮𝘁𝗵𝗲𝗿*\n\n❖ ${q}`);
     } catch {
-      reply(h.demonFail('WYR fetch failed. Think for yourself.'));
+      reply(p.phrases.error('WYR fetch failed. Think for yourself.'));
     }
   }
 };

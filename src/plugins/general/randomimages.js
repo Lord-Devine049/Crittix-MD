@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const imageMap = {
   aipic:          { url: 'https://prexzyapis.com/random/aipic',          caption: '🤖 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗔𝗜 𝗣𝗶𝗰*' },
@@ -38,7 +40,7 @@ module.exports = {
         caption: img.caption
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Image fetch failed. Try again.'));
+      reply(p.phrases.error('Image fetch failed. Try again.'));
     }
   }
 };

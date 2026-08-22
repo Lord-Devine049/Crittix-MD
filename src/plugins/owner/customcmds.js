@@ -7,6 +7,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB_FILE = 'custom-commands.json';
 const DB = () => path.join(process.cwd(), 'database', DB_FILE);
@@ -25,16 +27,16 @@ module.exports = [
     description: 'Create a custom text-trigger command. ownerOnly. Usage: .setcmd trigger | response text',
     ownerOnly: true,
     execute: async ({ text, reply }) => {
-      if (!text || !text.includes('|')) return reply(h.demonError('.setcmd', '.setcmd <trigger> | <response>', 'Separate trigger and response with |'));
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('separate the trigger and response with a pipe. example! .setcmd hello "hey what is up"'));
       const [trigger, ...responseParts] = text.split('|');
       const t = trigger.trim().toLowerCase().replace(/\s+/g, '');
       const r = responseParts.join('|').trim();
-      if (!t || !r) return reply(h.demonFail('Both trigger and response must be non-empty.'));
-      if (t.length > 30) return reply(h.demonFail('Trigger too long. Keep it under 30 characters.'));
+      if (!t || !r) return reply(p.phrases.error('Both trigger and response must be non-empty.'));
+      if (t.length > 30) return reply(p.phrases.error('Trigger too long. Keep it under 30 characters.'));
       const data = loadCmds();
       data[t] = { response: r, createdAt: Date.now() };
       saveCmds(data);
-      reply(h.demonSuccess(`Custom command created!\n\nTrigger: .${t}\nResponse: ${r.substring(0, 80)}...`));
+      reply(p.phrases.success(`Custom command created!\n\nTrigger: .${t}\nResponse: ${r.substring(0, 80)}...`));
     }
   },
 
@@ -46,12 +48,12 @@ module.exports = [
     ownerOnly: true,
     execute: async ({ args, reply }) => {
       const t = (args[0] || '').toLowerCase().trim();
-      if (!t) return reply(h.demonError('.delcmd', '.delcmd <trigger>', 'Specify which command to delete.'));
+      if (!t) return reply(p.phrases.wrongUsage('provide the trigger to delete. example! .delcmd hello'));
       const data = loadCmds();
-      if (!data[t]) return reply(h.demonFail(`No custom command ".${t}" found. You sure you made it?`));
+      if (!data[t]) return reply(p.phrases.error(`No custom command ".${t}" found. You sure you made it?`));
       delete data[t];
       saveCmds(data);
-      reply(h.demonSuccess(`Custom command .${t} deleted. Gone like your dignity.`));
+      reply(p.phrases.success(`custom command .${t} deleted.`));
     }
   },
 

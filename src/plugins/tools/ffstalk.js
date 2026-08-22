@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'ffstalk',
@@ -7,7 +9,7 @@ module.exports = {
   category: 'soultools',
   description: 'Look up a Free Fire player by ID. Usage: ffstalk <player_id>',
   execute: async ({ sock, msg, args, chatId, reply }) => {
-    if (!args[0]) return reply('🎮 *Usage:* ffstalk 8533270051');
+    if (!args[0]) return reply(p.phrases.wrongUsage('provide the free fire player id. example! .ffstalk 8533270051'));
 
     const ffId = args[0].trim();
     try {

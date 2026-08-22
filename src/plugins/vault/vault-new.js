@@ -27,9 +27,9 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, sender, senderNumber, chatId, args, reply }) => {
       const amount = parseInt(args[0]);
-      if (isNaN(amount) || amount < 50) return reply(h.demonError('.jackpot', '.jackpot <amount> (minimum 50 coins)'));
+      if (isNaN(amount) || amount < 50) return reply(p.phrases.wrongUsage('provide an amount. minimum is 50 coins. example! .jackpot 100'));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < amount) return reply(h.demonFail(`you need 🪙 ${amount} to enter — you only have 🪙 ${bal?.balance || 0}. broke confirmed`));
+      if (!bal || bal.balance < amount) return reply(p.phrases.error(`you need 🪙 ${amount} to enter — you only have 🪙 ${bal?.balance || 0}. broke confirmed`));
       const pools = loadDB('jackpot.json');
       if (!pools[chatId]) pools[chatId] = { entries: [], total: 0, lastDraw: 0 };
       const pool = pools[chatId];
@@ -62,7 +62,7 @@ module.exports = [
     execute: async ({ sender, senderNumber, msg, reply }) => {
       const COST = 50, JACKPOT = 5000;
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to buy a ticket — you're broke again`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to buy a ticket — you're broke again`));
       vault.updateBalance(sender, -COST, 0);
       const ticket = Array.from({ length: 6 }, () => Math.floor(Math.random() * 49) + 1);
       const winning = Array.from({ length: 6 }, () => Math.floor(Math.random() * 49) + 1);
@@ -104,16 +104,16 @@ module.exports = [
       const raffle = raffles[chatId];
       if (!raffle) return reply(p.phrases.adminOnly());
       if (action === 'join') {
-        if (raffle.entries.find(e => e.jid === sender)) return reply(h.demonFail('you already entered, greedy'));
+        if (raffle.entries.find(e => e.jid === sender)) return reply(p.phrases.error('you already entered, greedy'));
         raffle.entries.push({ jid: sender, num: senderNumber });
         saveDB('raffle.json', raffles);
-        return reply(`✅ *You entered the raffle!*\n👥 Total entries: ${raffle.entries.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`entered the raffle. total entries: ${raffle.entries.length}.`));
       }
       if (action === 'draw') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
           return reply(p.phrases.adminOnly());
           if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
-        if (!raffle.entries.length) { raffles[chatId] = null; saveDB('raffle.json', raffles); return reply(h.demonFail('no entries — not even one person cared')); }
+        if (!raffle.entries.length) { raffles[chatId] = null; saveDB('raffle.json', raffles); return reply(p.phrases.error('no entries — not even one person cared')); }
         const winner = raffle.entries[Math.floor(Math.random() * raffle.entries.length)];
         vault.updateBalance(winner.jid, raffle.prize, 0);
         raffles[chatId] = null;
@@ -121,7 +121,7 @@ module.exports = [
         await sock.sendMessage(chatId, { text: `🎉 *RAFFLE WINNER!*\n\n🏆 @${winner.num}\n💰 Prize: 🪙 ${raffle.prize.toLocaleString()}\n\nLuck favored this one. The rest of you? Maybe next time 💀`, mentions: [winner.jid] }, { quoted: msg });
         return;
       }
-      reply('Usage: .raffle start <prize> | .raffle join | .raffle draw');
+      reply(p.phrases.wrongUsage('use .raffle start prize to begin. or .raffle join to enter. or .raffle draw to pick a winner.'));
     }
   },
 
@@ -162,9 +162,9 @@ module.exports = [
     description: 'Play simplified poker vs bot. Usage: poker 200',
     execute: async ({ sender, senderNumber, msg, args, prefix, reply }) => {
       const amount = parseInt(args[0]);
-      if (isNaN(amount) || amount < 50) return reply(h.demonError('.poker', `.poker <bet> (min 50) — e.g. ${prefix}poker 200`));
+      if (isNaN(amount) || amount < 50) return reply(p.phrases.wrongUsage('provide your bet amount. minimum is 50 coins. example! .poker 200'));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < amount) return reply(h.demonFail(`need 🪙 ${amount} — you only got 🪙 ${bal?.balance || 0}. bet within your means`));
+      if (!bal || bal.balance < amount) return reply(p.phrases.error(`need 🪙 ${amount} — you only got 🪙 ${bal?.balance || 0}. bet within your means`));
       const suits = ['♠️','♥️','♦️','♣️'];
       const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
       const deck = suits.flatMap(s => values.map(v => `${v}${s}`));
@@ -216,7 +216,7 @@ module.exports = [
         { label:'JACKPOT x20', prize:2000, emoji:'🌟', chance:5 },
       ];
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to spin`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to spin`));
       vault.updateBalance(sender, -COST, 0);
       const rand = Math.random() * 100;
       let cum = 0, landed = segments[0];
@@ -246,7 +246,7 @@ module.exports = [
       const remaining = COOLDOWN - (Date.now() - last);
       if (remaining > 0) {
         const m = Math.ceil(remaining / 60000);
-        return reply(h.demonFail(`chest is locked — come back in *${m} min*. patience, clown`));
+        return reply(p.phrases.error(`chest is locked — come back in *${m} min*. patience, clown`));
       }
       const prize = Math.floor(Math.random() * 400) + 100;
       vault.updateBalance(sender, prize, 0);
@@ -288,24 +288,24 @@ module.exports = [
       }
       const ticker = args[1]?.toUpperCase();
       const qty = parseInt(args[2]);
-      if (!ticker || !prices[ticker] || isNaN(qty) || qty < 1) return reply(h.demonError('.stockmarket', '.stockmarket buy/sell <TICKER> <qty> — e.g. stockmarket buy CRITTIX 5'));
+      if (!ticker || !prices[ticker] || isNaN(qty) || qty < 1) return reply(p.phrases.wrongUsage('provide buy or sell then the ticker and quantity. example! .stockmarket buy crittix 5'));
       const cost = prices[ticker] * qty;
       if (action === 'buy') {
         const bal = vault.getBalance(sender);
-        if (!bal || bal.balance < cost) return reply(h.demonFail(`need 🪙 ${cost} — you only have 🪙 ${bal?.balance || 0}`));
+        if (!bal || bal.balance < cost) return reply(p.phrases.error(`need 🪙 ${cost} — you only have 🪙 ${bal?.balance || 0}`));
         vault.updateBalance(sender, -cost, 0);
         holdings[sender][ticker] = (holdings[sender][ticker] || 0) + qty;
         saveDB('vstock.json', holdings);
         return reply(`📈 *Bought ${qty}x ${ticker}*\nCost: 🪙 ${cost.toLocaleString()}\nShares owned: ${holdings[sender][ticker]}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'sell') {
-        if ((holdings[sender][ticker] || 0) < qty) return reply(h.demonFail(`you only have ${holdings[sender][ticker] || 0} shares of ${ticker}`));
+        if ((holdings[sender][ticker] || 0) < qty) return reply(p.phrases.error(`you only have ${holdings[sender][ticker] || 0} shares of ${ticker}`));
         vault.updateBalance(sender, cost, 0);
         holdings[sender][ticker] -= qty;
         saveDB('vstock.json', holdings);
         return reply(`📉 *Sold ${qty}x ${ticker}*\nReceived: 🪙 ${cost.toLocaleString()}\nShares left: ${holdings[sender][ticker]}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply('Usage: stockmarket list | buy <TICKER> <qty> | sell <TICKER> <qty>');
+      reply(p.phrases.wrongUsage('use .stockmarket list. or buy ticker qty. or sell ticker qty.'));
     }
   },
 
@@ -335,24 +335,24 @@ module.exports = [
       }
       const coin = args[1]?.toUpperCase();
       const spend = parseFloat(args[2]);
-      if (!coin || !prices[coin] || isNaN(spend) || spend <= 0) return reply(h.demonError('.cryptotrade', '.cryptotrade buy/sell <COIN> <coin_amount> — e.g. cryptotrade buy BTC 0.001'));
+      if (!coin || !prices[coin] || isNaN(spend) || spend <= 0) return reply(p.phrases.wrongUsage('provide buy or sell then the coin and amount. example! .cryptotrade buy btc 0.001'));
       const vaultCost = spend * prices[coin];
       if (action === 'buy') {
         const bal = vault.getBalance(sender);
-        if (!bal || bal.balance < vaultCost) return reply(h.demonFail(`need 🪙 ${vaultCost.toFixed(2)} to buy ${spend} ${coin}`));
+        if (!bal || bal.balance < vaultCost) return reply(p.phrases.error(`need 🪙 ${vaultCost.toFixed(2)} to buy ${spend} ${coin}`));
         vault.updateBalance(sender, -Math.round(vaultCost), 0);
         portfolio[sender][coin] = parseFloat(((portfolio[sender][coin] || 0) + spend).toFixed(8));
         saveDB('vcrypto.json', portfolio);
         return reply(`₿ *Bought ${spend} ${coin}*\nSpent: 🪙 ${vaultCost.toFixed(2)}\nTotal: ${portfolio[sender][coin]} ${coin}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'sell') {
-        if ((portfolio[sender][coin] || 0) < spend) return reply(h.demonFail(`you only have ${portfolio[sender][coin] || 0} ${coin}`));
+        if ((portfolio[sender][coin] || 0) < spend) return reply(p.phrases.error(`you only have ${portfolio[sender][coin] || 0} ${coin}`));
         vault.updateBalance(sender, Math.round(vaultCost), 0);
         portfolio[sender][coin] = parseFloat(((portfolio[sender][coin] || 0) - spend).toFixed(8));
         saveDB('vcrypto.json', portfolio);
         return reply(`₿ *Sold ${spend} ${coin}*\nReceived: 🪙 ${vaultCost.toFixed(2)}\nRemaining: ${portfolio[sender][coin]} ${coin}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply('Usage: cryptotrade list | buy <COIN> <amount> | sell <COIN> <amount>');
+      reply(p.phrases.wrongUsage('use .cryptotrade list. or buy coin amount. or sell coin amount.'));
     }
   },
 
@@ -364,7 +364,7 @@ module.exports = [
     execute: async ({ sender, reply }) => {
       const COST = 200;
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST} to mint — even fake NFTs cost money`));
+      if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST} to mint — even fake NFTs cost money`));
       vault.updateBalance(sender, -COST, 0);
       const adjectives = ['Cursed','Demonic','Legendary','Shadow','Void','Eternal','Glitched','Broken','Supreme','Hollow'];
       const nouns = ['Ape','Crittix','Demon','Ghost','Empire','Phantom','Skull','Legion','Void','Beast'];
@@ -408,10 +408,10 @@ module.exports = [
       }
       const name = args.join(' ').toLowerCase();
       const biz = businesses[name];
-      if (!biz) return reply(h.demonFail(`"${name}" is not a real business — check the list`));
-      if (owned[sender].includes(name)) return reply(h.demonFail(`you already own a ${name}, greedy`));
+      if (!biz) return reply(p.phrases.error(`"${name}" is not a real business — check the list`));
+      if (owned[sender].includes(name)) return reply(p.phrases.error(`you already own a ${name}, greedy`));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < biz.cost) return reply(h.demonFail(`need 🪙 ${biz.cost} — you only have 🪙 ${bal?.balance || 0}`));
+      if (!bal || bal.balance < biz.cost) return reply(p.phrases.error(`need 🪙 ${biz.cost} — you only have 🪙 ${bal?.balance || 0}`));
       vault.updateBalance(sender, -biz.cost, 0);
       owned[sender].push(name);
       saveDB('businesses.json', owned);
@@ -443,10 +443,10 @@ module.exports = [
       }
       const name = args.join(' ').toLowerCase();
       const prop = props[name];
-      if (!prop) return reply(h.demonFail(`"${name}" not found — check the list`));
-      if (owned[sender].includes(name)) return reply(h.demonFail(`already own this property`));
+      if (!prop) return reply(p.phrases.error(`"${name}" not found — check the list`));
+      if (owned[sender].includes(name)) return reply(p.phrases.error(`already own this property`));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < prop.cost) return reply(h.demonFail(`need 🪙 ${prop.cost.toLocaleString()}`));
+      if (!bal || bal.balance < prop.cost) return reply(p.phrases.error(`need 🪙 ${prop.cost.toLocaleString()}`));
       vault.updateBalance(sender, -prop.cost, 0);
       owned[sender].push(name);
       saveDB('properties.json', owned);
@@ -480,10 +480,10 @@ module.exports = [
       }
       const name = args.join(' ').toLowerCase();
       const car = cars[name];
-      if (!car) return reply(h.demonFail(`"${name}" is not in the lot — check .carbuy list`));
-      if (owned[sender].includes(name)) return reply(h.demonFail(`you already have a ${name} in your garage`));
+      if (!car) return reply(p.phrases.error(`"${name}" is not in the lot — check .carbuy list`));
+      if (owned[sender].includes(name)) return reply(p.phrases.error(`you already have a ${name} in your garage`));
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance < car.cost) return reply(h.demonFail(`need 🪙 ${car.cost.toLocaleString()} — you got 🪙 ${bal?.balance || 0}`));
+      if (!bal || bal.balance < car.cost) return reply(p.phrases.error(`need 🪙 ${car.cost.toLocaleString()} — you got 🪙 ${bal?.balance || 0}`));
       vault.updateBalance(sender, -car.cost, 0);
       owned[sender].push(name);
       saveDB('garagedb.json', owned);
@@ -499,7 +499,7 @@ module.exports = [
     execute: async ({ sender, reply }) => {
       const owned = loadDB('garagedb.json');
       const cars = owned[sender] || [];
-      if (!cars.length) return reply(h.demonFail('your garage is empty. tragic. try .carbuy list'));
+      if (!cars.length) return reply(p.phrases.error('your garage is empty. tragic. try .carbuy list'));
       reply(`🚗 *YOUR GARAGE*\n\n${cars.map((c, i) => `${i + 1}. 🏎️ ${c.toUpperCase()}`).join('\n')}\n\n${cars.length} car(s) total. Flexing approved.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
   },
@@ -514,16 +514,16 @@ module.exports = [
       const mansions = loadDB('mansions.json');
       const action = args[0]?.toLowerCase() || 'view';
       if (action === 'buy') {
-        if (mansions[sender]) return reply(h.demonFail('you already own a mansion — one is enough, showoff'));
+        if (mansions[sender]) return reply(p.phrases.error('you already own a mansion — one is enough, showoff'));
         const bal = vault.getBalance(sender);
-        if (!bal || bal.balance < COST) return reply(h.demonFail(`need 🪙 ${COST.toLocaleString()} — the struggle is real`));
+        if (!bal || bal.balance < COST) return reply(p.phrases.error(`need 🪙 ${COST.toLocaleString()} — the struggle is real`));
         vault.updateBalance(sender, -COST, 0);
         mansions[sender] = { bought: Date.now(), name: 'Crittix Manor' };
         saveDB('mansions.json', mansions);
         return reply(`🏰 *MANSION ACQUIRED!*\n\nWelcome to *Crittix Manor*.\n💸 Paid: 🪙 ${COST.toLocaleString()}\n\nYou're officially a Crittix Empire elite. Don't embarrass us.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const m = mansions[sender];
-      if (!m) return reply(h.demonFail('you don\'t own a mansion yet — .mansion buy to flex'));
+      if (!m) return reply(p.phrases.notFound('you do not own a mansion yet. use .mansion buy.'));
       reply(`🏰 *YOUR MANSION*\n\n🏛️ Name: *${m.name}*\n📅 Purchased: ${new Date(m.bought).toLocaleDateString()}\n\nLiving large in the Crittix Empire 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
   },
@@ -535,10 +535,10 @@ module.exports = [
     description: 'Pay your economy tax (flavor/fun). Usage: taxpay',
     execute: async ({ sender, reply }) => {
       const bal = vault.getBalance(sender);
-      if (!bal || bal.balance <= 0) return reply(h.demonFail('you have nothing to tax. even the economy doesn\'t want your broke energy'));
+      if (!bal || bal.balance <= 0) return reply(p.phrases.error('you have nothing to tax.'esn\'t want your broke energy'));
       const taxRate = 0.05;
       const tax = Math.max(10, Math.floor(bal.balance * taxRate));
-      if (bal.balance < tax) return reply(h.demonFail(`not enough coins to pay tax — ${Math.round(taxRate*100)}% of ${bal.balance} is ${tax}`));
+      if (bal.balance < tax) return reply(p.phrases.error(`not enough coins to pay tax — ${Math.round(taxRate*100)}% of ${bal.balance} is ${tax}`));
       vault.updateBalance(sender, -tax, 0);
       reply(
         `🏦 *TAX COLLECTED*\n\n` +

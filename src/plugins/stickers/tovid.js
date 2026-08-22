@@ -10,6 +10,8 @@ const fs     = require('fs');
 const path   = require('path');
 const os     = require('os');
 const Crypto = require('crypto');
+const p = require('../../lib/phrases');
+
 
 const FFMPEG = 'ffmpeg';
 
@@ -101,7 +103,7 @@ module.exports = {
     const stickMsg = quoted?.stickerMessage || msg.message?.stickerMessage;
 
     if (!stickMsg)
-      return reply(h.demonError('.tovid', `Reply to an animated sticker with ${prefix}tovid`));
+      return reply(p.phrases.wrongUsage('reply to an animated sticker to convert it to a video.'));
 
     await sock.sendMessage(chatId, { react: { text: '🎬', key: msg.key } }).catch(() => {});
 
@@ -116,7 +118,7 @@ module.exports = {
       let buf = Buffer.from([]);
       for await (const chunk of stream) buf = Buffer.concat([buf, chunk]);
       if (!buf || buf.length === 0)
-        return reply(h.demonFail('Failed to download sticker. It may have expired.'));
+        return reply(p.phrases.error('Failed to download sticker. It may have expired.'));
 
       fs.writeFileSync(webpPath, buf);
 
@@ -135,7 +137,7 @@ module.exports = {
       }
 
       if (!fs.existsSync(mp4Path) || fs.statSync(mp4Path).size === 0)
-        return reply(h.demonFail('Conversion produced an empty file. Make sure the sticker is animated.'));
+        return reply(p.phrases.error('Conversion produced an empty file. Make sure the sticker is animated.'));
 
       const vidBuf = fs.readFileSync(mp4Path);
       await sock.sendMessage(chatId, {
@@ -148,7 +150,7 @@ module.exports = {
 
     } catch (e) {
       await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }).catch(() => {});
-      reply(h.demonFail('Conversion failed: ' + e.message.slice(0, 200)));
+      reply(p.phrases.error('conversion failed. ' + e.message.slice(0, 200)));
     } finally {
       try { if (fs.existsSync(webpPath)) fs.unlinkSync(webpPath); } catch (_) {}
       try { if (fs.existsSync(mp4Path))  fs.unlinkSync(mp4Path);  } catch (_) {}

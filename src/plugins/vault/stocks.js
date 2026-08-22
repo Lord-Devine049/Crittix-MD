@@ -7,6 +7,8 @@ const fs    = require('fs-extra');
 const path  = require('path');
 const vault = require('../../lib/vault');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const STK_PATH  = path.join(process.cwd(), 'database', 'stocks.json');
 const PORT_PATH = path.join(process.cwd(), 'database', 'portfolios.json');
@@ -83,7 +85,7 @@ module.exports = {
       const id  = args[1]?.toUpperCase();
       const qty = parseInt(args[2]);
       const stk = stocks.find(s => s.id === id);
-      if (!stk || !qty || qty <= 0) return reply(h.demonError(`.stock ${action}`, `.stock ${action} <ID> <quantity>`));
+      if (!stk || !qty || qty <= 0) return reply(p.phrases.wrongUsage(`provide the stock id and quantity. example! .stock ${action} CRITTIX 5`));
 
       const cost = stk.price * qty;
       const bal  = vault.getBalance(sender);
@@ -108,6 +110,6 @@ module.exports = {
       }
     }
 
-    reply(h.demonError('.stock', 'Use .stock list / buy / sell / portfolio'));
+    reply(p.phrases.wrongUsage('use .stock list. or buy. or sell. or portfolio.'));
   }
 };

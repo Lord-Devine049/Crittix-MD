@@ -4,6 +4,8 @@
  */
 const http = require('http');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['myip', 'getip'],
@@ -22,7 +24,7 @@ module.exports = {
 
       reply(`🌐 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗜𝗣*\n\n\`${ip}\``);
     } catch {
-      reply(h.demonFail('Failed to fetch IP address'));
+      reply(p.phrases.error('failed to fetch ip address.'));
     }
   }
 };

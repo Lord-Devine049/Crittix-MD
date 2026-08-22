@@ -7,6 +7,8 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const effects = {
   bass:      '-af equalizer=f=54:width_type=o:width=2:g=20',
@@ -39,16 +41,16 @@ module.exports = {
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply, command }) => {
     const cmd = (command || 'bass').toLowerCase();
     const set = effects[cmd];
-    if (!set) return reply(h.demonFail('Unknown audio effect'));
+    if (!set) return reply(p.phrases.notFound('unknown audio effect.'));
 
     const ctx = msg.message?.extendedTextMessage?.contextInfo;
     const quoted = ctx?.quotedMessage;
 
-    if (!quoted) return reply(h.demonError(`.${cmd}`, `.${cmd} — reply to an audio message`));
+    if (!quoted) return reply(p.phrases.wrongUsage(`reply to an audio message to use .${cmd}.`));
 
     const quotedType = Object.keys(quoted)[0];
     if (!quotedType.includes('audio') && !quotedType.includes('Audio'))
-      return reply(h.demonFail('Reply to an audio message'));
+      return reply(p.phrases.wrongUsage('reply to an audio message to apply this effect.'));
 
     try {
       reply(`⚡ *Processing ${cmd.toUpperCase()} effect...*`);
@@ -59,7 +61,7 @@ module.exports = {
       };
 
       const buffer = await sock.downloadMediaMessage(quotedMsg);
-      if (!buffer) return reply(h.demonFail('Failed to download audio'));
+      if (!buffer) return reply(p.phrases.error('failed to download the audio.'));
 
       const inputFile = getRandom('.mp3');
       const outputFile = getRandom('.mp3');
@@ -82,7 +84,7 @@ module.exports = {
         mimetype: 'audio/mpeg'
       }, { quoted: msg });
     } catch (err) {
-      reply(h.demonFail(`Failed to apply ${cmd} effect. ffmpeg required.`));
+      reply(p.phrases.error(`Failed to apply ${cmd} effect. ffmpeg required.`));
     }
   }
 };

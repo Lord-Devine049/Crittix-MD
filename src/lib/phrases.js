@@ -71,17 +71,157 @@ const OWNER_ONLY = [
 ];
 
 // ─────────────────────────────────────────────
+// When a user uses a command the wrong way
+const WRONG_USAGE = [
+  SC("are you stupid? that is not how you use this fool!"),
+  SC("who taught you how to use a bot? embarrassing!"),
+  SC("you used that command wrong and you look dumb doing it."),
+  SC("not even close. you clearly have no idea what you are doing!"),
+  SC("you broke the command like a broke phone."),
+  SC("wrong! try again when you learn how to read."),
+  SC("that is not how this works. that is not how any of this works!"),
+  SC("bro what was that? use the command properly fool!"),
+  SC("you really typed that and hit send? try again."),
+  SC("wrong usage. you should be embarrassed honestly."),
+  SC("did you even read the command description? clearly not!"),
+  SC("this is painful to watch. fix your usage!"),
+];
+
+
+// When a command succeeds
+const SUCCESS = [
+  SC("done. no mercy."),
+  SC("executed. no questions."),
+  SC("handled. move on."),
+  SC("consider it done."),
+  SC("done. this is what power looks like."),
+  SC("finished. clean."),
+  SC("it is done. next."),
+  SC("carried out. silently."),
+  SC("done. without hesitation."),
+  SC("executed. as commanded."),
+  SC("sorted. do not test me again."),
+  SC("dealt with. move along."),
+];
+
+// When something fails or errors
+const ERROR = [
+  SC("something broke. not my fault."),
+  SC("that failed. try again later."),
+  SC("crashed. the void consumed it."),
+  SC("request failed. blame the servers."),
+  SC("it died. try again."),
+  SC("error. the darkness rejected it."),
+  SC("failed. as expected honestly."),
+  SC("something went wrong. again."),
+  SC("could not complete that. try again."),
+  SC("broke on impact. try again later."),
+];
+
+// When something is already enabled
+const ALREADY_ENABLED = [
+  SC("it is already on. were you not paying attention?"),
+  SC("already active. calm down."),
+  SC("already enabled. relax."),
+  SC("that is already running fool."),
+  SC("it is on already. stop pressing buttons."),
+  SC("already on. do you even check before running commands?"),
+  SC("still running from before. nothing changed."),
+  SC("already enabled. you are just wasting my time."),
+];
+
+// When something is already disabled
+const ALREADY_DISABLED = [
+  SC("it is already off. relax."),
+  SC("already disabled. nothing to do here."),
+  SC("that is already off fool."),
+  SC("already inactive. stop."),
+  SC("it was never on. nothing changed."),
+  SC("already off. do you even check before running commands?"),
+  SC("disabled already. you are just wasting my time."),
+  SC("already off. calm down."),
+];
+
+// When data or user is not found
+const NOT_FOUND = [
+  SC("nothing found. did you make that up?"),
+  SC("does not exist. check yourself."),
+  SC("not found. try something real."),
+  SC("no results. that thing does not exist."),
+  SC("found nothing. as expected."),
+  SC("empty. there is nothing there."),
+  SC("not a trace. it does not exist."),
+  SC("zero results. maybe try spelling it right."),
+];
+
+// When the target is the bot itself
+const CANT_TARGET_BOT = [
+  SC("you cannot use that on me. nice try though."),
+  SC("i am not your target fool."),
+  SC("pointing that at me? bold. and stupid."),
+  SC("not happening. pick someone else."),
+  SC("you really tried that on me? embarrassing."),
+  SC("i am untouchable. find another target."),
+  SC("that command does not work on its creator."),
+  SC("try that on someone who is not running this whole operation."),
+];
+
+// When the target is the owner
+const CANT_TARGET_OWNER = [
+  SC("that is my lord. not a chance."),
+  SC("the owner is off limits. back off."),
+  SC("you do not touch the owner. ever."),
+  SC("lord devine is protected. find another target."),
+  SC("not him. pick someone else."),
+  SC("the owner cannot be touched by this command."),
+  SC("that is the one person you cannot use this on."),
+  SC("nice try. the owner is untouchable."),
+];
+
+// When command is group only
+const GROUP_ONLY = [
+  SC("this command only works in groups. where are you?"),
+  SC("groups only. get in one first."),
+  SC("take this to a group. it does not work here."),
+  SC("wrong place. this is a group command fool."),
+  SC("this is not a group. command rejected."),
+  SC("group command used in dm. embarrassing."),
+  SC("go to a group and try again."),
+  SC("this command has no business being here. group only."),
+];
+
+// When command is DM only
+const DM_ONLY = [
+  SC("this only works in dm. take it there."),
+  SC("dm only command. not here."),
+  SC("slide into my dm for this one."),
+  SC("wrong place. dm me this command."),
+  SC("this does not work in groups. dm only."),
+  SC("dm command used in group. not how this works."),
+  SC("go to dm and try again."),
+  SC("this command belongs in dm. not here."),
+];
 // RANDOM PICKER
 // ─────────────────────────────────────────────
 const rand = (pool) => pool[Math.floor(Math.random() * pool.length)];
 
 const phrases = {
-  adminOnly:     () => rand(ADMIN_ONLY),
-  botNeedsAdmin: (action = null) => action
+  adminOnly:        () => rand(ADMIN_ONLY),
+  botNeedsAdmin:    (action = null) => action
     ? SC(`i need admin to ${action}. promote me first kid.`)
     : rand(BOT_NEEDS_ADMIN),
-  accessDenied:  () => rand(ACCESS_DENIED),
-  ownerOnly:     () => rand(OWNER_ONLY),
+  accessDenied:     () => rand(ACCESS_DENIED),
+  ownerOnly:        () => rand(OWNER_ONLY),
+  wrongUsage:       (instruction) => `${rand(WRONG_USAGE)} ${SC(instruction)}`,
+  success:          (detail = null) => detail ? `${rand(SUCCESS)} ${SC(detail)}` : rand(SUCCESS),
+  error:            (detail = null) => detail ? `${rand(ERROR)} ${SC(detail)}` : rand(ERROR),
+  alreadyEnabled:   (detail = null) => detail ? `${rand(ALREADY_ENABLED)} ${SC(detail)}` : rand(ALREADY_ENABLED),
+  alreadyDisabled:  (detail = null) => detail ? `${rand(ALREADY_DISABLED)} ${SC(detail)}` : rand(ALREADY_DISABLED),
+  notFound:         (detail = null) => detail ? `${rand(NOT_FOUND)} ${SC(detail)}` : rand(NOT_FOUND),
+  cantTargetBot:    () => rand(CANT_TARGET_BOT),
+  cantTargetOwner:  () => rand(CANT_TARGET_OWNER),
+  groupOnly:        () => rand(GROUP_ONLY),
+  dmOnly:           () => rand(DM_ONLY),
 };
 
 //admin check
@@ -237,6 +377,16 @@ module.exports = {
   BOT_NEEDS_ADMIN,
   ACCESS_DENIED,
   OWNER_ONLY,
+  WRONG_USAGE,
+  SUCCESS,
+  ERROR,
+  ALREADY_ENABLED,
+  ALREADY_DISABLED,
+  NOT_FOUND,
+  CANT_TARGET_BOT,
+  CANT_TARGET_OWNER,
+  GROUP_ONLY,
+  DM_ONLY,
   phrases,
   isSenderAdmin,
   isAdmin,

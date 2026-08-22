@@ -10,6 +10,8 @@ const arena = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
 
 const fetch = require('node-fetch');
+const p = require('../../lib/phrases');
+
 
 const LOBBY_SECONDS = 120;
 const TURN_SECONDS  = 30;
@@ -268,7 +270,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}wcg start\` or \`${prefix}wcg stop\``);
+      return reply(p.phrases.wrongUsage('use .wcg start to begin. or .wcg stop to end it.'));
     }
 
     // Check for any active arena game

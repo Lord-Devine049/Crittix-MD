@@ -1,4 +1,6 @@
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['genpass', 'password'],
@@ -9,7 +11,7 @@ module.exports = {
     const length = parseInt(args[0]) || 16;
 
     if (length < 4 || length > 64)
-      return reply(h.demonError('.genpass', '.genpass <length 4-64>'));
+      return reply(p.phrases.wrongUsage('provide a password length between 4 and 64. example! .genpass 16'));
 
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
     let pass = '';

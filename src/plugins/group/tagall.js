@@ -13,11 +13,6 @@ module.exports = {
   description: 'Tag all members with style',
   groupOnly: true,
   execute: async ({ sock, msg, args, chatId, isOwner, isSudo, prefix, reply }) => {
-    const sender_ = msg.key.participant || msg.key.remoteJid;
-    if (!await h.isSenderAdmin(sock, chatId, sender_))
-      return reply(p.phrases.adminOnly());
-      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
-
     const meta     = await sock.groupMetadata(chatId);
     const members  = meta.participants.map(p => p.id);
     const userMsg  = args.join(' ') || 'Attention!';
@@ -29,6 +24,6 @@ module.exports = {
     text    += `╚════════════════════════么\n\n`;
     text    += members.map(m => `闇 @${m.split('@')[0]}`).join('\n');
 
-    await sock.sendMessage(chatId, { text, mentions: members });
+    await sock.sendMessage(chatId, { text, mentions: members }, { quoted: msg });
   }
 };

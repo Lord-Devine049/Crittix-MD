@@ -8,6 +8,8 @@
 
 const arena = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
+const p = require('../../lib/phrases');
+
 
 
 const LOBBY_SECONDS    = 120;
@@ -317,7 +319,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}emojiduel start\` or \`${prefix}emojiduel stop\``);
+      return reply(p.phrases.wrongUsage('use .emojiduel start to begin. or .emojiduel stop to end it.'));
     }
 
     if (arena.hasActiveGame(chatId)) {

@@ -1,5 +1,7 @@
 const axios = require('axios');
 const { getConfig } = require('../../lib/config');
+const p = require('../../lib/phrases');
+
 
 const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
@@ -92,7 +94,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Chat with AI (Groq/Llama). Usage: metaai your question',
     execute: async ({ text, chatId, sock, reply }) => {
-      if (!text) return reply('🤖 *Usage:* metaai your question here');
+      if (!text) return reply(p.phrases.wrongUsage('type your question after the command. example! .metaai what is quantum physics'));
       try {
         const answer = await askAI(text, 'You are a helpful, friendly AI assistant named Crittix. Answer concisely and accurately.');
         if (!answer) return reply('⚠️ *No response from AI*');
@@ -111,7 +113,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Chat with GPT. Usage: gpt your question',
     execute: async ({ text, chatId, sock, reply }) => {
-      if (!text) return reply('🤖 *Usage:* gpt your question here');
+      if (!text) return reply(p.phrases.wrongUsage('type your question after the command. example! .gpt explain neural networks'));
       try {
         const system = 'You are a helpful, friendly AI assistant named Crittix. Answer concisely and accurately.';
         let answer;
@@ -136,7 +138,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Chat with AI. Usage: gemini your question',
     execute: async ({ text, chatId, sock, reply }) => {
-      if (!text) return reply('🤖 *Usage:* gemini your question here');
+      if (!text) return reply(p.phrases.wrongUsage('type your question after the command. example! .gemini what is the speed of light'));
       try {
         const answer = await askAI(text);
         if (!answer) return reply('⚠️ *No response*');
@@ -155,7 +157,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Generate code with AI. Usage: codeai write a Python web scraper',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('👨‍💻 *Usage:* codeai write a Python function to sort a list');
+      if (!text) return reply(p.phrases.wrongUsage('describe the code you want written. example! .codeai write a python function to sort a list'));
       try {
         const result = await askAI(text, 'You are an expert coding assistant. Provide clean, well-commented, working code only. Be concise.');
         reply(`👨‍💻 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 Code AI*\n\n${result}`);
@@ -186,7 +188,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Generate a short AI story. Usage: storyai a dog who became a king',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📖 *Usage:* storyai a brave dog in space');
+      if (!text) return reply(p.phrases.wrongUsage('give me a story prompt. example! .storyai a brave dog in space'));
       try {
         const result = await askAI(`Write a short, engaging story (max 400 words) about: ${text}`);
         reply(`📖 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 Story AI*\n\n${result}`);
@@ -201,7 +203,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Generate an AI image. Usage: photoai a cat wearing sunglasses',
     execute: async ({ sock, msg, text, chatId, reply }) => {
-      if (!text) return reply('🖼️ *Usage:* photoai a dragon flying over a city at sunset');
+      if (!text) return reply(p.phrases.wrongUsage('describe what you want generated. example! .photoai a dragon flying over a city at sunset'));
       try {
         await reply('🎨 *Generating image...*');
         const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 99999)}`;
@@ -220,7 +222,7 @@ module.exports = [
     category: 'darkintelligence',
     description: 'Chat with AI. Usage: qwen your question',
     execute: async ({ text, chatId, sock, reply }) => {
-      if (!text) return reply('🤖 *Usage:* qwen your question here');
+      if (!text) return reply(p.phrases.wrongUsage('type your question after the command. example! .qwen how do vaccines work'));
       try {
         const answer = await askAI(text);
         if (!answer) return reply('⚠️ *No response*');

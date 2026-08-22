@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['spotify'],
@@ -8,7 +10,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const url = args[0];
     if (!url || !url.includes('spotify.com')) {
-      return reply('usage: .spt <spotify track url>');
+      return reply(p.phrases.wrongUsage('provide the spotify track url. example! .spt https://open.spotify.com/track/xxx'));
     }
 
     await reply('⬇️ downloading spotify track...');

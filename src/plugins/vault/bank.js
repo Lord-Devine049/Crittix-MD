@@ -5,6 +5,8 @@
  */
 const vault = require('../../lib/vault');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const BASE_CAP = 50000;
 
@@ -16,10 +18,10 @@ module.exports = [
     description: 'Deposit coins into your bank',
     execute: async ({ sender, args, reply }) => {
       const bal = vault.getBalance(sender);
-      if (!bal) return reply(h.demonFail('No vault account. Use .daily to start'));
+      if (!bal) return reply(p.phrases.error('No vault account. Use .daily to start'));
 
       const amount = args[0]?.toLowerCase() === 'all' ? bal.balance : parseInt(args[0]);
-      if (!amount || amount <= 0) return reply(h.demonError('.deposit', '.deposit <amount> or .deposit all'));
+      if (!amount || amount <= 0) return reply(p.phrases.wrongUsage('provide an amount to deposit. example! .deposit 500. or .deposit all to deposit everything.'));
       if (amount > bal.balance) return reply(`😑 you only have 🪙 ${bal.balance.toLocaleString()}`);
 
       const cap = BASE_CAP + (vault.getInventory(sender).filter(i => i.id === 'vault').length * 10000);
@@ -44,10 +46,10 @@ module.exports = [
     description: 'Withdraw coins from your bank',
     execute: async ({ sender, args, reply }) => {
       const bal = vault.getBalance(sender);
-      if (!bal) return reply(h.demonFail('No vault account. Use .daily to start'));
+      if (!bal) return reply(p.phrases.error('No vault account. Use .daily to start'));
 
       const amount = args[0]?.toLowerCase() === 'all' ? (bal.bank || 0) : parseInt(args[0]);
-      if (!amount || amount <= 0) return reply(h.demonError('.withdraw', '.withdraw <amount> or .withdraw all'));
+      if (!amount || amount <= 0) return reply(p.phrases.wrongUsage('provide an amount to withdraw. example! .withdraw 200. or .withdraw all.'));
       if (amount > (bal.bank || 0)) return reply(`😑 bank only has 🪙 ${(bal.bank||0).toLocaleString()}`);
 
       vault.updateBalance(sender, amount, -amount);

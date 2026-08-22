@@ -4,6 +4,8 @@
  * Category: darkcraft | Text effect art via Prexzyvilla API
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const TEXT_EFFECTS = [
   { cmd: 'glitchtext',     label: 'Glitch Text',    emoji: '⚡' },
@@ -45,7 +47,7 @@ module.exports = TEXT_EFFECTS.map(({ cmd, label, emoji }) => ({
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail(`${label} generation failed — API may be down`));
+      reply(p.phrases.error(`${label} generation failed — API may be down`));
     }
   }
 }));

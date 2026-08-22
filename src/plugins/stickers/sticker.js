@@ -6,6 +6,8 @@
 const h = require('../../lib/helpers');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const exif = require('../../lib/exif');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['sticker'],
@@ -18,7 +20,7 @@ module.exports = {
     const vidMsg = quoted?.videoMessage || msg.message?.videoMessage;
 
     if (!imgMsg && !vidMsg)
-      return reply(h.demonError('.sticker', `Reply to or send an image/video with ${prefix}sticker`));
+      return reply(p.phrases.wrongUsage('reply to or send an image or video with the command. example! .sticker'));
 
     // React loading
     await sock.sendMessage(chatId, { react: { text: '🎨', key: msg.key } }).catch(() => {});
@@ -29,12 +31,12 @@ module.exports = {
 
       // Check video duration limit (10s)
       if (vidMsg && (vidMsg.seconds || 0) > 10)
-        return reply(h.demonFail(`Video too long: ${vidMsg.seconds}s — max 10 seconds`));
+        return reply(p.phrases.error(`Video too long: ${vidMsg.seconds}s — max 10 seconds`));
 
       const stream = await downloadContentFromMessage(mediaMsg, type);
       let buf = Buffer.from([]);
       for await (const chunk of stream) buf = Buffer.concat([buf, chunk]);
-      if (!buf || buf.length === 0) return reply(h.demonFail('Failed to download media'));
+      if (!buf || buf.length === 0) return reply(p.phrases.error('Failed to download media'));
 
       const packname = cfg.BOT_NAME || 'Crittix-MD';
       const author   = cfg.OWNER_NAME || 'LORD DEVINE';
@@ -55,7 +57,7 @@ module.exports = {
 
     } catch (e) {
       await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }).catch(() => {});
-      reply(h.demonFail('Sticker error: ' + e.message));
+      reply(p.phrases.error('sticker creation failed. ' + e.message));
     }
   }
 };

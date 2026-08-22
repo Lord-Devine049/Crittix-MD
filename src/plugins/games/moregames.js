@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 // ── Riddle store: chatId → { answer: string, msgId: string, expiry: number }
 if (!global.riddleStore) global.riddleStore = new Map();
@@ -85,7 +87,7 @@ module.exports = [
     category: 'arena',
     description: 'Scramble a word into an anagram',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔤 *Usage:* anagram yourword');
+      if (!text) return reply(p.phrases.wrongUsage('provide a word to anagram. example! .anagram listen'));
       const word = text.trim().toLowerCase();
       const scrambled = word.split('').sort(() => Math.random() - 0.5).join('');
       reply(`🔤 *Anagram Scramble*\n\nOriginal: *${word}*\nScrambled: *${scrambled}*\n\n_Can you unscramble it?_`);
@@ -199,7 +201,7 @@ module.exports = [
     category: 'arena',
     description: 'Check love compatibility between two names. Usage: lovecheck Name1 | Name2',
     execute: async ({ text, reply }) => {
-      if (!text || !text.includes('|')) return reply('💕 *Usage:* lovecheck Name1 | Name2');
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('provide two names separated by a pipe. example! .lovecheck divine "his queen"'));
       const [a, b] = text.split('|').map(s => s.trim());
       const seed = (a + b).split('').reduce((acc,c) => acc + c.charCodeAt(0), 0);
       const pct = (seed % 101);
@@ -215,7 +217,7 @@ module.exports = [
     description: 'Tag two people to get a compliment battle result. Usage: complimentbattle @a @b',
     execute: async ({ msg, text, reply }) => {
       const mentions = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
-      if (mentions.length < 2) return reply('💬 *Usage:* complimentbattle @person1 @person2');
+      if (mentions.length < 2) return reply(p.phrases.wrongUsage('tag two people to start a compliment battle. example! .complimentbattle @person1 @person2'));
       const [a, b] = mentions;
       const compliments = [
         'a radiant ball of sunshine ☀️',

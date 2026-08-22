@@ -11,6 +11,8 @@
 
 const { downloadContentFromMessage, prepareWAMessageMedia } = require('@whiskeysockets/baileys');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const genId = () => '3EB0' + Math.random().toString(36).slice(2, 13) + Math.random().toString(36).slice(2, 13);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -60,10 +62,10 @@ module.exports = {
       groups   = await sock.groupFetchAllParticipating();
       groupIds = Object.keys(groups);
     } catch (e) {
-      return reply(h.demonFail('Failed to fetch groups: ' + e.message));
+      return reply(p.phrases.error('failed to fetch groups. ' + e.message));
     }
 
-    if (!groupIds.length) return reply(h.demonFail('Bot is not in any groups.'));
+    if (!groupIds.length) return reply(p.phrases.error('Bot is not in any groups.'));
 
     await reply(
       `🚀 *Spam GC Status Starting*\n` +
@@ -99,7 +101,7 @@ module.exports = {
           if (mediaType === 'video' && preparedMedia.videoMessage) preparedMedia.videoMessage.caption = finalText;
         }
       } catch (e) {
-        return reply(h.demonFail('Media prep failed: ' + e.message));
+        return reply(p.phrases.error('media prep failed. ' + e.message));
       }
     }
 

@@ -1,4 +1,6 @@
 const db = require('../../lib/db');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'resetwarnall',
   category: 'abysscommands',
@@ -7,6 +9,6 @@ module.exports = {
   groupOnly: true,
   execute: async ({ chatId, reply }) => {
     db.saveGroup(chatId, { warnings: {} });
-    reply('✓ all warnings cleared');
+    reply(p.phrases.success('all warnings cleared.'));
   }
 };

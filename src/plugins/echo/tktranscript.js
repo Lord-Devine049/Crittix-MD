@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['tktranscript', 'tktrans'],
@@ -11,7 +13,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const url = args[0];
     if (!url || !url.includes('tiktok')) {
-      return reply('usage: .tktrans <tiktok url>');
+      return reply(p.phrases.wrongUsage('provide the tiktok video url to transcribe. example! .tktrans https://vm.tiktok.com/xxx'));
     }
 
     await reply('📝 fetching transcript...');

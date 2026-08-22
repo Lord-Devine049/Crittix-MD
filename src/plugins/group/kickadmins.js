@@ -22,6 +22,6 @@ module.exports = {
       try { await sock.groupParticipantsUpdate(chatId, [a.id], 'remove'); } catch(_) {}
       await new Promise(r => setTimeout(r, 800));
     }
-    reply('✓ All admins kicked');
+    reply(p.phrases.success('all admins kicked.'));
   }
 };

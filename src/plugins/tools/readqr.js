@@ -5,6 +5,8 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['scanqr'],
@@ -16,11 +18,11 @@ module.exports = {
     const quoted = ctx?.quotedMessage;
 
     if (!quoted)
-      return reply(h.demonError('.readqr', '.readqr — reply to a QR code image'));
+      return reply(p.phrases.wrongUsage('reply to a qr code image to read it.'));
 
     const quotedType = Object.keys(quoted)[0];
     if (quotedType !== 'imageMessage')
-      return reply(h.demonFail('Reply to an image containing a QR code'));
+      return reply(p.phrases.wrongUsage('reply to an image that contains a qr code.'));
 
     try {
       const quotedMsg = {
@@ -29,7 +31,7 @@ module.exports = {
       };
 
       const buffer = await sock.downloadMediaMessage(quotedMsg);
-      if (!buffer) return reply(h.demonFail('Failed to download image'));
+      if (!buffer) return reply(p.phrases.error('failed to download the image.'));
 
       const form = new FormData();
       form.append('file', buffer, { filename: 'qr.png', contentType: 'image/png' });
@@ -40,11 +42,11 @@ module.exports = {
       });
 
       const qrText = res.data?.[0]?.symbol?.[0]?.data;
-      if (!qrText) return reply(h.demonFail('No QR code detected in image'));
+      if (!qrText) return reply(p.phrases.notFound('no qr code detected in that image.'));
 
       reply(`📱 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗤𝗥 𝗥𝗲𝗮𝗱𝗲𝗿*\n\n${qrText}`);
     } catch {
-      reply(h.demonFail('QR read failed. Try a clearer image.'));
+      reply(p.phrases.error('qr read failed. try a clearer image.'));
     }
   }
 };

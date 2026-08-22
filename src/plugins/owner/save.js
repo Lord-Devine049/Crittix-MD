@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['save'],
@@ -15,7 +17,7 @@ module.exports = {
     const quoted = ctx?.quotedMessage;
 
     if (!quoted)
-      return reply(h.demonError('.save', '.save — reply to any media'));
+      return reply(p.phrases.wrongUsage('reply to any media to save it. example! reply to an image then .save'));
 
     const quotedType = Object.keys(quoted)[0];
     const isImage = quotedType === 'imageMessage';
@@ -24,7 +26,7 @@ module.exports = {
     const isDoc   = quotedType === 'documentMessage';
 
     if (!isImage && !isVideo && !isAudio && !isDoc)
-      return reply(h.demonFail('Reply to an image, video, audio, or document'));
+      return reply(p.phrases.error('Reply to an image, video, audio, or document'));
 
     try {
       const quotedMsg = {
@@ -37,7 +39,7 @@ module.exports = {
       };
 
       const media = await sock.downloadMediaMessage(quotedMsg);
-      if (!media) return reply(h.demonFail('Download failed'));
+      if (!media) return reply(p.phrases.error('Download failed'));
 
       const botJid = (sock.authState?.creds?.me?.id || '').replace(/:\d+@/, '@');
 
@@ -64,9 +66,9 @@ module.exports = {
         });
       }
 
-      reply(h.demonSuccess('Media saved to bot DM'));
+      reply(p.phrases.success('media saved to bot dm.'));
     } catch {
-      reply(h.demonFail('Failed to save media'));
+      reply(p.phrases.error('Failed to save media'));
     }
   }
 };

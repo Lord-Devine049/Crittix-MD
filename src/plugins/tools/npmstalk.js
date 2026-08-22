@@ -5,6 +5,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['npmstalk'],
@@ -12,7 +14,7 @@ module.exports = {
   category: 'soultools',
   description: 'Look up an npm package',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.npmstalk', '.npmstalk <package name>'));
+    if (!text) return reply(p.phrases.wrongUsage('provide the npm package name. example! .npmstalk express'));
 
     try {
       const res = await axios.get(
@@ -37,8 +39,8 @@ module.exports = {
       reply(out);
     } catch (err) {
       if (err.response?.status === 404)
-        return reply(h.demonFail(`Package "${text}" not found on npm`));
-      reply(h.demonFail('npm registry unavailable. Try again.'));
+        return reply(p.phrases.notFound(`package "${text}" not found on npm.`));
+      reply(p.phrases.error('npm registry is down. try again.'));
     }
   }
 };

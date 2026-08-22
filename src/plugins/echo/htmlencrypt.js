@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['htmlencrypt', 'htmlenc'],
@@ -10,7 +12,7 @@ module.exports = {
   description: 'Encrypt and obfuscate HTML code',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const html = args.join(' ').trim();
-    if (!html) return reply('usage: .htmlenc <html code>');
+    if (!html) return reply(p.phrases.wrongUsage('paste your html code to encrypt it. example! .htmlenc <h1>hello world</h1>'));
 
     await reply('🔐 encrypting HTML...');
 

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'meme',
@@ -15,6 +17,6 @@ module.exports = {
       const res = await axios.get('https://meme-api.com/gimme', { timeout: 8000 });
       const meme = res.data;
       await sock.sendMessage(chatId, { image: { url: meme.url }, caption: '😂 ' + (meme.title||'Meme') }, { quoted: msg });
-    } catch(e) { reply(h.demonFail('Could not fetch meme')); }
+    } catch(e) { reply(p.phrases.error('could not fetch a meme. try again.')); }
   }
 };

@@ -120,7 +120,7 @@ module.exports = {
     // GROUP STATS  —  .stats group
     // ══════════════════════════════════════════════════════
     if (sub === 'group') {
-      if (!isGroupMsg) return reply(h.demonFail('Group only.'));
+      if (!isGroupMsg) return reply(p.phrases.error('Group only.'));
       const stats       = observer.getGroupStats(groupId);
       const memberCount = groupMetadata?.participants?.length || 0;
       const isAdmin     = await h.isSenderAdmin(sock, chatId, sender).catch(() => false);
@@ -194,7 +194,7 @@ module.exports = {
     // TOP GROUPS  —  .stats groups  (owner only)
     // ══════════════════════════════════════════════════════
     if (sub === 'groups') {
-      if (!ownerBool && !isSudo) return reply(h.demonFail('Owner only.'));
+      if (!ownerBool && !isSudo) return reply(p.phrases.error('Owner only.'));
 
       // Read observer.json directly — has real group names and message counts
       let obsDB = {};
@@ -204,7 +204,7 @@ module.exports = {
         .sort((a, b) => b[1].messages - a[1].messages)
         .slice(0, 10);
 
-      if (!groups.length) return reply(h.demonFail('No group data yet.'));
+      if (!groups.length) return reply(p.phrases.error('No group data yet.'));
 
       let txt = `╔═══════════════════════════════╗\n║ 🌐 𝐓𝐎𝐏 𝐆𝐑𝐎𝐔𝐏𝐒\n╚═══════════════════════════════╝\n\n`;
       for (let i = 0; i < groups.length; i++) {
@@ -225,13 +225,13 @@ module.exports = {
     // ADMIN ANALYTICS  —  .stats admin  (admins only)
     // ══════════════════════════════════════════════════════
     if (sub === 'admin') {
-      if (!isGroupMsg) return reply(h.demonFail('Group only.'));
+      if (!isGroupMsg) return reply(p.phrases.error('Group only.'));
       const isAdmin = await h.isSenderAdmin(sock, chatId, sender).catch(() => false);
       if (!isAdmin) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
 
       let meta;
-      try { meta = await sock.groupMetadata(chatId); } catch { return reply(h.demonFail('Could not fetch group info.')); }
+      try { meta = await sock.groupMetadata(chatId); } catch { return reply(p.phrases.error('Could not fetch group info.')); }
 
       const total    = meta.participants.length;
       const actDB    = loadDB('activity.json');

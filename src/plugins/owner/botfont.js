@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'botfont',
@@ -18,8 +20,8 @@ module.exports = {
       const preview = AVAILABLE_FONTS.map(f => '➩ ' + f + ' → ' + applyFont('Hello', f)).join('\n');
       return reply('💜 Available fonts:\n\n' + preview + '\n\nUsage: .botfont <name>');
     }
-    if (!AVAILABLE_FONTS.includes(fontName)) return reply(h.demonFail('Unknown font'));
+    if (!AVAILABLE_FONTS.includes(fontName)) return reply(p.phrases.error('Unknown font'));
     set({ FONT: fontName });
-    reply('✓ Font set to *' + fontName + '*\n\nPreview: ' + applyFont('Crittix-MD', fontName));
+    reply(p.phrases.success('font set to ' + fontName + '.') + '\n\nPreview: ' + applyFont('Crittix-MD', fontName));
   }
 };

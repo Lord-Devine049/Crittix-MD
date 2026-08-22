@@ -14,6 +14,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const FD_API = 'https://api.football-data.org/v4';
 const FD_KEY = process.env.FOOTBALL_DATA_KEY || '';
@@ -114,7 +116,7 @@ const makeExecutor = (leagueKey, type) => async ({ reply }) => {
     if (type === 'upcoming')   text = fmtUpcoming(await fetchUpcoming(league.id), league.name);
     reply(text);
   } catch (e) {
-    reply(h.demonFail(`Sports API failed: ${e.message}\nCheck your FOOTBALL_DATA_KEY and rate limits.`));
+    reply(p.phrases.error(`Sports API failed: ${e.message}\nCheck your FOOTBALL_DATA_KEY and rate limits.`));
   }
 };
 
@@ -192,7 +194,7 @@ module.exports = [
         });
         if (!events.length) return reply(`🎭 *WWE EVENTS*\n\nCouldn't parse events. Visit wwe.com for latest shows.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         reply(`🎭 *WWE/WRESTLING EVENTS*\n\n${events.slice(0, 6).join('\n\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`Wrestling events fetch failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Wrestling events fetch failed: ${e.message}`)); }
     }
   },
 
@@ -204,10 +206,10 @@ module.exports = [
     execute: async ({ reply }) => {
       try {
         const items = await fetchWWERSS();
-        if (!items.length) return reply(h.demonFail('No WWE news found right now.'));
+        if (!items.length) return reply(p.phrases.error('No WWE news found right now.'));
         const lines = items.map((n, i) => `${i+1}. *${n.title}*\n🔗 ${n.link}`);
         reply(`📰 *WWE NEWS*\n\n${lines.join('\n\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`WWE news fetch failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`WWE news fetch failed: ${e.message}`)); }
     }
   },
 

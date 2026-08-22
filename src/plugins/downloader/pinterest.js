@@ -1,5 +1,7 @@
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['pinterest'],
@@ -7,7 +9,7 @@ module.exports = {
   category: 'darkweb',
   description: 'Search Pinterest images',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.pinterest', '.pinterest <query> | <amount>'));
+    if (!text) return reply(p.phrases.wrongUsage('type your search and optionally the amount. example! .pinterest dark anime wallpapers "10"'));
 
     let query, amount;
 
@@ -28,7 +30,7 @@ module.exports = {
 
       const images = res.data?.result;
       if (!Array.isArray(images) || images.length === 0)
-        return reply(h.demonFail(`No Pinterest images found for "${query}"`));
+        return reply(p.phrases.error(`No Pinterest images found for "${query}"`));
 
       const shuffled = images.filter(Boolean).sort(() => Math.random() - 0.5);
       let sent = 0;
@@ -47,9 +49,9 @@ module.exports = {
         }
       }
 
-      if (sent === 0) reply(h.demonFail('No accessible images found'));
+      if (sent === 0) reply(p.phrases.error('No accessible images found'));
     } catch {
-      reply(h.demonFail('Pinterest search failed. Try again.'));
+      reply(p.phrases.error('Pinterest search failed. Try again.'));
     }
   }
 };

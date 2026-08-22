@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'dictionary',
@@ -6,7 +8,7 @@ module.exports = {
   category: 'soultools',
   description: 'Look up the meaning of a word. Usage: dictionary ephemeral',
   execute: async ({ sock, msg, text, chatId, reply }) => {
-    if (!text) return reply('📖 *Usage:* dictionary ephemeral');
+    if (!text) return reply(p.phrases.wrongUsage('type the word you want to look up. example! .dictionary ephemeral'));
 
     try {
       const res = await axios.get(

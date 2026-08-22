@@ -38,7 +38,7 @@ module.exports = [
           (members.length ? members.map(([ jid, pts ], i) => `${i+1}. @${jid.split('@')[0]} — ${pts} pts`).join('\n') : 'No data yet') +
           `\n\n📈 Use .activitygraph for a visual chart\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`report failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`report failed — ${e.message}`)); }
     }
   },
 
@@ -52,7 +52,7 @@ module.exports = [
       try {
         const actDB = loadDB('activity.json') || {};
         const groupAct = actDB[chatId] || {};
-        if (!Object.keys(groupAct).length) return reply(h.demonFail('no activity data recorded yet'));
+        if (!Object.keys(groupAct).length) return reply(p.phrases.error('no activity data recorded yet'));
         const sorted = Object.entries(groupAct).sort((a, b) => b[1] - a[1]).slice(0, 8);
         const max = sorted[0][1] || 1;
         const BAR_WIDTH = 10;
@@ -65,7 +65,7 @@ module.exports = [
         }
         chart += `\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`;
         reply(chart);
-      } catch (e) { reply(h.demonFail(`graph failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`graph failed — ${e.message}`)); }
     }
   },
 
@@ -79,7 +79,7 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
-      if (!targets || targets.length < 2) return reply(h.demonError('.usercompare', '.usercompare @user1 @user2'));
+      if (!targets || targets.length < 2) return reply(p.phrases.wrongUsage('tag two users to compare them. example! .usercompare @user1 @user2'));
       try {
         const actDB = loadDB('activity.json') || {};
         const globalXP = require('../../lib/global-xp');
@@ -103,7 +103,7 @@ module.exports = [
             `Overall: *${act1 + xp1 + bal1 > act2 + xp2 + bal2 ? `@${n1}` : `@${n2}`} wins* 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,
           mentions: [u1, u2]
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`comparison failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`comparison failed — ${e.message}`)); }
     }
   },
 
@@ -121,10 +121,10 @@ module.exports = [
           total: Object.values(members).reduce((s, v) => s + v, 0),
           memberCount: Object.keys(members).length
         })).sort((a, b) => b.total - a.total).slice(0, 10);
-        if (!groupTotals.length) return reply(h.demonFail('no group activity data recorded yet'));
+        if (!groupTotals.length) return reply(p.phrases.error('no group activity data recorded yet'));
         const txt = groupTotals.map((g, i) => `${i+1}. \`${g.chatId.split('@')[0].slice(-10)}\` — ${g.total} pts (${g.memberCount} members)`).join('\n');
         reply(`📊 *TOP ACTIVE GROUPS*\n\n${txt}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`top groups failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`top groups failed — ${e.message}`)); }
     }
   },
 
@@ -142,14 +142,14 @@ module.exports = [
         const groupAct = actDB[chatId] || {};
         const meta = await sock.groupMetadata(chatId);
         const inactive = meta.participants.filter(m => !groupAct[m.id] || groupAct[m.id] === 0);
-        if (!inactive.length) return reply(`✅ *No inactive members!*\n\nEvery member in this group has some recorded activity.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        if (!inactive.length) return reply(p.phrases.notFound('no inactive members. everyone is active.'));
         reply(
           `👻 *INACTIVE MEMBERS (${inactive.length})*\n\n` +
           inactive.slice(0, 15).map((m, i) => `${i+1}. @${m.id.split('@')[0]}`).join('\n') +
           (inactive.length > 15 ? `\n\n...and ${inactive.length - 15} more` : '') +
           `\n\nKick with .bulkkick @mention or review individually.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`inactive alert failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`inactive alert failed — ${e.message}`)); }
     }
   },
 
@@ -180,7 +180,7 @@ module.exports = [
           `🏅 Rating: *${rating}*\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`score failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`score failed — ${e.message}`)); }
     }
   },
 
@@ -209,7 +209,7 @@ module.exports = [
           `🏥 Health: *${rating}*\n\n` +
           `_Note: Based on bot interaction data only_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`retention rate failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`retention rate failed — ${e.message}`)); }
     }
   },
 
@@ -240,7 +240,7 @@ module.exports = [
           txt += `${String(hr).padStart(2,'0')}:00 |${'█'.repeat(bars)}| ${count}\n`;
         }
         reply(txt + `\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`peak hours failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`peak hours failed — ${e.message}`)); }
     }
   }
 

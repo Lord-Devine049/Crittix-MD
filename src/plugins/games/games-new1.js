@@ -7,6 +7,8 @@
  */
 const h = require('../../lib/helpers');
 const globalXP = require('../../lib/global-xp');
+const p = require('../../lib/phrases');
+
 
 const gameSessions = {};
 
@@ -19,7 +21,7 @@ module.exports = [
     description: 'Generate a text word search puzzle. Usage: wordsearch cat dog sun moon',
     execute: async ({ args, reply }) => {
       const words = args.map(w => w.toUpperCase().replace(/[^A-Z]/g, '')).filter(w => w.length >= 3).slice(0, 6);
-      if (!words.length) return reply(h.demonError('.wordsearch', '.wordsearch <word1> <word2> ... (3-6 words)'));
+      if (!words.length) return reply(p.phrases.wrongUsage('provide 3 to 6 words to build a word search. example! .wordsearch crittix dark night raiders'));
       const SIZE = 12;
       const grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(''));
       const placed = [];
@@ -65,7 +67,7 @@ module.exports = [
       }
       const game = gameSessions[key];
       const guess = parseInt(action);
-      if (isNaN(guess) || guess < 1 || guess > 100) return reply(h.demonFail('give me a number between 1 and 100'));
+      if (isNaN(guess) || guess < 1 || guess > 100) return reply(p.phrases.error('give me a number between 1 and 100'));
       game.attempts++;
       const remaining = game.maxAttempts - game.attempts;
       if (guess === game.secret) {
@@ -107,12 +109,12 @@ module.exports = [
         return reply(`🏳️ *GUESS THE FLAG*\n\n${q.flag}\n\nWhich country is this?\nAnswer with: ${prefix}guesstheflag <country name>\n\n⏰ You have 30 seconds!\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const game = gameSessions[`flag_${chatId}`];
-      if (!game) return reply(h.demonFail(`no active flag game — start one with ${prefix}guesstheflag`));
+      if (!game) return reply(p.phrases.error(`no active flag game — start one with ${prefix}guesstheflag`));
       if (Date.now() - game.started > 30000) { delete gameSessions[`flag_${chatId}`]; return reply(`⏰ Time's up! The answer was *${game.answer}*. Too slow 💀`); }
       const guess = args.join(' ').toLowerCase();
       if (guess.includes(game.answer) || game.answer.includes(guess)) {
         delete gameSessions[`flag_${chatId}`];
-        return reply(`✅ *CORRECT!* It was *${game.answer.toUpperCase()}*! You actually knew that one. Shocked.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`correct! it was ${game.answer.toUpperCase()}.`) Shocked.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       reply(`❌ Wrong. That's not *${game.answer}*. Try again — ${game.started + 30000 - Date.now() > 0 ? Math.ceil((game.started + 30000 - Date.now()) / 1000) + 's left' : 'time almost up'}`);
     }
@@ -140,12 +142,12 @@ module.exports = [
         return reply(`🎭 *GUESS THE EMOJI*\n\n${q.emoji}\n\nWhat movie/phrase does this represent?\nAnswer: ${prefix}guesstheemoji <answer>\n\n⏰ 45 seconds!\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const game = gameSessions[`emoji_${chatId}`];
-      if (!game) return reply(h.demonFail(`start a game first with ${prefix}guesstheemoji`));
+      if (!game) return reply(p.phrases.error(`start a game first with ${prefix}guesstheemoji`));
       if (Date.now() - game.started > 45000) { delete gameSessions[`emoji_${chatId}`]; return reply(`⏰ Too slow! Answer was *${game.answer}* 💀`); }
       const guess = args.join(' ').toLowerCase();
       if (guess.includes(game.answer) || game.answer.split(' ').every(w => guess.includes(w))) {
         delete gameSessions[`emoji_${chatId}`];
-        return reply(`✅ *CORRECT!* It was *${game.answer.toUpperCase()}*! 🎉\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`correct! it was ${game.answer.toUpperCase()}.`));
       }
       reply(`❌ Nope. Keep trying — time's running out`);
     }
@@ -177,12 +179,12 @@ module.exports = [
         return reply(`🌍 *GUESS THE COUNTRY*\n\n📋 Clue: _${q.clue}_\n\nAnswer: ${prefix}guessthecountry <country name>\n\n⏰ 45 seconds!\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const game = gameSessions[`country_${chatId}`];
-      if (!game) return reply(h.demonFail(`start with ${prefix}guessthecountry`));
+      if (!game) return reply(p.phrases.error(`start with ${prefix}guessthecountry`));
       if (Date.now() - game.started > 45000) { delete gameSessions[`country_${chatId}`]; return reply(`⏰ Time's up! Answer: *${game.answer}*`); }
       const guess = args.join(' ').toLowerCase();
       if (guess.includes(game.answer) || game.answer.includes(guess)) {
         delete gameSessions[`country_${chatId}`];
-        return reply(`✅ *Correct! It's ${game.answer.toUpperCase()}!* 🎉\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`correct! it was ${game.answer.toUpperCase()}.`));
       }
       reply(`❌ Wrong. That's not it.`);
     }
@@ -216,7 +218,7 @@ module.exports = [
       }
       const game = gameSessions[key];
       const ans = args[0]?.toLowerCase();
-      if (ans !== 'yes' && ans !== 'no') return reply(h.demonFail(`answer with "${prefix}akinator yes" or "${prefix}akinator no"`));
+      if (ans !== 'yes' && ans !== 'no') return reply(p.phrases.error(`answer with "${prefix}akinator yes" or "${prefix}akinator no"`));
       game.answers.push(ans);
       game.q++;
       if (game.q >= game.questions.length) {
@@ -247,7 +249,7 @@ module.exports = [
         const guess = args.slice(1).join(' ').toLowerCase();
         if (guess === game.obj || game.obj.includes(guess)) {
           delete gameSessions[key];
-          return reply(`✅ *CORRECT!* It was *${game.obj}*! You got it in ${game.asked} questions. Not bad.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+          return reply(p.phrases.success(`correct! it was ${game.obj}.`) You got it in ${game.asked} questions. Not bad.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
         return reply(`❌ Not *${guess}*. ${game.asked} questions used. Keep going (${game.max - game.asked} left)`);
       }
@@ -276,12 +278,12 @@ module.exports = [
       const key = `story_${chatId}`;
       if (args[0] === 'start') {
         const opening = args.slice(1).join(' ');
-        if (!opening) return reply(h.demonError('.storychain start', '.storychain start <opening sentence>'));
+        if (!opening) return reply(p.phrases.wrongUsage('provide an opening sentence. example! .storychain start it was a dark and stormy night'));
         gameSessions[key] = { lines: [`*@${senderNumber}:* ${opening}`], started: Date.now() };
         return reply(`📖 *STORY CHAIN STARTED*\n\nAdd sentences with: ${prefix}storychain add <sentence>\nEnd with: ${prefix}storychain end\n\n📖 *Chapter 1:*\n${gameSessions[key].lines[0]}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const chain = gameSessions[key];
-      if (!chain) return reply(h.demonFail(`no story active — start one with ${prefix}storychain start <sentence>`));
+      if (!chain) return reply(p.phrases.error(`no story active — start one with ${prefix}storychain start <sentence>`));
       if (args[0] === 'end') {
         const story = chain.lines.join('\n');
         delete gameSessions[key];
@@ -289,12 +291,12 @@ module.exports = [
       }
       if (args[0] === 'add') {
         const sentence = args.slice(1).join(' ');
-        if (!sentence) return reply(h.demonError('.storychain add', '.storychain add <your sentence>'));
-        if (chain.lines.length >= 20) return reply(h.demonFail(`story is getting long — end it with ${prefix}storychain end`));
+        if (!sentence) return reply(p.phrases.wrongUsage('add the next sentence to the story. example! .storychain add then the lights went out'));
+        if (chain.lines.length >= 20) return reply(p.phrases.error(`story is getting long — end it with ${prefix}storychain end`));
         chain.lines.push(`*@${senderNumber}:* ${sentence}`);
         return reply(`📖 Added! Story so far (${chain.lines.length} lines):\n\n${chain.lines.join('\n')}\n\n_${prefix}storychain add <next line>_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply(`Usage: ${prefix}storychain start <sentence> | add <sentence> | end`);
+      reply(p.phrases.wrongUsage('use .storychain start your sentence. or add your sentence. or end to finish the story.'));
     }
   },
 
@@ -320,7 +322,7 @@ module.exports = [
       }
       game.round++;
       game.seq.push(Math.floor(Math.random() * 4));
-      reply(`✅ *Correct! Round ${game.round}*\n\nNew sequence: ${game.seq.map(i => emojis[i]).join(' ')}\n\nRepeat it: ${prefix}simonsays ${game.seq.map((_, i) => i+1).join(' <> ')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`correct! round ${game.round}.`)\n\nNew sequence: ${game.seq.map(i => emojis[i]).join(' ')}\n\nRepeat it: ${prefix}simonsays ${game.seq.map((_, i) => i+1).join(' <> ')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
   },
 
@@ -345,9 +347,9 @@ module.exports = [
       const rows = ['A','B','C'];
       const parse = (s) => { const r = rows.indexOf(s[0]?.toUpperCase()); const c = parseInt(s[1]) - 1; return { r, c }; };
       const p1 = parse(args[1]), p2 = parse(args[2]);
-      if (p1.r < 0 || p1.c < 0 || p2.r < 0 || p2.c < 0 || p1.r >= 3 || p1.c >= 4 || p2.r >= 3 || p2.c >= 4) return reply(h.demonFail('invalid card position — use like A1, B3, C4'));
+      if (p1.r < 0 || p1.c < 0 || p2.r < 0 || p2.c < 0 || p1.r >= 3 || p1.c >= 4 || p2.r >= 3 || p2.c >= 4) return reply(p.phrases.error('invalid card position — use like A1, B3, C4'));
       const c1 = game.grid[p1.r][p1.c], c2 = game.grid[p2.r][p2.c];
-      if (c1.flipped || c2.flipped) return reply(h.demonFail('those cards are already matched/flipped'));
+      if (c1.flipped || c2.flipped) return reply(p.phrases.error('those cards are already matched/flipped'));
       game.moves++;
       if (c1.val === c2.val) { c1.flipped = c2.flipped = true; game.matched++; }
       const display = game.grid.map((row, ri) => `${rows[ri]}: ${row.map(c => c.flipped ? c.val : '⬛').join(' ')}`).join('\n');
@@ -365,7 +367,7 @@ module.exports = [
       const key = `react_${chatId}_${sender}`;
       if (args[0] === 'tap') {
         const game = gameSessions[key];
-        if (!game || !game.started) return reply(h.demonFail(`no active test — run ${prefix}reactiontest first`));
+        if (!game || !game.started) return reply(p.phrases.error(`no active test — run ${prefix}reactiontest first`));
         const elapsed = Date.now() - game.started;
         delete gameSessions[key];
         const rating = elapsed < 150 ? '🔥 GODLIKE' : elapsed < 250 ? '⚡ FAST' : elapsed < 400 ? '✅ GOOD' : elapsed < 600 ? '😐 AVERAGE' : '🐌 SLOW';
@@ -400,7 +402,7 @@ module.exports = [
       }
       const game = gameSessions[key];
       const col = parseInt(args[1]) - 1;
-      if (isNaN(col) || col < 0 || col >= COLS) return reply(h.demonFail('pick a column 1-7'));
+      if (isNaN(col) || col < 0 || col >= COLS) return reply(p.phrases.error('pick a column 1-7'));
       const drop = (g, col, piece) => {
         for (let r = ROWS - 1; r >= 0; r--) { if (g[r][col] === 0) { g[r][col] = piece; return r; } }
         return -1;
@@ -412,7 +414,7 @@ module.exports = [
         return false;
       };
       const row = drop(game.grid, col, 1);
-      if (row === -1) return reply(h.demonFail('that column is full'));
+      if (row === -1) return reply(p.phrases.error('that column is full'));
       if (check4(game.grid, 1)) {
         const d = game.grid.map(r => r.map(c => c === 0 ? '⬛' : c === 1 ? '🔴' : '🟡').join('')).join('\n');
         delete gameSessions[key];
@@ -442,8 +444,8 @@ module.exports = [
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
       const opponent = targets?.[0];
-      if (!opponent) return reply(h.demonError('.pvp', '.pvp @mention your opponent'));
-      if (opponent === sender) return reply(h.demonFail('you can\'t fight yourself — that\'s just therapy'));
+      if (!opponent) return reply(p.phrases.wrongUsage('tag your opponent to start a pvp battle. example! .pvp @user'));
+      if (opponent === sender) return reply(p.phrases.error('you cannot fight yourself. pick someone else.'));
       const sbal = require('../../lib/vault').getBalance(sender);
       const obal = require('../../lib/vault').getBalance(opponent);
       const sxp = globalXP.getXP(sender) || 0;

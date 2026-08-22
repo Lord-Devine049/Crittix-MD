@@ -2,6 +2,8 @@
 const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'contrast',
   category: 'creativetools',
@@ -10,7 +12,7 @@ module.exports = {
     const contrastVal = parseInt(args[0]);
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg || isNaN(contrastVal)) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}contrast <-100 to 100> (reply to image)\n\n${h.toBoldItalic('Example')}: ${prefix}contrast 40`);
+    if (!imageMsg || isNaN(contrastVal)) return reply(p.phrases.wrongUsage('reply to an image and provide a contrast value from -100 to 100. example! .contrast 40'));
     try {
       let imgBuffer;
       if (msg.message?.imageMessage) imgBuffer = await downloadMediaMessage(msg, 'buffer', {});

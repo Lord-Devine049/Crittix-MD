@@ -4,6 +4,8 @@
  * Ported from Axis XMD
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['qc', 'quotesticker'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'creativetools',
   description: 'Create a quote card sticker from your text',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.qc', '.qc <your quote>'));
+    if (!text) return reply(p.phrases.wrongUsage('type your quote after the command. example! .qc if you know you know.'));
 
     const name = msg.pushName || sender.split('@')[0];
 
@@ -35,7 +37,7 @@ module.exports = {
       const buffer = await sticker.toBuffer();
       await sock.sendMessage(chatId, { sticker: buffer }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Quote sticker failed. wa-sticker-formatter may not be installed.'));
+      reply(p.phrases.error('quote sticker failed. check if wa-sticker-formatter is installed.'));
     }
   }
 };

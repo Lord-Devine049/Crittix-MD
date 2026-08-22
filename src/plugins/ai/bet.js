@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'bet',
@@ -8,9 +10,9 @@ module.exports = {
     let _gtP = [];
     if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
     const target = h.getTarget(msg, _gtP);
-    if (!target.length) return reply('usage: .bet @user <amount>');
+    if (!target.length) return reply(p.phrases.wrongUsage('tag someone and provide the bet amount. example! .bet @user 500'));
     const amount = parseInt(args[1]) || parseInt(args[0]);
-    if (!amount || amount <= 0) return reply('usage: .bet @user <amount>');
+    if (!amount || amount <= 0) return reply(p.phrases.wrongUsage('tag someone and provide the bet amount. example! .bet @user 500'));
     const betMsg = await sock.sendMessage(chatId, {
       text: '🎲 AURA BET\n\n@' + sender.split('@')[0] + ' challenges @' + target[0].split('@')[0] + ' for ' + amount + ' aura!\n\nReply *accept* to accept',
       mentions: [sender, target[0]]

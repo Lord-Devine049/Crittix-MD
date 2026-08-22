@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['sfw'],
@@ -16,7 +18,7 @@ module.exports = {
         caption: `✨ *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗦𝗙𝗪*`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Image fetch failed. Try again.'));
+      reply(p.phrases.error('Image fetch failed. Try again.'));
     }
   }
 };

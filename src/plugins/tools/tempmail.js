@@ -1,5 +1,7 @@
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const tempMailStore = {};
 
@@ -28,12 +30,12 @@ module.exports = {
           `Use *${prefix}delmail* to delete`
         );
       } catch {
-        reply(h.demonFail('Failed to create temp email. Try again.'));
+        reply(p.phrases.error('failed to create temp email. try again.'));
       }
 
     } else if (cmd === 'checkmail' || cmd === 'inbox') {
       const userMail = tempMailStore[sender];
-      if (!userMail) return reply(h.demonFail(`No email found. Use ${prefix}tempmail first`));
+      if (!userMail) return reply(p.phrases.notFound('no email found. create one with .tempmail first.'));
 
       try {
         const res = await axios.get(
@@ -52,15 +54,15 @@ module.exports = {
 
         reply(`📬 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗜𝗻𝗯𝗼𝘅*\n\n${msgs}\n\n_Use ${prefix}readmail <id> to read_`);
       } catch {
-        reply(h.demonFail('Failed to check inbox. Try again.'));
+        reply(p.phrases.error('failed to check inbox. try again.'));
       }
 
     } else if (cmd === 'readmail') {
       const userMail = tempMailStore[sender];
-      if (!userMail) return reply(h.demonFail(`No email found. Use ${prefix}tempmail first`));
+      if (!userMail) return reply(p.phrases.notFound('no email found. create one with .tempmail first.'));
 
       const messageId = args[0];
-      if (!messageId) return reply(h.demonError('.readmail', '.readmail <message id>'));
+      if (!messageId) return reply(p.phrases.wrongUsage('provide the message id to read. example! .readmail 12345'));
 
       try {
         const res = await axios.get(
@@ -69,7 +71,7 @@ module.exports = {
         );
 
         const message = res.data;
-        if (!message?.id) return reply(h.demonFail(`Message ID ${messageId} not found`));
+        if (!message?.id) return reply(p.phrases.notFound(`message id ${messageId} not found.`));
 
         const body = message.textBody
           ? message.textBody.substring(0, 800) + (message.textBody.length > 800 ? '...' : '')
@@ -83,15 +85,15 @@ module.exports = {
           `${body}`
         );
       } catch {
-        reply(h.demonFail('Failed to read message. Try again.'));
+        reply(p.phrases.error('Failed to read message. Try again.'));
       }
 
     } else if (cmd === 'delmail') {
       if (!tempMailStore[sender])
-        return reply(h.demonFail('No temp email to delete'));
+        return reply(p.phrases.error('No temp email to delete'));
 
       delete tempMailStore[sender];
-      reply(h.demonSuccess('Temp email deleted successfully'));
+      reply(p.phrases.success('temp email deleted.'));
     }
   }
 };

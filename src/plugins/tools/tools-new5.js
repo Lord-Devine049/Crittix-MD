@@ -11,6 +11,8 @@ const h = require('../../lib/helpers');
 const { createCanvas } = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const ask = async (prompt, system = 'You are a helpful assistant.') => {
   const res = await axios.post('https://chateverywhere.app/api/chat/', {
@@ -30,9 +32,9 @@ module.exports = [
     description: 'Check if a number is prime. Usage: primecheck 17',
     execute: async ({ args, reply }) => {
       const n = parseInt(args[0]);
-      if (isNaN(n) || n < 0) return reply(h.demonError('.primecheck', '.primecheck <positive integer>'));
+      if (isNaN(n) || n < 0) return reply(p.phrases.wrongUsage('provide a positive integer. example! .primecheck 97'));
       if (n < 2) return reply(`🔢 *${n}* is NOT prime — numbers below 2 don't count, genius\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      if (n === 2) return reply(`✅ *2 is prime* — the only even prime. impressive that you didn't know that 🙄\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      if (n === 2) return reply(p.phrases.success('2 is prime. the only even prime.'));
       if (n % 2 === 0) return reply(`❌ *${n} is NOT prime* — even numbers aren't prime (except 2, which you probably forgot)\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       let isPrime = true;
       for (let i = 3; i <= Math.sqrt(n); i += 2) { if (n % i === 0) { isPrime = false; break; } }
@@ -47,8 +49,8 @@ module.exports = [
     description: 'Calculate factorial of a number. Usage: factorial 10',
     execute: async ({ args, reply }) => {
       const n = parseInt(args[0]);
-      if (isNaN(n) || n < 0) return reply(h.demonError('.factorial', '.factorial <non-negative integer>'));
-      if (n > 20) return reply(h.demonFail(`${n}! is astronomically huge — I'm limiting to 20 to spare your brain`));
+      if (isNaN(n) || n < 0) return reply(p.phrases.wrongUsage('provide a non-negative integer. example! .factorial 10'));
+      if (n > 20) return reply(p.phrases.error(`${n}! is astronomically huge — I'm limiting to 20 to spare your brain`));
       let result = BigInt(1);
       for (let i = 2n; i <= BigInt(n); i++) result *= i;
       reply(`🔢 *${n}! = ${result.toLocaleString()}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -62,7 +64,7 @@ module.exports = [
     description: 'Get Fibonacci sequence up to n terms. Usage: fibonacci 10',
     execute: async ({ args, reply }) => {
       const n = parseInt(args[0]);
-      if (isNaN(n) || n < 1 || n > 50) return reply(h.demonError('.fibonacci', '.fibonacci <1-50>'));
+      if (isNaN(n) || n < 1 || n > 50) return reply(p.phrases.wrongUsage('provide a number between 1 and 50. example! .fibonacci 10'));
       const seq = [0n, 1n];
       for (let i = 2; i < n; i++) seq.push(seq[i-1] + seq[i-2]);
       const display = seq.slice(0, n);
@@ -77,7 +79,7 @@ module.exports = [
     description: 'Greatest common divisor of two numbers. Usage: gcd 48 18',
     execute: async ({ args, reply }) => {
       const a = parseInt(args[0]), b = parseInt(args[1]);
-      if (isNaN(a) || isNaN(b)) return reply(h.demonError('.gcd', '.gcd <number1> <number2>'));
+      if (isNaN(a) || isNaN(b)) return reply(p.phrases.wrongUsage('provide two numbers. example! .gcd 48 18'));
       const gcdFn = (x, y) => y === 0 ? x : gcdFn(y, x % y);
       const result = gcdFn(Math.abs(a), Math.abs(b));
       reply(`🔢 *GCD(${a}, ${b}) = ${result}*\n\nBoth divide evenly by ${result}.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -91,7 +93,7 @@ module.exports = [
     description: 'Least common multiple of two numbers. Usage: lcm 12 18',
     execute: async ({ args, reply }) => {
       const a = parseInt(args[0]), b = parseInt(args[1]);
-      if (isNaN(a) || isNaN(b)) return reply(h.demonError('.lcm', '.lcm <number1> <number2>'));
+      if (isNaN(a) || isNaN(b)) return reply(p.phrases.wrongUsage('provide two numbers. example! .lcm 4 6'));
       const gcdFn = (x, y) => y === 0 ? x : gcdFn(y, x % y);
       const result = Math.abs(a * b) / gcdFn(Math.abs(a), Math.abs(b));
       reply(`🔢 *LCM(${a}, ${b}) = ${result}*\n\nSmallest number divisible by both.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -106,7 +108,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const price = parseFloat(args[0]);
       const disc = parseFloat(args[1]?.replace('%', ''));
-      if (isNaN(price) || isNaN(disc)) return reply(h.demonError('.discountcalc', '.discountcalc <price> <discount%> — e.g. discountcalc 200 25'));
+      if (isNaN(price) || isNaN(disc)) return reply(p.phrases.wrongUsage('provide the price then the discount percentage. example! .discountcalc 200 25'));
       const saved = price * (disc / 100);
       const final = price - saved;
       reply(
@@ -129,7 +131,7 @@ module.exports = [
       const bill = parseFloat(args[0]);
       const tipPct = parseFloat(args[1]?.replace('%', '') || 15);
       const people = parseInt(args[2] || 1);
-      if (isNaN(bill)) return reply(h.demonError('.tipcalc', '.tipcalc <bill> [tip%] [people] — e.g. tipcalc 80 15 4'));
+      if (isNaN(bill)) return reply(p.phrases.wrongUsage('provide the bill amount. optional tip percent and number of people. example! .tipcalc 80 15 4'));
       const tip = bill * (tipPct / 100);
       const total = bill + tip;
       const perPerson = total / people;
@@ -153,7 +155,7 @@ module.exports = [
       const p = parseFloat(args[0]);
       const r = parseFloat(args[1]?.replace('%', '')) / 100 / 12;
       const n = parseInt(args[2]);
-      if (isNaN(p) || isNaN(r) || isNaN(n)) return reply(h.demonError('.loancalc', '.loancalc <principal> <annual_rate%> <months> — e.g. loancalc 10000 5 24'));
+      if (isNaN(p) || isNaN(r) || isNaN(n)) return reply(p.phrases.wrongUsage('provide principal rate and months. example! .loancalc 10000 5 24'));
       const monthly = r === 0 ? p / n : (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
       const total = monthly * n;
       const interest = total - p;
@@ -179,7 +181,7 @@ module.exports = [
       const p = parseFloat(args[0]);
       const r = parseFloat(args[1]?.replace('%', '')) / 100 / 12;
       const n = parseInt(args[2]);
-      if (isNaN(p) || isNaN(r) || isNaN(n)) return reply(h.demonError('.emicalc', '.emicalc <principal> <annual_rate%> <months>'));
+      if (isNaN(p) || isNaN(r) || isNaN(n)) return reply(p.phrases.wrongUsage('provide principal rate and months. example! .emicalc 10000 5 24'));
       const emi = r === 0 ? p / n : (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
       const total = emi * n;
       reply(
@@ -202,9 +204,9 @@ module.exports = [
     description: 'Convert date to Julian Day Number and back. Usage: dateconverter 2024-06-15',
     execute: async ({ args, reply }) => {
       const input = args[0];
-      if (!input) return reply(h.demonError('.dateconverter', '.dateconverter <YYYY-MM-DD>'));
+      if (!input) return reply(p.phrases.wrongUsage('provide a date in YYYY-MM-DD format. example! .dateconverter 2025-12-25'));
       const d = new Date(input);
-      if (isNaN(d.getTime())) return reply(h.demonFail(`invalid date — use YYYY-MM-DD format like 2024-06-15`));
+      if (isNaN(d.getTime())) return reply(p.phrases.error(`invalid date — use YYYY-MM-DD format like 2024-06-15`));
       const a = Math.floor((14 - (d.getMonth() + 1)) / 12);
       const y = d.getFullYear() + 4800 - a;
       const m = (d.getMonth() + 1) + 12 * a - 3;
@@ -228,7 +230,7 @@ module.exports = [
     description: 'Check if a year is a leap year. Usage: leapyearcheck 2024',
     execute: async ({ args, reply }) => {
       const year = parseInt(args[0]);
-      if (isNaN(year)) return reply(h.demonError('.leapyearcheck', '.leapyearcheck <year>'));
+      if (isNaN(year)) return reply(p.phrases.wrongUsage('provide a year to check. example! .leapyearcheck 2024'));
       const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
       reply(`${isLeap ? '✅' : '❌'} *${year} is ${isLeap ? '' : 'NOT '}a Leap Year*\n\n${isLeap ? `February ${year} had 29 days. Extra day, still the same amount of drama.` : `February ${year} had 28 days. Basic.`}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
@@ -241,7 +243,7 @@ module.exports = [
     description: 'Get your numerology life path number. Usage: numerology 1995-08-23 OR numerology John',
     execute: async ({ args, reply }) => {
       const input = args.join(' ');
-      if (!input) return reply(h.demonError('.numerology', '.numerology <name or birthdate YYYY-MM-DD>'));
+      if (!input) return reply(p.phrases.wrongUsage('provide your name or birthdate in YYYY-MM-DD format. example! .numerology divine'));
       const digits = input.replace(/\D/g, '').split('').map(Number);
       if (digits.length === 0) {
         // Name numerology
@@ -313,7 +315,7 @@ module.exports = [
     description: 'Playful dream keyword interpretation. Usage: dreaminterpret flying',
     execute: async ({ args, reply }) => {
       const keyword = args.join(' ').toLowerCase();
-      if (!keyword) return reply(h.demonError('.dreaminterpret', '.dreaminterpret <dream keyword>'));
+      if (!keyword) return reply(p.phrases.wrongUsage('provide a keyword from your dream. example! .dreaminterpret flying'));
       const meanings = {
         flying:'Desire for freedom or escaping responsibility. You don\'t wanna be where you are. Relatable.',
         falling:'Loss of control in your waking life. Something\'s about to hit the floor. Maybe you.',
@@ -344,9 +346,9 @@ module.exports = [
     description: 'Calculate biorhythm cycles from birthdate. Usage: biorhythm 1995-08-23',
     execute: async ({ args, reply }) => {
       const bdate = args[0];
-      if (!bdate) return reply(h.demonError('.biorhythm', '.biorhythm <YYYY-MM-DD birthdate>'));
+      if (!bdate) return reply(p.phrases.wrongUsage('provide your birthdate in YYYY-MM-DD format. example! .biorhythm 1999-08-15'));
       const birth = new Date(bdate);
-      if (isNaN(birth.getTime())) return reply(h.demonFail('invalid date — use YYYY-MM-DD'));
+      if (isNaN(birth.getTime())) return reply(p.phrases.error('invalid date — use YYYY-MM-DD'));
       const today = new Date();
       const days = Math.floor((today - birth) / 86400000);
       const physical = Math.sin(2 * Math.PI * days / 23);
@@ -376,12 +378,12 @@ module.exports = [
     description: 'Generate taglines/slogans for a keyword. Usage: taglinegen coffee shop',
     execute: async ({ text, args, reply }) => {
       const topic = text || args.join(' ');
-      if (!topic) return reply(h.demonError('.taglinegen', '.taglinegen <brand/keyword>'));
+      if (!topic) return reply(p.phrases.wrongUsage('provide your brand or keyword. example! .taglinegen crittix'));
       await reply('✍️ generating taglines...');
       try {
         const result = await ask(`Generate 5 catchy, creative taglines/slogans for: "${topic}". Make them short, punchy, and memorable. Number them 1-5.`, 'You are a creative marketing expert. Generate bold, memorable taglines.');
         reply(`💡 *TAGLINE GENERATOR*\n\n🎯 Topic: *${topic}*\n\n${result}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`tagline AI down — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`tagline AI down — ${e.message}`)); }
     }
   },
 
@@ -392,7 +394,7 @@ module.exports = [
     description: 'Generate a text banner image. Usage: bannergen My Title | subtitle',
     execute: async ({ text, args, sock, chatId, msg, reply }) => {
       const input = text || args.join(' ');
-      if (!input) return reply(h.demonError('.bannergen', '.bannergen <title> | <subtitle>'));
+      if (!input) return reply(p.phrases.wrongUsage('provide a title and subtitle separated by a pipe. example! .bannergen crittix md "the dark bot"'));
       const [title, sub] = input.split('|').map(s => s?.trim());
       try {
         const width = 800, height = 250;
@@ -424,7 +426,7 @@ module.exports = [
         fs.writeFileSync(tmpPath, buf);
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `🎨 *Banner: ${title || input}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`banner generation failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`banner generation failed — ${e.message}`)); }
     }
   },
 
@@ -435,7 +437,7 @@ module.exports = [
     description: 'Generate a text logo image. Usage: logogen BrandName',
     execute: async ({ args, text, sock, chatId, msg, reply }) => {
       const name = (text || args.join(' ')).substring(0, 15);
-      if (!name) return reply(h.demonError('.logogen', '.logogen <brand name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide your brand name. example! .logogen crittix'));
       try {
         const size = 400;
         const canvas = createCanvas(size, size);
@@ -462,7 +464,7 @@ module.exports = [
         fs.writeFileSync(tmpPath, buf);
         await sock.sendMessage(chatId, { image: { url: tmpPath }, caption: `🎨 *Logo: ${name}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
         fs.removeSync(tmpPath);
-      } catch (e) { reply(h.demonFail(`logo generation failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`logo generation failed — ${e.message}`)); }
     }
   }
 

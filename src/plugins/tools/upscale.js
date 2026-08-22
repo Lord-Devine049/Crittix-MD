@@ -3,6 +3,8 @@ const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const { aiUpscaleImage, hasAiUpscaler } = require('../../lib/ai-upscaler');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'upscale',
@@ -12,7 +14,7 @@ module.exports = {
     const scaleFactor = args[0]?.toLowerCase() === '4x' ? 4 : 2;
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg) return reply(`✘ ${h.toBoldItalic('Send or reply to an image')} ${h.demonEmoji()}\n\n${h.toBoldItalic('Usage')}: ${prefix}upscale [2x/4x]`);
+    if (!imageMsg) return reply(p.phrases.wrongUsage('send or reply to an image. optional scale level 2x or 4x. example! .upscale 2x'));
     try {
       await reply(`🔍 ${h.toBoldItalic(`Upscaling ${scaleFactor}x...`)} ${h.demonEmoji()}`);
       let imgBuffer;

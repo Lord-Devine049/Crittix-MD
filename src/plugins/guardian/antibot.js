@@ -5,6 +5,8 @@
 
 const db                = require('../../lib/db');
 const { checkBotAdmin } = require('../../lib/anti-handlers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command:     'antibot',
@@ -26,7 +28,7 @@ module.exports = {
 
     if (action === 'off') {
       db.setAnti(chatId, 'antibot', false);
-      return reply(`✓ antibot off`);
+      return reply(p.phrases.success('antibot disabled.'));
     }
 
     // Block any enabling action if bot isn't admin
@@ -42,6 +44,6 @@ module.exports = {
     db.setAnti(chatId, 'antibot', mode);
 
     const labels = { warn: 'warn 3x then kick', kick: 'instant kick', delete: 'delete only' };
-    reply(`✓ antibot — ${labels[mode]}`);
+    reply(p.phrases.success(`antibot set to ${labels[mode]}.`));
   }
 };

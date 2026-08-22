@@ -7,6 +7,8 @@
  */
 const axios = require('axios');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_URL     = 'https://api.groq.com/openai/v1/chat/completions';
@@ -36,14 +38,14 @@ module.exports = [
     description: 'AI generates a 3-5 question quiz on a topic. Usage: aiquizgen <topic>',
     execute: async ({ args, reply }) => {
       const topic = args.join(' ');
-      if (!topic) return reply(h.demonError('.aiquizgen', '.aiquizgen <topic>'));
+      if (!topic) return reply(p.phrases.wrongUsage('provide a topic to generate a quiz for. example! .aiquizgen nigerian history'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Generate a 3-5 question quiz on the given topic. Number each question. Include 4 answer options (A/B/C/D) and mark the correct answer at the end with "Answers:" section.`,
           `Quiz topic: "${topic}"`, 0.8, 600
         );
         reply(`🧠 *AI QUIZ — ${topic.toUpperCase()}*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`quiz gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`quiz gen failed — ${e.message}`)); }
     }
   },
 
@@ -54,14 +56,14 @@ module.exports = [
     description: 'AI proofreads and corrects your text. Usage: aiproofread <text>',
     execute: async ({ args, text, msg, reply }) => {
       const input = args.join(' ') || msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation;
-      if (!input) return reply(h.demonError('.aiproofread', '.aiproofread <text to proofread> or reply to a message'));
+      if (!input) return reply(p.phrases.wrongUsage('paste your text or reply to a message. example! .aiproofread i are going to the market'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Proofread the given text. Fix all typos, grammar errors, and unclear phrasing. Return the corrected version first, then briefly list the key changes made. Be direct.`,
           input, 0.3, 500
         );
-        reply(`✅ *AI PROOFREAD*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`proofread failed — ${e.message}`)); }
+        reply(p.phrases.success('proofread done.') + '\n\n' + ans);
+      } catch (e) { reply(p.phrases.error(`proofread failed — ${e.message}`)); }
     }
   },
 
@@ -74,14 +76,14 @@ module.exports = [
       const parts = text.split('|');
       const tone = parts[0]?.trim() || 'funny';
       const input = parts[1]?.trim() || args.slice(1).join(' ');
-      if (!input) return reply(h.demonError('.aisummarytone', '.aisummarytone funny | <your text to summarize>'));
+      if (!input) return reply(p.phrases.wrongUsage('provide a tone then your text separated by a pipe. example! .aisummarytone funny "paste your text here"'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Summarize the given text in a *${tone}* tone. Keep it under 5 sentences. If savage, make it harsh but clever. If formal, make it business-ready.`,
           input, 1.2, 350
         );
         reply(`📝 *AI SUMMARY (${tone.toUpperCase()} TONE)*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`summary failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`summary failed — ${e.message}`)); }
     }
   },
 
@@ -98,7 +100,7 @@ module.exports = [
           `Genre: "${genre}"`, 1.3, 400
         );
         reply(`🎬 *AI PLOT — ${genre.toUpperCase()}*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`plot gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`plot gen failed — ${e.message}`)); }
     }
   },
 
@@ -115,7 +117,7 @@ module.exports = [
           `Genre: "${genre}"`, 1.2, 500
         );
         reply(`🧬 *AI CHARACTER — ${genre.toUpperCase()}*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`character gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`character gen failed — ${e.message}`)); }
     }
   },
 
@@ -132,7 +134,7 @@ module.exports = [
           `Song theme: "${theme}"`, 1.4, 600
         );
         reply(`🎵 *AI LYRICS — "${theme}"*\n\n${ans}\n\n⚠️ 100% original — not affiliated with any existing song.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`lyrics gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`lyrics gen failed — ${e.message}`)); }
     }
   },
 
@@ -149,7 +151,7 @@ module.exports = [
           `Poem theme: "${theme}"`, 1.4, 400
         );
         reply(`🌹 *AI POEM — "${theme}"*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`poem gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`poem gen failed — ${e.message}`)); }
     }
   },
 
@@ -165,7 +167,7 @@ module.exports = [
           'Generate a fresh original riddle', 1.4, 200
         );
         reply(`🤔 *AI RIDDLE*\n\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`riddle gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`riddle gen failed — ${e.message}`)); }
     }
   },
 
@@ -176,14 +178,14 @@ module.exports = [
     description: 'Translate informal text to business-formal. Usage: aitranslateformal <text>',
     execute: async ({ args, msg, reply }) => {
       const input = args.join(' ') || msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation;
-      if (!input) return reply(h.demonError('.aitranslateformal', '.aitranslateformal <informal text> or reply to a message'));
+      if (!input) return reply(p.phrases.wrongUsage('type your informal text or reply to a message. example! .aitranslateformal bro dat thing dey hard no cap'));
       try {
         const ans = await ai(
           `You are a professional business writing assistant. Rewrite the given informal text into polished, business-formal language. Maintain the original meaning but elevate the tone entirely. No slang.`,
           input, 0.4, 300
         );
         reply(`👔 *FORMAL TRANSLATION*\n\n*Original:* ${input}\n\n*Formal:* ${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`translation failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`translation failed — ${e.message}`)); }
     }
   },
 
@@ -200,7 +202,7 @@ module.exports = [
           `Situation: "${situation}"`, 1.5, 250
         );
         reply(`😅 *AI EXCUSE*\n\nSituation: *${situation}*\n\n"${ans}"\n\nYou're welcome. Use at your own risk. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`excuse gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`excuse gen failed — ${e.message}`)); }
     }
   },
 
@@ -217,7 +219,7 @@ module.exports = [
           `Mishap: "${mishap}"`, 1.4, 250
         );
         reply(`🙏 *AI APOLOGY* (flavor only, clearly not real)\n\nFor: *${mishap}*\n\n"${ans}"\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`apology gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`apology gen failed — ${e.message}`)); }
     }
   },
 
@@ -228,14 +230,14 @@ module.exports = [
     description: 'AI generates a witty comeback for an insult. Usage: aicomeback <the insult you received>',
     execute: async ({ args, reply }) => {
       const insult = args.join(' ');
-      if (!insult) return reply(h.demonError('.aicomeback', '.aicomeback <what they said to you>'));
+      if (!insult) return reply(p.phrases.wrongUsage('tell me what they said and i\'ll cook a comeback. example! .aicomeback he called me broke'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Generate 3 increasingly savage comeback lines for the given insult. Number them 1-3. Make them witty, cutting, and undeniably Crittix-flavored. No slurs, just sharp wit.`,
           `The insult: "${insult}"`, 1.5, 300
         );
         reply(`⚔️ *AI COMEBACK*\n\nThey said: "${insult}"\n\nFire back with:\n${ans}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`comeback gen failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`comeback gen failed — ${e.message}`)); }
     }
   },
 

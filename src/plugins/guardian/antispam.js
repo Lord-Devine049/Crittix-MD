@@ -4,6 +4,8 @@
  */
 const db                = require('../../lib/db');
 const { checkBotAdmin } = require('../../lib/anti-handlers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command:     'antispam',
@@ -25,7 +27,7 @@ module.exports = {
 
     if (action === 'off') {
       db.setAnti(chatId, 'antispam', false);
-      return reply(`✓ antispam off`);
+      return reply(p.phrases.success('antispam disabled.'));
     }
 
     // Block any enabling action if bot isn't admin
@@ -41,6 +43,6 @@ module.exports = {
     db.setAnti(chatId, 'antispam', mode);
 
     const labels = { warn: 'warn 3x then kick', kick: 'instant kick', delete: 'delete only' };
-    reply(`✓ antispam — ${labels[mode]}`);
+    reply(p.phrases.success(`antispam set to ${labels[mode]}.`));
   }
 };

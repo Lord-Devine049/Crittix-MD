@@ -1,5 +1,7 @@
 /* ANTIAZA.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'antiaza',
   category: 'voidsystem',
@@ -14,7 +16,7 @@ module.exports = {
       return reply(`${h.demonEmoji()} ${h.toBoldItalic('Anti-aza ACTIVATED')} - ${h.toBoldItalic('Account details protected')} 🔥\n\n💀 ${h.toBoldItalic("Messages with your account number won't be forwarded")}`);
     } else if (action === 'off') {
       db.antiaza = false; h.saveDatabase(db);
-      return reply(`✓ ${h.toBoldItalic('Anti-aza deactivated')}`);
+      return reply(p.phrases.success('anti-aza deactivated.'));
     } else {
       const status = db.antiaza ? 'ON' : 'OFF';
       return reply(`${h.demonEmoji()} ${h.toBoldItalic('ANTI-AZA')}\n\n${h.toBoldItalic('Prevents messages with your account details from being forwarded.')}\n\n${h.toBoldItalic('Current')}: ${status}\n\n🔥 ${h.toBoldItalic('Usage')}:\n• ${prefix}antiaza on - Enable\n• ${prefix}antiaza off - Disable`);

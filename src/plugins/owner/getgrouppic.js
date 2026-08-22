@@ -4,6 +4,8 @@
  * Get the current group's profile picture.
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['getgrouppic', 'getgrouppp', 'gcpic', 'grouppic'],
@@ -19,7 +21,7 @@ module.exports = {
         caption: `📸 *${groupName}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       }, { quoted: msg });
     } catch (e) {
-      reply(h.demonFail('This group has no profile picture set.'));
+      reply(p.phrases.error('This group has no profile picture set.'));
     }
   }
 };

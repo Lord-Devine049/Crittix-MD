@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -80,7 +82,7 @@ module.exports = [
     category: 'soultools',
     description: 'Generate hash of text. Usage: hash your text here',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔒 *Usage:* hash your text here');
+      if (!text) return reply(p.phrases.wrongUsage('type your text after the command. example! .hash hello world'));
       const crypto = require('crypto');
       const md5 = crypto.createHash('md5').update(text).digest('hex');
       const sha1 = crypto.createHash('sha1').update(text).digest('hex');
@@ -94,7 +96,7 @@ module.exports = [
     category: 'soultools',
     description: 'Get info about an emoji. Usage: emojiinfo 😂',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('😀 *Usage:* emojiinfo 😂');
+      if (!text) return reply(p.phrases.wrongUsage('provide an emoji to get its info. example! .emojiinfo 😂'));
       const emoji = text.trim().match(/\p{Emoji}/u);
       if (!emoji) return reply('❌ *No emoji found* — send an emoji character');
       const cp = emoji[0].codePointAt(0);
@@ -117,7 +119,7 @@ module.exports = [
     category: 'soultools',
     description: 'Convert text to Morse code. Usage: texttomorse HELLO',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📡 *Usage:* texttomorse HELLO WORLD');
+      if (!text) return reply(p.phrases.wrongUsage('type your text to convert to morse code. example! .texttomorse hello world'));
       const map = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',' ':'/'};
       const out = text.toUpperCase().split('').map(c => map[c] || '?').join(' ');
       reply(`📡 *Morse Code:*\n\n${text.toUpperCase()}\n\n\`${out}\``);
@@ -129,7 +131,7 @@ module.exports = [
     category: 'soultools',
     description: 'Decode Morse code to text. Usage: morsedecode .... . .-.. .-.. ---',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📡 *Usage:* morsedecode .... . .-.. .-.. ---');
+      if (!text) return reply(p.phrases.wrongUsage('provide morse code to decode. example! .morsedecode .... . .-.. .-.. ---'));
       const map = {'.-':'A','-...':'B','-.-.':'C','-..':'D','.':'E','..-.':'F','--.':'G','....':'H','..':'I','.---':'J','-.-':'K','.-..':'L','--':'M','-.':'N','---':'O','.--.':'P','--.-':'Q','.-.':'R','...':'S','-':'T','..-':'U','...-':'V','.--':'W','-..-':'X','-.--':'Y','--..':'Z','-----':'0','.----':'1','..---':'2','...--':'3','....-':'4','.....':'5','-....':'6','--...':'7','---..':'8','----.':'9','/':' '};
       const out = text.trim().split(' ').map(c => map[c] || '?').join('');
       reply(`📡 *Decoded Morse:*\n\n\`${text}\`\n\n${out}`);
@@ -142,7 +144,7 @@ module.exports = [
     description: 'Convert number to Roman numerals. Usage: romannum 2024',
     execute: async ({ text, reply }) => {
       const num = parseInt(text);
-      if (!num || num < 1 || num > 3999) return reply('🏛️ *Usage:* romannum 2024\n\n_Range: 1–3999_');
+      if (!num || num < 1 || num > 3999) return reply(p.phrases.wrongUsage('provide a number between 1 and 3999. example! .romannum 2024'));
       const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
       const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
       let n = num, result = '';
@@ -158,7 +160,7 @@ module.exports = [
     category: 'soultools',
     description: 'Convert Roman numerals to number. Usage: fromanroman XIV',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🏛️ *Usage:* fromanroman MMXXIV');
+      if (!text) return reply(p.phrases.wrongUsage('provide a roman numeral to convert. example! .fromanroman MMXXIV'));
       const map = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
       const str = text.toUpperCase().trim();
       if (!/^[IVXLCDM]+$/.test(str)) return reply('❌ *Invalid Roman numeral* — only I,V,X,L,C,D,M allowed');
@@ -176,7 +178,7 @@ module.exports = [
     category: 'soultools',
     description: 'Find rhymes for a word. Usage: wordrhyme moon',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🎵 *Usage:* wordrhyme moon');
+      if (!text) return reply(p.phrases.wrongUsage('type the word you want rhymes for. example! .wordrhyme moon'));
       try {
         const r = await axios.get(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(text.trim())}&max=15`, { timeout: 8000 });
         if (!r.data.length) return reply(`🎵 *No rhymes found for "${text}"*`);
@@ -191,7 +193,7 @@ module.exports = [
     category: 'soultools',
     description: 'Find synonyms for a word. Usage: synonym happy',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📚 *Usage:* synonym happy');
+      if (!text) return reply(p.phrases.wrongUsage('type the word you want synonyms for. example! .synonym happy'));
       try {
         const r = await axios.get(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(text.trim())}&max=15`, { timeout: 8000 });
         if (!r.data.length) return reply(`📚 *No synonyms found for "${text}"*`);
@@ -206,7 +208,7 @@ module.exports = [
     category: 'soultools',
     description: 'Find antonyms for a word. Usage: antonym happy',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📚 *Usage:* antonym happy');
+      if (!text) return reply(p.phrases.wrongUsage('type the word you want antonyms for. example! .antonym happy'));
       try {
         const r = await axios.get(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(text.trim())}&max=10`, { timeout: 8000 });
         if (!r.data.length) return reply(`📚 *No antonyms found for "${text}"*`);
@@ -221,7 +223,7 @@ module.exports = [
     category: 'soultools',
     description: 'Find words associated with a word. Usage: wordassociate ocean',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔗 *Usage:* wordassociate ocean');
+      if (!text) return reply(p.phrases.wrongUsage('type the word you want associations for. example! .wordassociate ocean'));
       try {
         const r = await axios.get(`https://api.datamuse.com/words?ml=${encodeURIComponent(text.trim())}&max=15`, { timeout: 8000 });
         if (!r.data.length) return reply(`🔗 *No associations found for "${text}"*`);
@@ -295,7 +297,7 @@ module.exports = [
     category: 'soultools',
     description: 'Get npm package info. Usage: npminfo express',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📦 *Usage:* npminfo express');
+      if (!text) return reply(p.phrases.wrongUsage('provide the npm package name. example! .npminfo express'));
       try {
         const r = await axios.get(`https://registry.npmjs.org/${text.trim()}`, { timeout: 10000 });
         const d = r.data;

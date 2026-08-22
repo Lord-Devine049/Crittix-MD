@@ -29,14 +29,14 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sender, senderNumber, chatId, args, reply }) => {
       const name = args.join(' ').toLowerCase();
-      if (!name) return reply(h.demonError('.guildjoin', '.guildjoin <guild name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide the guild name to join. example! .guildjoin night raiders'));
       const guilds = loadDB('guilds.json');
       const chatGuilds = guilds[chatId] || {};
       const guild = Object.values(chatGuilds).find(g => g.name?.toLowerCase() === name);
-      if (!guild) return reply(h.demonFail(`no guild named "${name}" found in this group. Check *.guildlist* for available guilds.`));
-      if (guild.members?.includes(sender)) return reply(h.demonFail('you\'re already in this guild. Can\'t double-join.'));
+      if (!guild) return reply(p.phrases.error(`no guild named "${name}" found in this group. Check *.guildlist* for available guilds.`));
+      if (guild.members?.includes(sender)) return reply(p.phrases.alreadyEnabled('you are already in this guild. can\'t double-join.'));
       const userGuild = Object.values(chatGuilds).find(g => g.members?.includes(sender));
-      if (userGuild) return reply(h.demonFail(`you\'re already in "*${userGuild.name}*". Leave first or ask your guild leader.`));
+      if (userGuild) return reply(p.phrases.error(`you\'re already in "*${userGuild.name}*". Leave first or ask your guild leader.`));
       if (!guild.members) guild.members = [];
       guild.members.push(sender);
       saveDB('guilds.json', guilds);
@@ -54,14 +54,14 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const vsIdx = args.findIndex(a => a.toLowerCase() === 'vs');
-      if (vsIdx < 1) return reply(h.demonError('.guildwar', '.guildwar <guild1> vs <guild2>'));
+      if (vsIdx < 1) return reply(p.phrases.wrongUsage('format it correctly. example! .guildwar night raiders vs peaky blinders'));
       const g1Name = args.slice(0, vsIdx).join(' ');
       const g2Name = args.slice(vsIdx + 1).join(' ');
       const guilds = loadDB('guilds.json');
       const chatGuilds = guilds[chatId] || {};
       const g1 = Object.values(chatGuilds).find(g => g.name?.toLowerCase() === g1Name.toLowerCase());
       const g2 = Object.values(chatGuilds).find(g => g.name?.toLowerCase() === g2Name.toLowerCase());
-      if (!g1 || !g2) return reply(h.demonFail(`couldn't find both guilds. Check names carefully.`));
+      if (!g1 || !g2) return reply(p.phrases.error(`couldn't find both guilds. Check names carefully.`));
       const g1Score = Math.floor(Math.random() * 50) + (g1.members?.length || 1) * 10;
       const g2Score = Math.floor(Math.random() * 50) + (g2.members?.length || 1) * 10;
       const winner = g1Score > g2Score ? g1 : g2;
@@ -127,7 +127,7 @@ module.exports = [
         return reply(`🃏 @${senderNumber} claims: *${claimedVal}*\n\nDo you believe them?\n✅ Pass: ${prefix}bluffgame pass\n❌ Call bluff: ${prefix}bluffgame callbluff\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'callbluff') {
-        if (!game.claimed) return reply(h.demonFail('no claim to call yet'));
+        if (!game.claimed) return reply(p.phrases.error('no claim to call yet'));
         const wasBluffing = !game.hand.includes(game.claimed);
         delete gameSessions[key];
         return reply(wasBluffing
@@ -135,8 +135,8 @@ module.exports = [
           : `💀 *WRONG CALL!*\n\nTheir hand was: *${game.hand.join(', ')}* — they told the truth!\nYou called bluff on an honest player. Embarrassing. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       }
-      if (action === 'pass') { return reply(`✅ Passed. The player gets away with it… for now. New round with ${prefix}bluffgame start`); }
-      reply(h.demonError('.bluffgame', '.bluffgame start | claim <value> | callbluff | pass'));
+      if (action === 'pass') { return reply(p.phrases.success("passed. new round starting." The player gets away with it… for now. New round with ${prefix}bluffgame start`); }
+      reply(p.phrases.wrongUsage('use .bluffgame start. or claim value. or callbluff. or pass.'));
     }
   },
 
@@ -177,13 +177,13 @@ module.exports = [
       const action = args[0]?.toLowerCase();
       if (action === 'reveal') {
         const game = gameSessions[key];
-        if (!game) return reply(h.demonFail('no active truth-or-lie game'));
+        if (!game) return reply(p.phrases.error('no active truth-or-lie game'));
         delete gameSessions[key];
         return reply(`🎭 *TRUTH OR LIE — REVEAL*\n\nStatement: "${game.statement}"\nSubmitted by: @${game.submitterNum}\n\nIt was: *${game.truth ? 'TRUTH ✅' : 'LIE ❌'}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const statement = args.slice(0, -1).join(' ') || args.join(' ');
       const truthFlag = args[args.length - 1]?.toLowerCase();
-      if (!statement || (!['truth','lie'].includes(truthFlag) && args.length < 2)) return reply(h.demonError('.truthorlie', '.truthorlie <statement> truth/lie — e.g.: .truthorlie I\'ve been to Paris truth\nReveal: .truthorlie reveal'));
+      if (!statement || (!['truth','lie'].includes(truthFlag) && args.length < 2)) return reply(p.phrases.wrongUsage('provide a statement then truth or lie. example! .truthorlie i have been to paris truth. or .truthorlie reveal.'));
       const isTruth = truthFlag === 'truth';
       const stmt = args.filter(a => a !== truthFlag).join(' ');
       gameSessions[key] = { statement: stmt, truth: isTruth, submitter: sender, submitterNum: senderNumber };
@@ -209,7 +209,7 @@ module.exports = [
           text: `🎯 *WHO IS MOST LIKELY TO...*\n\n"...${prompt}"\n\n👉 *@${num}* 💀\n\nSorry not sorry. The algorithm decided. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,
           mentions: [picked.id]
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`couldn\'t get group members — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`couldn\'t get group members — ${e.message}`)); }
     }
   },
 
@@ -238,7 +238,7 @@ module.exports = [
       const wpm = Math.round((game.sentence.split(' ').length / (ms / 60000)));
       const correct = typed.trim().toLowerCase() === game.sentence.toLowerCase();
       delete gameSessions[key];
-      if (correct) return reply(`✅ *CORRECT!*\n\nTime: *${(ms / 1000).toFixed(2)}s*\nSpeed: *${wpm} WPM*\n\n${wpm >= 60 ? 'Blazing fast. Crittix approves. 😤' : wpm >= 40 ? 'Solid. Not bad.' : 'Slow but accurate. Work on the speed.'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      if (correct) return reply(p.phrases.success("correct!"\n\nTime: *${(ms / 1000).toFixed(2)}s*\nSpeed: *${wpm} WPM*\n\n${wpm >= 60 ? 'Blazing fast. Crittix approves. 😤' : wpm >= 40 ? 'Solid. Not bad.' : 'Slow but accurate. Work on the speed.'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       reply(`❌ *WRONG!*\n\nExpected: "${game.sentence}"\nYou typed: "${typed}"\n\nTry again with ${prefix}speedtyping start`);
     }
   },
@@ -379,7 +379,7 @@ module.exports = [
     execute: async ({ sender, senderNumber, msg, reply }) => {
       const petData = loadDB('pets.json');
       const myPet = petData[sender];
-      if (!myPet) return reply(h.demonFail('you don\'t have a pet yet! Adopt one with *.petadopt*'));
+      if (!myPet) return reply(p.phrases.notFound('you do not have a pet yet. adopt one with .petadopt.'));
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
       const oppPet = mentioned ? petData[mentioned] : null;
       const oppName = oppPet?.name || 'a random wild creature';
@@ -408,7 +408,7 @@ module.exports = [
       const WAIT = 7200000;
       if (cd[sender] && now - cd[sender] < WAIT) {
         const rem = Math.ceil((WAIT - (now - cd[sender])) / 60000);
-        return reply(h.demonFail(`lucky draw recharges every 2 hours. ${rem} minutes left. Patience.`));
+        return reply(p.phrases.error(`lucky draw recharges every 2 hours. ${rem} minutes left. Patience.`));
       }
       const outcomes = [
         { label: '💀 Nothing', prize: 0, chance: 0.5 },
@@ -482,14 +482,14 @@ module.exports = [
       }
       const game = gameSessions[key];
       const word = args[0]?.toLowerCase().replace(/[^a-z]/g, '');
-      if (!word || word.length < 2) return reply(h.demonFail('give a valid word (letters only, 2+ chars)'));
+      if (!word || word.length < 2) return reply(p.phrases.error('give a valid word (letters only, 2+ chars)'));
       if (word[0] !== game.lastLetter) return reply(`❌ Must start with *${game.lastLetter.toUpperCase()}* — "${word}" starts with "${word[0].toUpperCase()}". Try again.`);
       if (game.chain.includes(word)) return reply(`❌ "${word}" already used in this chain. Find a new one.`);
       game.chain.push(word);
       game.lastWord = word;
       game.lastLetter = word.slice(-1);
       game.count++;
-      reply(`✅ *${word.toUpperCase()}* — Chain: ${game.count}\nNext must start with: *${game.lastLetter.toUpperCase()}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`${word.toUpperCase()} accepted. chain continues.`) ${game.count}\nNext must start with: *${game.lastLetter.toUpperCase()}*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
   },
 
@@ -509,7 +509,7 @@ module.exports = [
         try {
           const meta = await sock.groupMetadata(chatId);
           const members = meta.participants.slice(0, 8);
-          if (members.length < 3) return reply(h.demonFail('need at least 3 members to play'));
+          if (members.length < 3) return reply(p.phrases.error('need at least 3 members to play'));
           const pair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
           const impostorIdx = Math.floor(Math.random() * members.length);
           const impostorJid = members[impostorIdx].id;
@@ -519,12 +519,12 @@ module.exports = [
             await sock.sendMessage(m.id, { text: `🎭 *IMPOSTOR GAME*\n\nYour secret word: *${word}*\n\n${m.id === impostorJid ? '⚠️ You are the IMPOSTOR — your word is different!' : '✅ You are crew — describe your word without saying it directly.'}\n\nVote: ${prefix}impostorgame vote @someone in the group\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` });
           }
           await sock.sendMessage(chatId, { text: `🎭 *IMPOSTOR GAME STARTED!*\n\n${members.length} players got their secret words via DM.\nDiscuss and find the impostor!\n\nVote: ${prefix}impostorgame vote @someone\nReveal: ${prefix}impostorgame reveal (admin only)\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }, { quoted: msg });
-        } catch (e) { reply(h.demonFail(`couldn't start — ${e.message}`)); }
+        } catch (e) { reply(p.phrases.error(`couldn't start — ${e.message}`)); }
         return;
       }
       if (action === 'reveal') {
         const game = gameSessions[key];
-        if (!game) return reply(h.demonFail('no active game'));
+        if (!game) return reply(p.phrases.error('no active game'));
         if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         delete gameSessions[key];
@@ -533,7 +533,7 @@ module.exports = [
           mentions: [game.impostor]
         }, { quoted: msg });
       }
-      reply(h.demonError('.impostorgame', '.impostorgame start | .impostorgame reveal'));
+      reply(p.phrases.wrongUsage('use .impostorgame start to begin. or .impostorgame reveal to expose the impostor.'));
     }
   },
 

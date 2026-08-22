@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'autorecording',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ AUTO_RECORDING: true }); return reply('✓ autorecording enabled'); }
-    if (action === 'off') { set({ AUTO_RECORDING: false }); return reply('✓ autorecording disabled'); }
+    if (action === 'on') { set({ AUTO_RECORDING: true }); return reply(p.phrases.success('autorecording enabled.')); }
+    if (action === 'off') { set({ AUTO_RECORDING: false }); return reply(p.phrases.success('autorecording disabled.')); }
     reply('ℹ️ autorecording: ' + (getConfig().AUTO_RECORDING ? 'ON' : 'OFF') + '\n\nUsage: .autorecording on/off');
   }
 };

@@ -1,5 +1,7 @@
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['waifu', 'rwaifu'],
@@ -10,14 +12,14 @@ module.exports = {
     try {
       const res = await axios.get('https://waifu.pics/api/sfw/waifu', { timeout: 8000 });
       const imgUrl = res.data?.url;
-      if (!imgUrl) return reply(h.demonFail('Waifu is hiding. Try again.'));
+      if (!imgUrl) return reply(p.phrases.error('Waifu is hiding. Try again.'));
 
       await sock.sendMessage(chatId, {
         image: { url: imgUrl },
         caption: `✨ *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗪𝗮𝗶𝗳𝘂*`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Waifu fetch failed. Try again.'));
+      reply(p.phrases.error('Waifu fetch failed. Try again.'));
     }
   }
 };

@@ -21,6 +21,6 @@ module.exports = {
       try { await sock.groupParticipantsUpdate(chatId, [p.id], 'promote'); } catch(_) {}
       await new Promise(r => setTimeout(r, 800));
     }
-    reply('✓ All members promoted');
+    reply(p.phrases.success('all members promoted.'));
   }
 };

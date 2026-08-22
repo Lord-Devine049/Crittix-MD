@@ -52,6 +52,6 @@ module.exports = {
       );
     }
 
-    reply(h.demonError('.antipromote', '.antipromote on/off'));
+    reply(p.phrases.wrongUsage('use .antipromote on to enable it. or .antipromote off to disable it.'));
   }
 };

@@ -2,6 +2,8 @@
 const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'colorize',
   category: 'creativetools',
@@ -11,7 +13,7 @@ module.exports = {
     const colorMap = { red:[0,-100,-100], green:[-100,0,-100], blue:[-100,-100,0], yellow:[0,0,-100], purple:[0,-100,0], pink:[0,-50,-50], orange:[0,-30,-100], cyan:[-100,0,0] };
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg || !colorArg || !colorMap[colorArg]) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}colorize <color> (reply to image)\n\n${h.toBoldItalic('Colors')}: red, green, blue, yellow, purple, pink, orange, cyan`);
+    if (!imageMsg || !colorArg || !colorMap[colorArg]) return reply(p.phrases.wrongUsage('reply to an image and pick a color. example! .colorize red. options! red green blue yellow purple pink orange cyan.'));
     try {
       let imgBuffer;
       if (msg.message?.imageMessage) imgBuffer = await downloadMediaMessage(msg, 'buffer', {});

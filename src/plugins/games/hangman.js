@@ -4,6 +4,8 @@ const globalXP = require('../../lib/global-xp');
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const games = {};
 
@@ -26,10 +28,10 @@ module.exports = {
     const game = games[chatId];
 
     if (!game) {
-      if (!args[0]) return reply(h.demonError('.hangman', '.hangman <word>'));
+      if (!args[0]) return reply(p.phrases.wrongUsage('provide the word for players to guess. example! .hangman crittix'));
 
       const word = args[0].toLowerCase().replace(/[^a-z]/g, '');
-      if (word.length < 2) return reply(h.demonFail('Word must be at least 2 letters'));
+      if (word.length < 2) return reply(p.phrases.error('Word must be at least 2 letters'));
 
       games[chatId] = {
         word,
@@ -49,14 +51,14 @@ module.exports = {
       return;
     }
 
-    if (!args[0]) return reply(h.demonFail(`Game in progress. Guess: ${prefix}hangman <letter>`));
+    if (!args[0]) return reply(p.phrases.error(`Game in progress. Guess: ${prefix}hangman <letter>`));
 
     const letter = args[0].toLowerCase();
     if (letter.length !== 1 || !/[a-z]/.test(letter))
-      return reply(h.demonFail('One letter at a time, a-z only'));
+      return reply(p.phrases.error('One letter at a time, a-z only'));
 
     if (game.guessed.includes(letter))
-      return reply(h.demonFail(`Already guessed "${letter}"`));
+      return reply(p.phrases.error(`Already guessed "${letter}"`));
 
     game.guessed.push(letter);
 

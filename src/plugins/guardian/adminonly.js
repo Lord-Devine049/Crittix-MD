@@ -21,9 +21,9 @@ module.exports = {
         return reply(`${h.demonEmoji()} ${h.toBoldItalic('Admin only ACTIVATED')} - ${h.toBoldItalic('Peasants locked out')} 🔥`);
       } else if (action === 'off') {
         await sock.groupSettingUpdate(groupId, 'unlocked');
-        return reply(`✓ ${h.toBoldItalic('Admin only deactivated - Peasants can edit')}`);
+        return reply(p.phrases.success('admin only mode deactivated.'));
       } else {
-        return reply(`${h.demonEmoji()} ${h.toBoldItalic('ADMIN ONLY')}\n\n${h.toBoldItalic('Lock group settings (name, description, picture) to admins only.')}\n\n🔥 ${h.toBoldItalic('Usage')}:\n• ${prefix}adminonly on - Lock settings\n• ${prefix}adminonly off - Unlock settings`);
+        return reply(p.phrases.wrongUsage('use .adminonly on to lock group settings. or .adminonly off to unlock them.'));
       }
     } catch (err) {
       return reply(`✘ ${h.toBoldItalic('Failed - make bot admin first you')} ${h.toBoldItalic(h.randomCuss())}! ${h.demonEmoji()}`);

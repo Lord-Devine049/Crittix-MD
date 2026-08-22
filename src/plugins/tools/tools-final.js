@@ -25,16 +25,16 @@ module.exports = [
     description: 'Convert between currencies. Usage: currencyconvert 100 USD ZAR',
     execute: async ({ args, reply }) => {
       const [amount, from, to] = args;
-      if (!amount || !from || !to) return reply(h.demonError('.currencyconvert', '.currencyconvert <amount> <FROM> <TO> — e.g. .currencyconvert 100 USD ZAR'));
+      if (!amount || !from || !to) return reply(p.phrases.wrongUsage('provide amount then the two currency codes. example! .currencyconvert 100 usd ngn'));
       const num = parseFloat(amount);
-      if (isNaN(num)) return reply(h.demonFail('invalid amount'));
+      if (isNaN(num)) return reply(p.phrases.error('invalid amount.'));
       const fromCode = from.toUpperCase();
       const toCode = to.toUpperCase();
       try {
         const res = await axios.get(`https://open.er-api.com/v6/latest/${fromCode}`, { timeout: 8000 });
-        if (res.data.result !== 'success') return reply(h.demonFail(`unsupported currency: ${fromCode}`));
+        if (res.data.result !== 'success') return reply(p.phrases.error(`unsupported currency: ${fromCode}.`));
         const rate = res.data.rates[toCode];
-        if (!rate) return reply(h.demonFail(`unsupported target currency: ${toCode}`));
+        if (!rate) return reply(p.phrases.error(`unsupported target currency: ${toCode}.`));
         const converted = (num * rate).toFixed(4);
         const rateStr = rate.toFixed(6);
         reply(
@@ -44,7 +44,7 @@ module.exports = [
           `🕐 Rate updated: ${res.data.time_last_update_utc?.slice(0, 16) || 'recently'}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`currency lookup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`currency lookup failed — ${e.message}`)); }
     }
   },
 
@@ -64,7 +64,7 @@ module.exports = [
           if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const raw = args.slice(1).join(' ');
         const options = raw.split('|').map(s => s.trim()).filter(Boolean);
-        if (options.length < 2) return reply(h.demonError('.moviepoll', '.moviepoll start <Movie 1> | <Movie 2> | <Movie 3>'));
+        if (options.length < 2) return reply(p.phrases.wrongUsage('provide at least 2 movies separated by pipes. example! .moviepoll start inception "the dark knight" interstellar'));
         polls[chatId] = { options, votes: {}, started: Date.now() };
         saveDB('movie-poll.json', polls);
         const list = options.map((o, i) => `*${i + 1}.* ${o}`).join('\n');
@@ -88,12 +88,12 @@ module.exports = [
       if (action === 'vote') {
         const choice = parseInt(args[1]) - 1;
         if (isNaN(choice) || choice < 0 || choice >= poll.options.length)
-          return reply(h.demonFail(`pick a number between 1 and ${poll.options.length}`));
+          return reply(p.phrases.error(`pick a number between 1 and ${poll.options.length}.`));
         poll.votes[sender] = choice;
         saveDB('movie-poll.json', polls);
         return reply(`🎬 @${senderNumber} voted for *${poll.options[choice]}* ✅\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply(h.demonError('.moviepoll', '.moviepoll start <Movie1> | <Movie2> | vote <number> | results'));
+      reply(p.phrases.wrongUsage('use .moviepoll start movie1 "movie2". or vote number. or results.'));
     }
   },
 
@@ -107,7 +107,7 @@ module.exports = [
       const input = args.slice(1).join(' ').trim();
       const supported = ['md5', 'sha1', 'sha256', 'sha512'];
       if (!algo || !supported.includes(algo) || !input) {
-        return reply(h.demonError('.hashconvert', `.hashconvert <${supported.join('|')}> <text>`));
+        return reply(p.phrases.wrongUsage('provide a hash type then your text. example! .hashconvert md5 hello world'));
       }
       const hash = crypto.createHash(algo).update(input).digest('hex');
       reply(
@@ -166,14 +166,14 @@ module.exports = [
         return reply(`📊 *MOOD HISTORY — @${senderNumber}*\n\n${lines}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const moodInput = args.join(' ').slice(0, 50).trim();
-      if (!moodInput) return reply(h.demonError('.moodtracker', '.moodtracker <mood or emoji> | .moodtracker history'));
+      if (!moodInput) return reply(p.phrases.wrongUsage('type your current mood or an emoji. example! .moodtracker happy. or .moodtracker history.'));
       const today = new Date().toISOString().slice(0, 10);
       const existing = moods[sender].findIndex(e => e.date === today);
       if (existing >= 0) moods[sender][existing].mood = moodInput;
       else moods[sender].push({ date: today, mood: moodInput });
       if (moods[sender].length > 90) moods[sender] = moods[sender].slice(-90);
       saveDB('mood-tracker.json', moods);
-      reply(`✅ *MOOD LOGGED*\n\n📅 ${today}: *${moodInput}*\n\nKept private. Check your history: .moodtracker history\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`mood logged for ${today}.`));
     }
   },
 
@@ -216,7 +216,7 @@ module.exports = [
     description: 'Get 5 rapid facts on a topic. Usage: factseries <topic>',
     execute: async ({ args, reply }) => {
       const topic = args.join(' ').toLowerCase().trim();
-      if (!topic) return reply(h.demonError('.factseries', '.factseries <topic> — e.g. .factseries sharks | .factseries bitcoin'));
+      if (!topic) return reply(p.phrases.wrongUsage('provide a topic to get facts about. example! .factseries sharks'));
       const topicData = {
         sharks: [
           'Sharks have been around for over 450 million years — older than trees.',
@@ -263,11 +263,11 @@ module.exports = [
       try {
         const res = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`, { timeout: 8000 });
         const extract = res.data.extract;
-        if (!extract) return reply(h.demonFail(`no facts found for "${topic}". Try: sharks, bitcoin, octopus, sleep, money`));
+        if (!extract) return reply(p.phrases.error(`no facts found for "${topic}". Try: sharks, bitcoin, octopus, sleep, money`));
         const sentences = extract.match(/[^.!?]+[.!?]+/g) || [];
         const selected = sentences.slice(0, 5).map((s, i) => `${i + 1}. ${s.trim()}`).join('\n\n');
         reply(`📚 *FACT SERIES: ${topic.toUpperCase()}*\n\n${selected}\n\nVia Wikipedia.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch { reply(h.demonFail(`couldn't find facts on "${topic}". Try: sharks, bitcoin, octopus, sleep, money`)); }
+      } catch { reply(p.phrases.error(`couldn't find facts on "${topic}". Try: sharks, bitcoin, octopus, sleep, money`)); }
     }
   },
 
@@ -283,7 +283,7 @@ module.exports = [
       try {
         const res = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd,zar&include_24hr_change=true&include_market_cap=true`, { timeout: 8000 });
         const data = res.data[id];
-        if (!data) return reply(h.demonFail(`coin "${coin}" not found. Try: bitcoin, ethereum, solana, dogecoin, cardano`));
+        if (!data) return reply(p.phrases.error(`coin "${coin}" not found. Try: bitcoin, ethereum, solana, dogecoin, cardano`));
         const change = data.usd_24h_change?.toFixed(2);
         const changeArrow = change > 0 ? '📈' : '📉';
         const mcap = data.usd_market_cap ? `$${(data.usd_market_cap / 1e9).toFixed(2)}B` : 'N/A';
@@ -296,7 +296,7 @@ module.exports = [
           `Data: CoinGecko 😤\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`price lookup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`price lookup failed — ${e.message}`)); }
     }
   },
 
@@ -318,7 +318,7 @@ module.exports = [
         return reply(`🔗 *PHRASE CHAIN STARTED*\n\nFirst word: *${starter}*\n\nAdd a word starting with: *${starter.slice(-1).toUpperCase()}*\nCommand: .phrasechain <word>\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const chain = chains[chatId];
-      if (!chain) return reply(h.demonFail('no active phrase chain. Start with .phrasechain start'));
+      if (!chain) return reply(p.phrases.error('no active phrase chain. Start with .phrasechain start'));
       if (action === 'end') {
         const final = chain.words.join(' → ');
         chains[chatId] = null;
@@ -326,16 +326,16 @@ module.exports = [
         return reply(`🏁 *PHRASE CHAIN ENDED*\n\n${final}\n\n${chain.words.length} words total. Not bad. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const word = action?.replace(/[^a-z]/gi, '').toLowerCase();
-      if (!word || word.length < 2) return reply(h.demonError('.phrasechain', '.phrasechain <word>'));
-      if (chain.lastSender === sender) return reply(h.demonFail('not so fast — let someone else go before you play again'));
-      if (chain.words.includes(word)) return reply(h.demonFail(`"${word}" was already used`));
+      if (!word || word.length < 2) return reply(p.phrases.wrongUsage('provide a starting word. example! .phrasechain ocean'));
+      if (chain.lastSender === sender) return reply(p.phrases.error('not so fast — let someone else go before you play again'));
+      if (chain.words.includes(word)) return reply(p.phrases.error(`"${word}" was already used`));
       const lastWord = chain.words[chain.words.length - 1];
       const required = lastWord.slice(-1).toLowerCase();
-      if (word[0].toLowerCase() !== required) return reply(h.demonFail(`word must start with *${required.toUpperCase()}* (last letter of "${lastWord}")`));
+      if (word[0].toLowerCase() !== required) return reply(p.phrases.error(`word must start with *${required.toUpperCase()}* (last letter of "${lastWord}")`));
       chain.words.push(word);
       chain.lastSender = sender;
       saveDB('phrase-chains.json', chains);
-      reply(`✅ @${senderNumber} played: *${word}*\n\nNext word must start with: *${word.slice(-1).toUpperCase()}*\n📊 Chain length: ${chain.words.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`${word} accepted. next word must start with ${word.slice(-1).toUpperCase()}.`)\n\nNext word must start with: *${word.slice(-1).toUpperCase()}*\n📊 Chain length: ${chain.words.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
     }
   }
 

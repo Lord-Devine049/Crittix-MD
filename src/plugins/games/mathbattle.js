@@ -4,6 +4,8 @@ const globalXP = require('../../lib/global-xp');
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const activeGames = {};
 
@@ -17,10 +19,10 @@ module.exports = {
 
     if (cmd === 'mathanswer') {
       const game = activeGames[chatId];
-      if (!game) return reply(h.demonFail(`No active math game. Start one: ${prefix}mathbattle`));
+      if (!game) return reply(p.phrases.error(`No active math game. Start one: ${prefix}mathbattle`));
 
       const guess = parseInt(text);
-      if (isNaN(guess)) return reply(h.demonFail('Provide a number'));
+      if (isNaN(guess)) return reply(p.phrases.error('Provide a number'));
 
       const correct = guess === game.answer;
       delete activeGames[chatId];

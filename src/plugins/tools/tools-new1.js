@@ -6,6 +6,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
 
@@ -16,10 +18,10 @@ module.exports = [
     description: 'Look up an IP address — country, city, ISP. Usage: ip2location 8.8.8.8',
     execute: async ({ args, reply }) => {
       const ip = args[0];
-      if (!ip) return reply(h.demonError('.ip2location', '.ip2location <ip address>'));
+      if (!ip) return reply(p.phrases.wrongUsage('provide an ip address. example! .ip2location 8.8.8.8'));
       try {
         const { data } = await axios.get(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,message,country,regionName,city,isp,org,lat,lon,timezone,query`, { timeout: 10000 });
-        if (data.status !== 'success') return reply(h.demonFail(`lookup failed — ${data.message || 'invalid IP'}`));
+        if (data.status !== 'success') return reply(p.phrases.error(`ip lookup failed. ${data.message || 'invalid ip'}.`));
         reply(
           `🌐 *IP2LOCATION*\n\n` +
           `📡 IP: *${data.query}*\n` +
@@ -33,7 +35,7 @@ module.exports = [
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`IP lookup crashed — ${e.message}. typical.`));
+        reply(p.phrases.error(`IP lookup crashed — ${e.message}. typical.`));
       }
     }
   },
@@ -45,11 +47,11 @@ module.exports = [
     description: 'Decode a vehicle VIN — make/model/year. Usage: vin 1HGBH41JXMN109186',
     execute: async ({ args, reply }) => {
       const vin = args[0]?.toUpperCase();
-      if (!vin || vin.length !== 17) return reply(h.demonError('.vin', '.vin <17-char VIN>'));
+      if (!vin || vin.length !== 17) return reply(p.phrases.wrongUsage('provide the 17 character vehicle identification number. example! .vin 1HGCM82633A123456'));
       try {
         const { data } = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`, { timeout: 15000 });
         const r = data?.Results?.[0];
-        if (!r || r.ErrorCode !== '0') return reply(h.demonFail(`VIN decode failed — ${r?.ErrorText || 'invalid VIN'}`));
+        if (!r || r.ErrorCode !== '0') return reply(p.phrases.error(`vin decode failed. ${r?.ErrorText || 'invalid vin'}.`));
         reply(
           `🚗 *VIN DECODER*\n\n` +
           `🔑 VIN: \`${vin}\`\n` +
@@ -64,7 +66,7 @@ module.exports = [
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`VIN service is being sus — ${e.message}`));
+        reply(p.phrases.error(`VIN service is being sus — ${e.message}`));
       }
     }
   },
@@ -77,7 +79,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const from = args[0]?.toUpperCase();
       const to = args[1]?.toUpperCase();
-      if (!from || !to) return reply(h.demonError('.currencyhistory', '.currencyhistory <FROM> <TO> — e.g. currencyhistory USD EUR'));
+      if (!from || !to) return reply(p.phrases.wrongUsage('provide two currency codes. example! .currencyhistory usd eur'));
       try {
         const dates = [];
         const now = new Date();
@@ -87,7 +89,7 @@ module.exports = [
           dates.push(d.toISOString().split('T')[0]);
         }
         const { data } = await axios.get(`https://api.frankfurter.app/${dates[0]}..${dates[6]}?from=${from}&to=${to}`, { timeout: 15000 });
-        if (!data?.rates) return reply(h.demonFail('no rate data found — probably an invalid currency pair, clown'));
+        if (!data?.rates) return reply(p.phrases.notFound('no rate data found. check the currency pair.'));
         let txt = `📈 *CURRENCY HISTORY: ${from} → ${to}*\n\n`;
         for (const [date, rates] of Object.entries(data.rates)) {
           txt += `📅 ${date}: *${rates[to]?.toFixed(4) || 'N/A'}*\n`;
@@ -95,7 +97,7 @@ module.exports = [
         txt += `\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`;
         reply(txt);
       } catch (e) {
-        reply(h.demonFail(`rate history unavailable — ${e.message}`));
+        reply(p.phrases.error(`rate history unavailable — ${e.message}`));
       }
     }
   },
@@ -107,11 +109,11 @@ module.exports = [
     description: 'Get current stock price for a ticker. Usage: stockprice AAPL',
     execute: async ({ args, reply }) => {
       const ticker = args[0]?.toUpperCase();
-      if (!ticker) return reply(h.demonError('.stockprice', '.stockprice <TICKER> — e.g. stockprice AAPL'));
+      if (!ticker) return reply(p.phrases.wrongUsage('provide the stock ticker symbol. example! .stockprice aapl'));
       try {
         const { data } = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } });
         const meta = data?.chart?.result?.[0]?.meta;
-        if (!meta) return reply(h.demonFail(`ticker "${ticker}" not found — try a real one`));
+        if (!meta) return reply(p.phrases.error(`ticker "${ticker}" not found — try a real one`));
         const price = meta.regularMarketPrice;
         const prev = meta.previousClose;
         const change = price - prev;
@@ -129,7 +131,7 @@ module.exports = [
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`stock data failed — ${e.message}`));
+        reply(p.phrases.error(`stock data failed — ${e.message}`));
       }
     }
   },
@@ -142,7 +144,7 @@ module.exports = [
     description: 'Get current gas/fuel prices for a country. Usage: gasprice Nigeria',
     execute: async ({ args, reply }) => {
       const country = args.join(' ');
-      if (!country) return reply(h.demonError('.gasprice', '.gasprice <country name>'));
+      if (!country) return reply(p.phrases.wrongUsage('provide the country name. example! .gasprice nigeria'));
       try {
         const { data } = await axios.get(`https://api.collectapi.com/gasPrice/allCountries`, {
           timeout: 10000,
@@ -169,9 +171,9 @@ module.exports = [
         if (key) {
           return reply(`⛽ *GAS PRICE: ${country.toUpperCase()}*\n\n💵 Approx: *${staticPrices[key]}*\n\n⚠️ _Prices are estimates, not live data_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         }
-        reply(h.demonFail(`no fuel data for "${country}" — try a more common country name`));
+        reply(p.phrases.error(`no fuel data for "${country}" — try a more common country name`));
       } catch (e) {
-        reply(h.demonFail(`fuel data failed — ${e.message}`));
+        reply(p.phrases.error(`fuel data failed — ${e.message}`));
       }
     }
   },
@@ -185,10 +187,10 @@ module.exports = [
       const amount = parseFloat(args[0]);
       const from = args[1]?.toUpperCase();
       const to = args[2]?.toUpperCase();
-      if (isNaN(amount) || !from || !to) return reply(h.demonError('.exchangerate', '.exchangerate <amount> <FROM> <TO> — e.g. exchangerate 100 USD EUR'));
+      if (isNaN(amount) || !from || !to) return reply(p.phrases.wrongUsage('provide amount and two currency codes. example! .exchangerate 100 usd eur'));
       try {
         const { data } = await axios.get(`https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`, { timeout: 10000 });
-        if (!data?.rates?.[to]) return reply(h.demonFail('invalid currency pair — try real ISO codes like USD, EUR, NGN'));
+        if (!data?.rates?.[to]) return reply(p.phrases.error('invalid currency pair — try real ISO codes like USD, EUR, NGN'));
         reply(
           `💱 *EXCHANGE RATE*\n\n` +
           `💰 ${amount} ${from} = *${data.rates[to].toFixed(4)} ${to}*\n` +
@@ -196,7 +198,7 @@ module.exports = [
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
       } catch (e) {
-        reply(h.demonFail(`exchange rate failed — ${e.message}`));
+        reply(p.phrases.error(`exchange rate failed — ${e.message}`));
       }
     }
   },
@@ -210,7 +212,7 @@ module.exports = [
       // Format: unitconv <value> <from_unit> to <to_unit>
       const raw = args.join(' ').toLowerCase();
       const match = raw.match(/^([\d.]+)\s+(\S+)\s+to\s+(\S+)$/);
-      if (!match) return reply(h.demonError('.unitconv', '.unitconv <value> <unit> to <unit>\nExamples:\n• unitconv 10 km to miles\n• unitconv 100 kg to lbs\n• unitconv 37 C to F\n• unitconv 5 liters to gallons'));
+      if (!match) return reply(p.phrases.wrongUsage('provide a value and two units. example! .unitconv 10 km to miles'));
       const [, valStr, from, to] = match;
       const val = parseFloat(valStr);
       const conversions = {
@@ -243,7 +245,7 @@ module.exports = [
       };
       const key = `${from}_${to}`;
       const fn = conversions[key];
-      if (!fn) return reply(h.demonFail(`no conversion for "${from}" to "${to}" — supported: length (km/miles/m/ft/cm/inches), weight (kg/lbs/g/oz), volume (liters/gallons/ml/cups), temp (C/F/K), speed (kmh/mph), data (kb/mb/gb/tb)`));
+      if (!fn) return reply(p.phrases.error(`no conversion for "${from}" to "${to}" — supported: length (km/miles/m/ft/cm/inches), weight (kg/lbs/g/oz), volume (liters/gallons/ml/cups), temp (C/F/K), speed (kmh/mph), data (kb/mb/gb/tb)`));
       const result = fn(val).toFixed(6).replace(/\.?0+$/, '');
       reply(
         `📐 *UNIT CONVERTER*\n\n` +

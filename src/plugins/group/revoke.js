@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'revoke',
   aliases: ['revokelink', 'resetlink'],
@@ -9,7 +11,7 @@ module.exports = {
     try {
       await sock.groupRevokeInvite(chatId);
       const code = await sock.groupInviteCode(chatId);
-      reply(`✅ *Group link reset*`);
+      reply(p.phrases.success('group link reset.'));
     } catch (e) {
       reply(`❌ *Failed to reset link* • ${e.message}`);
     }

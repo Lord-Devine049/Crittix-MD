@@ -9,6 +9,8 @@ const axios = require('axios');
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const DB = (file) => path.join(process.cwd(), 'database', file);
 const loadDB = (file) => { try { return fs.existsSync(DB(file)) ? JSON.parse(fs.readFileSync(DB(file), 'utf8')) : {}; } catch { return {}; } };
@@ -62,12 +64,12 @@ module.exports = [
     description: 'Look up an anime character from Jikan/MAL. Usage: animecharacter <name>',
     execute: async ({ args, reply }) => {
       const name = args.join(' ');
-      if (!name) return reply(h.demonError('animecharacter', 'animecharacter <character name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide the character name. example! .animecharacter naruto uzumaki'));
       try {
         await reply(`🔍 Searching for *${name}*...`);
         const res = await axios.get(`${JIKAN}/characters?q=${encodeURIComponent(name)}&limit=1`, { timeout: 15000 });
         const c = res.data.data?.[0];
-        if (!c) return reply(h.demonFail(`couldn't find character: *${name}*`));
+        if (!c) return reply(p.phrases.error(`couldn't find character: *${name}*`));
         const nick = c.nicknames?.slice(0, 3).join(', ') || 'None';
         const animeList = c.anime?.slice(0, 3).map(a => a.anime?.title).filter(Boolean).join(', ') || 'Unknown';
         reply(
@@ -83,7 +85,7 @@ module.exports = [
           `🔗 ${c.url || ''}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`lookup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`lookup failed — ${e.message}`)); }
     }
   },
 
@@ -97,7 +99,7 @@ module.exports = [
         await reply('📰 Fetching latest anime news...');
         const res = await axios.get(`${JIKAN}/news/anime`, { timeout: 15000 });
         const articles = res.data.data?.slice(0, 5);
-        if (!articles?.length) return reply(h.demonFail('no news available right now'));
+        if (!articles?.length) return reply(p.phrases.error('no news available right now'));
         const text = articles.map((a, i) =>
           `${i + 1}. *${a.title}*\n   👤 ${a.author_username} | 💬 ${a.comments}\n   🔗 ${a.url}`
         ).join('\n\n');
@@ -108,7 +110,7 @@ module.exports = [
           `${text}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`news fetch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`news fetch failed — ${e.message}`)); }
     }
   },
 
@@ -122,7 +124,7 @@ module.exports = [
         await reply('📅 Fetching current season schedule...');
         const res = await axios.get(`${JIKAN}/seasons/now?limit=10`, { timeout: 20000 });
         const list = res.data.data?.slice(0, 10);
-        if (!list?.length) return reply(h.demonFail('no schedule data available'));
+        if (!list?.length) return reply(p.phrases.error('no schedule data available'));
         const text = list.map((a, i) =>
           `${i + 1}. *${a.title}* (${a.type || 'TV'})\n   ⭐ ${a.score || 'N/A'} | 📺 Ep ${a.episodes || '?'} | 🎭 ${(a.genres?.slice(0, 2).map(g => g.name).join(', ') || 'N/A')}`
         ).join('\n\n');
@@ -133,7 +135,7 @@ module.exports = [
           `${text}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`schedule fetch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`schedule fetch failed — ${e.message}`)); }
     }
   },
 
@@ -155,7 +157,7 @@ module.exports = [
         await reply(`🎯 Finding *${genre}* anime recs...`);
         const res = await axios.get(`${JIKAN}/anime?genres=${gid}&order_by=score&sort=desc&limit=5`, { timeout: 20000 });
         const list = res.data.data?.slice(0, 5);
-        if (!list?.length) return reply(h.demonFail('no recommendations found'));
+        if (!list?.length) return reply(p.phrases.error('no recommendations found'));
         const text = list.map((a, i) =>
           `${i + 1}. *${a.title}*\n   ⭐ ${a.score} | 📺 ${a.episodes || '?'} eps | ${a.status}`
         ).join('\n\n');
@@ -168,7 +170,7 @@ module.exports = [
           `Available genres: action, adventure, comedy, drama, fantasy, horror, mystery, romance, scifi, thriller\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`recs failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`recs failed — ${e.message}`)); }
     }
   },
 
@@ -190,7 +192,7 @@ module.exports = [
         await reply(`📖 Finding *${genre}* manga recs...`);
         const res = await axios.get(`${JIKAN}/manga?genres=${gid}&order_by=score&sort=desc&limit=5`, { timeout: 20000 });
         const list = res.data.data?.slice(0, 5);
-        if (!list?.length) return reply(h.demonFail('no manga recs found'));
+        if (!list?.length) return reply(p.phrases.error('no manga recs found'));
         const text = list.map((a, i) =>
           `${i + 1}. *${a.title}*\n   ⭐ ${a.score} | 📚 ${a.chapters || '?'} chs | ${a.status}`
         ).join('\n\n');
@@ -202,7 +204,7 @@ module.exports = [
           `${text}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`manga recs failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`manga recs failed — ${e.message}`)); }
     }
   },
 
@@ -213,12 +215,12 @@ module.exports = [
     description: 'Look up anime voice actor info. Usage: animevoiceactor <name>',
     execute: async ({ args, reply }) => {
       const name = args.join(' ');
-      if (!name) return reply(h.demonError('animevoiceactor', 'animevoiceactor <voice actor name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide the voice actor name. example! .animevoiceactor junichi suwabe'));
       try {
         await reply(`🎙️ Looking up VA: *${name}*...`);
         const res = await axios.get(`${JIKAN}/people?q=${encodeURIComponent(name)}&limit=1`, { timeout: 15000 });
         const va = res.data.data?.[0];
-        if (!va) return reply(h.demonFail(`couldn't find voice actor: *${name}*`));
+        if (!va) return reply(p.phrases.error(`couldn't find voice actor: *${name}*`));
         reply(
           `╔════╗\n` +
           `  𓆘 *VOICE ACTOR INFO*\n` +
@@ -231,7 +233,7 @@ module.exports = [
           `🔗 ${va.url || ''}\n\n` +
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘹 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`VA lookup failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`VA lookup failed — ${e.message}`)); }
     }
   },
 
@@ -258,16 +260,16 @@ module.exports = [
         );
       }
       if (action === 'add') {
-        if (!title) return reply(h.demonError('animewatchlist', 'animewatchlist add <anime title>'));
+        if (!title) return reply(p.phrases.wrongUsage('provide the anime title to add. example! .animewatchlist add bleach'));
         if (db[sender].includes(title)) return reply(`⚠️ *${title}* is already in your watchlist, dumbass.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
         db[sender].push(title);
         saveDB('anime_watchlist.json', db);
-        return reply(`✅ Added *${title}* to your watchlist!\n📋 Total: ${db[sender].length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`"${title}" added to your watchlist. total: ${db[sender].length}.`));
       }
       if (action === 'remove') {
-        if (!title) return reply(h.demonError('animewatchlist', 'animewatchlist remove <anime title>'));
+        if (!title) return reply(p.phrases.wrongUsage('provide the anime title to remove. example! .animewatchlist remove bleach'));
         const idx = db[sender].indexOf(title);
-        if (idx === -1) return reply(h.demonFail(`*${title}* not found in your watchlist`));
+        if (idx === -1) return reply(p.phrases.error(`*${title}* not found in your watchlist`));
         db[sender].splice(idx, 1);
         saveDB('anime_watchlist.json', db);
         return reply(`🗑️ Removed *${title}* from your watchlist.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -277,7 +279,7 @@ module.exports = [
         saveDB('anime_watchlist.json', db);
         return reply(`🗑️ Watchlist cleared. Back to zero, you absolute slacker.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply(h.demonError('animewatchlist', 'animewatchlist add | remove | list | clear'));
+      reply(p.phrases.wrongUsage('use .animewatchlist add title. or remove title. or list. or clear.'));
     }
   },
 
@@ -288,16 +290,16 @@ module.exports = [
     description: 'Get the opening theme info for an anime. Usage: openingtheme <anime name>',
     execute: async ({ args, reply }) => {
       const name = args.join(' ');
-      if (!name) return reply(h.demonError('openingtheme', 'openingtheme <anime name>'));
+      if (!name) return reply(p.phrases.wrongUsage('provide the anime name. example! .openingtheme attack on titan'));
       try {
         await reply(`🎵 Fetching opening theme for *${name}*...`);
         const search = await axios.get(`${JIKAN}/anime?q=${encodeURIComponent(name)}&limit=1`, { timeout: 15000 });
         const anime = search.data.data?.[0];
-        if (!anime) return reply(h.demonFail(`anime not found: *${name}*`));
+        if (!anime) return reply(p.phrases.error(`anime not found: *${name}*`));
         const detail = await axios.get(`${JIKAN}/anime/${anime.mal_id}/themes`, { timeout: 15000 });
         const openings = detail.data.data?.openings;
         const endings = detail.data.data?.endings;
-        if (!openings?.length) return reply(h.demonFail(`no theme data for *${anime.title}*`));
+        if (!openings?.length) return reply(p.phrases.error(`no theme data for *${anime.title}*`));
         reply(
           `╔════╗\n` +
           `  𓆘 *ANIME THEMES*\n` +
@@ -308,7 +310,7 @@ module.exports = [
           (endings?.length ? `\n\n🎶 *ENDINGS (${endings.length}):*\n` + endings.slice(0, 3).map((e, i) => `${i + 1}. ${e}`).join('\n') : '') +
           `\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         );
-      } catch (e) { reply(h.demonFail(`theme fetch failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`theme fetch failed — ${e.message}`)); }
     }
   },
 

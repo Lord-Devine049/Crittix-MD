@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['mathquiz', 'mathfact', 'calculate2'],
@@ -13,13 +15,13 @@ module.exports = {
     const cmd = (command || 'mathquiz').toLowerCase();
 
     if (cmd === 'calculate2') {
-      if (!text) return reply(h.demonError('.calculate2', '.calculate2 <expression>'));
+      if (!text) return reply(p.phrases.wrongUsage('provide a math expression. example! .calculate2 2+2'));
       try {
         // eslint-disable-next-line no-new-func
         const result = Function('"use strict"; return (' + text + ')')();
         reply(`🧮 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗖𝗮𝗹𝗰*\n\n${text} = *${result}*`);
       } catch {
-        reply(h.demonFail('Invalid expression. Check your math.'));
+        reply(p.phrases.error('Invalid expression. Check your math.'));
       }
       return;
     }

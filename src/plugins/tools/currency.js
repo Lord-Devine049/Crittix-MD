@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['currency'],
@@ -34,7 +36,7 @@ module.exports = {
         `${amount} ${from.toUpperCase()} = *${res.data.result.toFixed(4)} ${to.toUpperCase()}*`
       );
     } catch (err) {
-      reply(h.demonFail('Exchange rate service unavailable. Try again later.'));
+      reply(p.phrases.error('exchange rate service is down. try again later.'));
     }
   }
 };

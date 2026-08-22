@@ -29,17 +29,17 @@ module.exports = [
       let _jailParticipants = [];
       try { _jailParticipants = (await sock.groupMetadata(chatId)).participants; } catch (_) {}
       const target = h.getTarget(msg, _jailParticipants);
-      if (!target.length) return reply(h.demonError('.jail', 'Reply to or tag the member to jail'));
+      if (!target.length) return reply(p.phrases.wrongUsage('reply to the person\'s message or tag @user to jail them.'));
 
       const victim = target[0].replace(/:\d+@/, '@');
 
       // Can't jail the bot itself
       const { botJid, botLid } = h.getBotJids(sock);
-      if (h.isBotParticipant({ id: victim }, botJid, botLid)) return reply(h.demonFail("You can't jail me lmao"));
+      if (h.isBotParticipant({ id: victim }, botJid, botLid)) return reply(p.phrases.cantTargetBot());
 
       // Can't jail an admin
       const victimIsAdmin = await h.isSenderAdmin(sock, chatId, victim);
-      if (victimIsAdmin) return reply(h.demonFail("Can't jail an admin"));
+      if (victimIsAdmin) return reply(p.phrases.error('you cannot jail an admin.'));
 
       jail.jailMember(chatId, victim);
 
@@ -71,7 +71,7 @@ module.exports = [
       let _unjailParticipants = [];
       try { _unjailParticipants = (await sock.groupMetadata(chatId)).participants; } catch (_) {}
       const target = h.getTarget(msg, _unjailParticipants);
-      if (!target.length) return reply(h.demonError('.unjail', 'Reply to or tag the member to release'));
+      if (!target.length) return reply(p.phrases.wrongUsage('reply to the person\'s message or tag @user to release them from jail.'));
 
       const victim = target[0].replace(/:\d+@/, '@');
 
@@ -98,7 +98,7 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, reply }) => {
       const jailed = jail.getJailed(chatId);
-      if (!jailed.length) return reply('✅ No one is currently jailed in this group.');
+      if (!jailed.length) return reply(p.phrases.notFound('no one is currently jailed in this group.'));
 
       const mentions = jailed;
       let txt = `╔════════════════════════么\n║ 🔒 *JAIL LIST*\n╚════════════════════════么\n\n`;

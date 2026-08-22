@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'styletext',
@@ -14,8 +16,8 @@ module.exports = {
     const { AVAILABLE_FONTS, applyFont } = require('../../lib/fonts');
     const fontName = args[0]?.toLowerCase();
     const txt = args.slice(1).join(' ');
-    if (!fontName || !txt) return reply(h.demonError('.styletext', '.styletext bold Hello World\n\nFonts: ' + AVAILABLE_FONTS.join(', ')));
-    if (!AVAILABLE_FONTS.includes(fontName)) return reply(h.demonFail('Unknown font. Available: ' + AVAILABLE_FONTS.join(', ')));
+    if (!fontName || !txt) return reply(p.phrases.wrongUsage('provide a font name then your text. example! .styletext bold hello world'));
+    if (!AVAILABLE_FONTS.includes(fontName)) return reply(p.phrases.notFound('unknown font. check available fonts with .styletext'));
     reply(applyFont(txt, fontName));
   }
 };

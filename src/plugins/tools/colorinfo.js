@@ -1,5 +1,7 @@
 
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'colorinfo',
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Get info about a color from hex code. Usage: colorinfo #FF5733',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     let hex = (args[0] || '').replace('#', '').trim().toLowerCase();
-    if (!hex) return reply('🎨 *Usage:* colorinfo #FF5733\n_Or just the hex:_ colorinfo FF5733');
+    if (!hex) return reply(p.phrases.wrongUsage('provide a hex color code. example! .colorinfo #FF5733'));
     if (!/^[0-9a-f]{3}$|^[0-9a-f]{6}$/.test(hex)) {
       return reply('❌ *Invalid hex color* • Use 3 or 6 hex characters\n_Example:_ colorinfo FF5733');
     }

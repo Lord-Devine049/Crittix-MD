@@ -4,6 +4,8 @@
  * Category: darkcraft | Dual-text GFX generation via NexOracle API
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const GFX_STYLES = [
   { cmd: 'gfx',   label: 'GFX Style 1',  emoji: '🎨' },
@@ -37,7 +39,7 @@ module.exports = GFX_STYLES.map(({ cmd, label, emoji }) => ({
     }
     const [text1, text2] = text.split('|').map(v => v.trim());
     if (!text1 || !text2) {
-      return reply(h.demonFail(`both sides required — use: ${prefix}${cmd} text1 | text2`));
+      return reply(p.phrases.error(`both sides required — use: ${prefix}${cmd} text1 | text2`));
     }
     await reply(`⏳ *Forging ${label}...*`);
     try {
@@ -54,7 +56,7 @@ module.exports = GFX_STYLES.map(({ cmd, label, emoji }) => ({
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail(`${label} generation failed — API may be down`));
+      reply(p.phrases.error(`${label} generation failed — API may be down`));
     }
   }
 }));

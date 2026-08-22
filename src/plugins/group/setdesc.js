@@ -17,8 +17,8 @@ module.exports = {
     if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(p.phrases.adminOnly());
     if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const desc = args.join(' ');
-    if (!desc) return reply(h.demonError('.setdesc', '.setdesc <description>'));
-    try { await sock.groupUpdateDescription(chatId, desc); reply('✓ Group description updated'); }
-    catch(e) { reply(h.demonFail(e.message)); }
+    if (!desc) return reply(p.phrases.wrongUsage('type the new description after the command. example! .setdesc no spamming here.'));
+    try { await sock.groupUpdateDescription(chatId, desc); reply(p.phrases.success('group description updated.')); }
+    catch(e) { reply(p.phrases.error(e.message)); }
   }
 };

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'block',
@@ -14,8 +16,8 @@ module.exports = {
     let _gtP = [];
     if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
     const target = h.getTarget(msg, _gtP);
-    if (!target.length) return reply(h.demonError('.block', 'Reply or tag user'));
+    if (!target.length) return reply(p.phrases.wrongUsage('reply to someone\'s message or tag @user to block them.'));
     await sock.updateBlockStatus(target[0], 'block');
-    reply('✓ Blocked @' + target[0].split('@')[0], { mentions: target });
+    reply(p.phrases.success('blocked @' + target[0].split('@')[0] + '.'), { mentions: target });
   }
 };

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'joke',
@@ -16,6 +18,6 @@ module.exports = {
       const j = res.data;
       const text = j.type === 'twopart' ? j.setup + '\n\n😂 ' + j.delivery : j.joke;
       reply('😂 JOKE:\n\n' + text);
-    } catch(e) { reply(h.demonFail('Could not fetch joke')); }
+    } catch(e) { reply(p.phrases.error('could not fetch a joke. try again.')); }
   }
 };

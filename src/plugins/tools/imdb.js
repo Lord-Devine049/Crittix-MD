@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'imdb',
@@ -6,7 +8,7 @@ module.exports = {
   category: 'soultools',
   description: 'Search IMDB for movie/show info. Usage: imdb The Dark Knight',
   execute: async ({ sock, msg, text, chatId, reply }) => {
-    if (!text) return reply('🎬 *Usage:* imdb The Dark Knight');
+    if (!text) return reply(p.phrases.wrongUsage('type the movie title after the command. example! .imdb the dark knight'));
 
     try {
       const apiKey = 'trilogy';

@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'bomb',
   aliases: ['spam', 'msgbomb'],
@@ -8,9 +10,9 @@ module.exports = {
     const message = args.slice(1).join(' ');
 
     if (!count || isNaN(count) || count < 1) {
-      return reply('💣 *Usage:* bomb 5 your message here\n_Max: 10 messages_');
+      return reply(p.phrases.wrongUsage('provide a count and your message. example! .bomb 5 hello. max is 10.'));
     }
-    if (!message) return reply('💣 *Usage:* bomb 5 message text');
+    if (!message) return reply(p.phrases.wrongUsage('provide a count and your message. example! .bomb 5 hello'));
 
     const safe = Math.min(count, 10);
 

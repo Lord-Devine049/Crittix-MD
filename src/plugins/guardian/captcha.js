@@ -131,12 +131,12 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const type = (args[0] || '').toLowerCase();
-      if (!['math','emoji','text'].includes(type)) return reply(h.demonFail('Valid types: math, emoji, text\nUsage: .captchatype math'));
+      if (!['math','emoji','text'].includes(type)) return reply(p.phrases.wrongUsage('pick a valid type fool! use .captchatype math. or .captchatype emoji. or .captchatype text.'));
       const db = loadDB('captcha.json');
       if (!db[chatId]) db[chatId] = { enabled: false, timeout: 60, stats: { passed: 0, failed: 0 } };
       db[chatId].type = type;
       saveDB('captcha.json', db);
-      reply(h.demonSuccess(`Captcha type set to *${type}*.\n\nExamples:\n- math: "What is 7 × 8?"\n- emoji: "Which emoji is a fruit?"\n- text: "Type the word: CRITTIX"`));
+      reply(p.phrases.success(`Captcha type set to *${type}*.\n\nExamples:\n- math: "What is 7 × 8?"\n- emoji: "Which emoji is a fruit?"\n- text: "Type the word: CRITTIX"`));
     }
   },
 
@@ -150,12 +150,12 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const secs = parseInt(args[0]);
-      if (isNaN(secs) || secs < 30 || secs > 300) return reply(h.demonFail('Timeout must be between 30 and 300 seconds.'));
+      if (isNaN(secs) || secs < 30 || secs > 300) return reply(p.phrases.error('timeout must be between 30 and 300 seconds.'));
       const db = loadDB('captcha.json');
       if (!db[chatId]) db[chatId] = { enabled: false, type: 'math', stats: { passed: 0, failed: 0 } };
       db[chatId].timeout = secs;
       saveDB('captcha.json', db);
-      reply(h.demonSuccess(`Captcha timeout set to *${secs} seconds*. Solve fast or get kicked.`));
+      reply(p.phrases.success(`captcha timeout set to ${secs} seconds.`));
     }
   },
 

@@ -24,7 +24,7 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, args, reply }) => {
       const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
-      if (!mentioned) return reply(h.demonError('.groupwelcomecard', '.groupwelcomecard @newmember'));
+      if (!mentioned) return reply(p.phrases.wrongUsage('tag the new member after the command. example! .groupwelcomecard @user'));
       try {
         const meta = await sock.groupMetadata(chatId);
         const num = mentioned.split('@')[0];
@@ -44,7 +44,7 @@ module.exports = [
             `么══════════════════════════么\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,
           mentions: [mentioned]
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`couldn't generate welcome card — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`couldn't generate welcome card — ${e.message}`)); }
     }
   },
 
@@ -60,7 +60,7 @@ module.exports = [
       const action = args[0]?.toLowerCase();
       if (action === 'results') {
         const tally = moods[chatId].tally;
-        if (!Object.keys(tally).length) return reply(h.demonFail('no mood votes yet. Be the first.'));
+        if (!Object.keys(tally).length) return reply(p.phrases.notFound('no mood votes yet. be the first to vote.'));
         const sorted = Object.entries(tally).sort((a, b) => b[1] - a[1]);
         const lines = sorted.map(([mood, count]) => `${mood}: ${count} vote(s)`).join('\n');
         return reply(`🌡️ *GROUP MOOD RESULTS*\n\n${lines}\n\nThe vibes have spoken. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -90,7 +90,7 @@ module.exports = [
       const warns = loadDB('warnings.json');
       const groupWarns = warns[chatId] || {};
       const entries = Object.entries(groupWarns).filter(([, w]) => w.count > 0);
-      if (!entries.length) return reply(`✅ *CLEAN SLATE*\n\nNo active warnings in this group. Rare. Enjoy it.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      if (!entries.length) return reply(p.phrases.notFound('no active warnings in this group.'));
       const lines = entries.map(([jid, w]) => {
         const num = jid.split('@')[0];
         const reasons = (w.reasons || []).slice(-2).join(', ');
@@ -124,9 +124,9 @@ module.exports = [
       }
       const dateStr = args[0] || args.join('/');
       const match = dateStr?.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
-      if (!match) return reply(h.demonError('.groupbirthday', '.groupbirthday set DD/MM — e.g. groupbirthday 25/12'));
+      if (!match) return reply(p.phrases.wrongUsage('format it correctly. example! .groupbirthday set 25/12'));
       const day = parseInt(match[1]), month = parseInt(match[2]);
-      if (day < 1 || day > 31 || month < 1 || month > 12) return reply(h.demonFail('invalid date. Try again with a real day/month.'));
+      if (day < 1 || day > 31 || month < 1 || month > 12) return reply(p.phrases.error('invalid date. use a real day and month.'));
       bdayData[chatId][sender] = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}`;
       saveDB('group-birthdays.json', bdayData);
       reply(`🎂 *BIRTHDAY REGISTERED*\n\n@${senderNumber}'s birthday: *${bdayData[chatId][sender]}*\nCrittix will shout you out on the day. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -148,7 +148,7 @@ module.exports = [
           return reply(p.phrases.adminOnly());
           if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const question = args.slice(1).join(' ');
-        if (!question) return reply(h.demonError('.groupvote', '.groupvote start <question>'));
+        if (!question) return reply(p.phrases.wrongUsage('provide a question after start. example! .groupvote start who is the most active here?'));
         votes[chatId] = { question, yes: [], no: [], started: Date.now() };
         saveDB('group-vote.json', votes);
         return reply(`🗳️ *GROUP VOTE STARTED*\n\n❓ "${question}"\n\nVote with: *.groupvote yes* or *.groupvote no*\nResults: *.groupvote results*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -166,9 +166,9 @@ module.exports = [
         vote.no = vote.no.filter(j => j !== sender);
         vote[action].push(sender);
         saveDB('group-vote.json', votes);
-        return reply(`✅ @${senderNumber} voted *${action.toUpperCase()}*\nTotal: ✅ ${vote.yes.length} | ❌ ${vote.no.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`voted ${action.toUpperCase()}.`)\nTotal: ✅ ${vote.yes.length} | ❌ ${vote.no.length}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply(h.demonError('.groupvote', '.groupvote start <question> | yes | no | results'));
+      reply(p.phrases.wrongUsage('use .groupvote start your question. or yes. or no. or results to see the tally.'));
     }
   },
 
@@ -191,7 +191,7 @@ module.exports = [
         .map(([jid, d]) => ({ jid, num: jid.split('@')[0], weekMsgs: d.weeklyMessages || d.messages || 0 }))
         .filter(e => e.weekMsgs > 0)
         .sort((a, b) => b.weekMsgs - a.weekMsgs);
-      if (!entries.length) return reply(h.demonFail('no activity data to award badges from'));
+      if (!entries.length) return reply(p.phrases.notFound('no activity data found to award badges from.'));
       const winner = entries[0];
       const badgeData = loadDB('activity-badges.json');
       if (!badgeData[winner.jid]) badgeData[winner.jid] = { badges: [] };

@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['gitclone'],
@@ -14,10 +16,10 @@ module.exports = {
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
     const url = args[0];
     if (!url || !url.includes('github.com'))
-      return reply(h.demonError('.gitclone', '.gitclone <github url>'));
+      return reply(p.phrases.wrongUsage('provide the github repository url. example! .gitclone https://github.com/user/repo'));
 
     const match = url.match(/(?:https?:\/\/|git@)github\.com[/:]([\w.-]+)\/([\w.-]+)/i);
-    if (!match) return reply(h.demonFail('Invalid GitHub URL'));
+    if (!match) return reply(p.phrases.error('Invalid GitHub URL'));
 
     const [, user, rawRepo] = match;
     const repo = rawRepo.replace(/\.git$/, '');
@@ -36,7 +38,7 @@ module.exports = {
         caption: `📦 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗚𝗶𝘁𝗖𝗹𝗼𝗻𝗲*\n\n${user}/${repo}`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Failed to fetch GitHub repo. Check the URL.'));
+      reply(p.phrases.error('Failed to fetch GitHub repo. Check the URL.'));
     }
   }
 };

@@ -52,7 +52,7 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const announcement = text || args.join(' ');
-      if (!announcement) return reply(h.demonError('.gannounce', '.gannounce <your announcement text>'));
+      if (!announcement) return reply(p.phrases.wrongUsage('type your announcement after the command. example! .gannounce no fighting in this group.'));
       const meta = await sock.groupMetadata(chatId).catch(() => ({ subject: 'Group' }));
       await sock.sendMessage(chatId, {
         text: `📢 *ANNOUNCEMENT — ${meta.subject || 'Group'}*\n${'─'.repeat(30)}\n\n${announcement}\n\n${'─'.repeat(30)}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
@@ -69,13 +69,13 @@ module.exports = [
     execute: async ({ sock, chatId, sender, text, args, reply }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
-      if (!text || !text.includes('|')) return reply(h.demonError('.groupcountdown', '.groupcountdown <event> | <YYYY-MM-DD>'));
+      if (!text || !text.includes('|')) return reply(p.phrases.wrongUsage('format it correctly. example! .groupcountdown event name "2025-12-25"'));
       const [eventName, dateStr] = text.split('|').map(s => s.trim());
       const target = new Date(dateStr);
-      if (isNaN(target.getTime())) return reply(h.demonFail('Invalid date. Use format: YYYY-MM-DD'));
+      if (isNaN(target.getTime())) return reply(p.phrases.error('invalid date format. use yyyy-mm-dd.'));
       const now = new Date();
       const diff = target - now;
-      if (diff < 0) return reply(h.demonFail('That date is in the past. Time travel not supported.'));
+      if (diff < 0) return reply(p.phrases.error('that date is in the past. pick a future date.'));
       const days = Math.floor(diff / 86400000);
       const hrs = Math.floor((diff % 86400000) / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
@@ -110,7 +110,7 @@ module.exports = [
                 `${count >= nearest ? `🏆 We've hit the *${nearest}* milestone!` : `📈 ${nearest - count} members away from *${nearest}!*`}\n\n` +
                 `Thanks to every legend in this group 🙏\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`Milestone failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Milestone failed: ${e.message}`)); }
     }
   },
 
@@ -136,7 +136,7 @@ module.exports = [
                 `🏆 *Top Active Members:*\n${topUsers.length ? topUsers.join('\n') : 'No activity tracked yet'}\n\n` +
                 `💡 Keep the energy up!\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`Daily digest failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Daily digest failed: ${e.message}`)); }
     }
   },
 
@@ -171,7 +171,7 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const challenge = text || args.join(' ');
-      if (!challenge) return reply(h.demonError('.groupchallenge', '.groupchallenge <challenge text>'));
+      if (!challenge) return reply(p.phrases.wrongUsage('type the challenge text after the command. example! .groupchallenge send a voice note.'));
       const db = loadDB('groupchallenges.json');
       db[chatId] = { challenge, startedAt: Date.now(), responses: [], postedBy: sender };
       saveDB('groupchallenges.json', db);
@@ -188,7 +188,7 @@ module.exports = [
     description: 'Start a live group trivia question — first correct answer wins. Usage: .grouptrivia',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, reply }) => {
-      if (activeTrivias.has(chatId)) return reply(h.demonFail('A trivia question is already active! Answer it first.'));
+      if (activeTrivias.has(chatId)) return reply(p.phrases.alreadyEnabled('a trivia question is already running. answer it first.'));
       const q = TRIVIA_QUESTIONS[Math.floor(Math.random() * TRIVIA_QUESTIONS.length)];
       const expires = Date.now() + 30000;
       activeTrivias.set(chatId, { ...q, expires });
@@ -230,12 +230,12 @@ module.exports = [
           headers: { 'User-Agent': 'CrittixMD/1.0' }, timeout: 10000
         });
         const post = res.data?.[0]?.data?.children?.[0]?.data;
-        if (!post || !post.url || post.is_video) return reply(h.demonFail('No meme found. Reddit had a moment.'));
+        if (!post || !post.url || post.is_video) return reply(p.phrases.error('No meme found. Reddit had a moment.'));
         await sock.sendMessage(chatId, {
           image: { url: post.url },
           caption: `😂 *${post.title}*\n\n🔗 r/${sub}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`Meme fetch failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Meme fetch failed: ${e.message}`)); }
     }
   },
 
@@ -250,17 +250,17 @@ module.exports = [
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const ctx = msg.message?.extendedTextMessage?.contextInfo;
       const quoted = ctx?.quotedMessage;
-      if (!quoted) return reply(h.demonFail('Reply to the message you want to highlight first.'));
+      if (!quoted) return reply(p.phrases.error('Reply to the message you want to highlight first.'));
       const db = loadDB('grouphighlights.json');
       if (!db[chatId]) db[chatId] = { highlights: [], week: getCurrentWeek() };
       const weekNow = getCurrentWeek();
       if (db[chatId].week !== weekNow) { db[chatId] = { highlights: [], week: weekNow }; }
-      if (db[chatId].highlights.length >= 5) return reply(h.demonFail('Max 5 highlights per week. Remove one first or wait for next week.'));
+      if (db[chatId].highlights.length >= 5) return reply(p.phrases.error('Max 5 highlights per week. Remove one first or wait for next week.'));
       const text = quoted.conversation || quoted.extendedTextMessage?.text || '[media message]';
       db[chatId].highlights.push({ text: text.substring(0, 200), by: ctx.participant?.split('@')[0], at: Date.now() });
       saveDB('grouphighlights.json', db);
       const count = db[chatId].highlights.length;
-      reply(h.demonSuccess(`Highlight #${count}/5 saved for this week's summary.\n\nUse .grouphighlight to add more (max 5).`));
+      reply(p.phrases.success(`Highlight #${count}/5 saved for this week's summary.\n\nUse .grouphighlight to add more (max 5).`));
     }
   }
 

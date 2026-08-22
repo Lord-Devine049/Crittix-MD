@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['recipe'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'soultools',
   description: 'Search for recipes',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.recipe', '.recipe <food name>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the food name after the command. example! .recipe jollof rice'));
 
     try {
       const res = await axios.get(
@@ -20,7 +22,7 @@ module.exports = {
       );
 
       if (!res.data.meals)
-        return reply(h.demonFail(`No recipe found for "${text}"`));
+        return reply(p.phrases.notFound(`no recipe found for "${text}".`));
 
       const meal = res.data.meals[0];
 
@@ -52,7 +54,7 @@ module.exports = {
         reply(caption);
       }
     } catch {
-      reply(h.demonFail('Recipe search failed. Kitchen is closed.'));
+      reply(p.phrases.error('recipe search failed. try again later.'));
     }
   }
 };

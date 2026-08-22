@@ -2,6 +2,8 @@
 const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'blur',
   category: 'creativetools',
@@ -10,7 +12,7 @@ module.exports = {
     const blurLevel = Math.min(Math.max(parseInt(args[0]) || 5, 1), 20);
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg) return reply(`✘ ${h.toBoldItalic('Send or reply to an image')} ${h.demonEmoji()}\n\n${h.toBoldItalic('Usage')}: .blur [1-20]`);
+    if (!imageMsg) return reply(p.phrases.wrongUsage('send or reply to an image. you can also add a blur level from 1 to 20. example! .blur 10'));
     try {
       let imgBuffer;
       if (msg.message?.imageMessage) imgBuffer = await downloadMediaMessage(msg, 'buffer', {});

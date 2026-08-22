@@ -41,19 +41,19 @@ module.exports = [
       }
       if (action === 'add') {
         const code = args[1]?.replace(/[^0-9]/g, '');
-        if (!code) return reply(h.demonFail('Specify a country code. e.g. .antiforeign add 234'));
+        if (!code) return reply(p.phrases.wrongUsage('specify a country code. example! .antiforeign add 234'));
         if (!db[chatId].allowedCodes.includes(code)) {
           db[chatId].allowedCodes.push(code);
           saveDB('antiforeign.json', db);
-          return reply(h.demonSuccess(`Country code +${code} added to allowlist.`));
+          return reply(p.phrases.success(`country code +${code} added to allowlist.`));
         }
-        return reply(h.demonFail(`+${code} is already allowed.`));
+        return reply(p.phrases.alreadyEnabled(`+${code} is already in the allowlist.`));
       }
       if (action === 'remove') {
         const code = args[1]?.replace(/[^0-9]/g, '');
         db[chatId].allowedCodes = db[chatId].allowedCodes.filter(c => c !== code);
         saveDB('antiforeign.json', db);
-        return reply(h.demonSuccess(`Country code +${code} removed from allowlist.`));
+        return reply(p.phrases.success(`country code +${code} removed from allowlist.`));
       }
       if (action === 'list') {
         return reply(`🌍 *Anti-Foreign Status*\n\nEnabled: ${db[chatId].enabled ? 'ON 🟢' : 'OFF 🔴'}\nAllowed codes: +${db[chatId].allowedCodes.join(', +')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);

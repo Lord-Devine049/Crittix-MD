@@ -8,6 +8,8 @@
 
 const arena = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
+const p = require('../../lib/phrases');
+
 
 
 const LOBBY_SECONDS    = 120;
@@ -285,7 +287,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}mathrace start\` or \`${prefix}mathrace stop\``);
+      return reply(p.phrases.wrongUsage('use .mathrace start to begin. or .mathrace stop to end it.'));
     }
 
     if (arena.hasActiveGame(chatId)) {

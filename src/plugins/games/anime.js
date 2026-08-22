@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const REACTIONS = [
   'bite','blush','bonk','bully','cringe','dance','glomp',
@@ -29,7 +31,7 @@ module.exports = {
     try {
       const res = await axios.get(`https://waifu.pics/api/sfw/${reaction}`, { timeout: 8000 });
       const gifUrl = res.data?.url;
-      if (!gifUrl) return reply(h.demonFail(`No ${reaction} GIF found`));
+      if (!gifUrl) return reply(p.phrases.error(`No ${reaction} GIF found`));
 
       const emoji = reactionEmoji[reaction] || '✨';
       const ctx = msg.message?.extendedTextMessage?.contextInfo;
@@ -43,7 +45,7 @@ module.exports = {
         caption: `${emoji} *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗔𝗻𝗶𝗺𝗲*\n\n@${sender.split('@')[0]} ${reaction}s ${target}`.trim()
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail(`${reaction} GIF unavailable. Try again.`));
+      reply(p.phrases.error(`${reaction} GIF unavailable. Try again.`));
     }
   }
 };

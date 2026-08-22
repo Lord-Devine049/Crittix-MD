@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['stalk', 'igstalk'],
@@ -10,7 +12,7 @@ module.exports = {
   description: 'View public Instagram profile info',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const username = args[0]?.replace('@', '').trim();
-    if (!username) return reply('usage: .stalk <username>\nexample: .stalk mrbeast');
+    if (!username) return reply(p.phrases.wrongUsage('provide the social media username. example! .stalk mrbeast'));
 
     try {
       const { data } = await axios.get(

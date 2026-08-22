@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 async function resolveLidJid(sock, lidJid, groupId) {
   try {
@@ -37,7 +39,7 @@ module.exports = {
     }
 
     if (!rawJid) {
-      return reply(h.demonError('.getpp', `Reply to someone or tag them with ${h.prefix || '.'}getpp to fetch their profile picture`));
+      return reply(p.phrases.wrongUsage('reply to or tag the person whose profile picture you want. example! .getpp @user'));
     }
 
     let jid = rawJid;
@@ -58,7 +60,7 @@ module.exports = {
     }
 
     if (!url) {
-      return reply(h.demonFail(`No profile picture found for @${jid.split('@')[0]}`));
+      return reply(p.phrases.error(`No profile picture found for @${jid.split('@')[0]}`));
     }
 
     const num = jid.split('@')[0];

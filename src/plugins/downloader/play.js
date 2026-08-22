@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'play',
@@ -7,7 +9,7 @@ module.exports = {
   description: 'Search and download a song',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const query = args.join(' ');
-    if (!query) return reply('🎵 usage: .play <song name>');
+    if (!query) return reply(p.phrases.wrongUsage('type the song name after the command. example! .play blinding lights weeknd'));
 
     await reply('🔍 ˢᵉᵃʀᶜʰⁱⁿᵍ: ' + query);
 

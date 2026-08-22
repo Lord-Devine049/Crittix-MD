@@ -6,6 +6,8 @@
 const h = require('../../lib/helpers');
 const fs = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const TRUTH_VERDICTS = [
   "🔴 *CERTIFIED LIE* — that's the most fake thing I've read today.",
@@ -31,7 +33,7 @@ module.exports = [
     description: 'Render a code snippet as a styled syntax-highlighted image. Usage: .carbon <code>',
     execute: async ({ sock, msg, chatId, text, args, reply }) => {
       const code = text || args.join(' ');
-      if (!code) return reply(h.demonError('.carbon', '.carbon <your code snippet>', 'Give me code to render, genius.'));
+      if (!code) return reply(p.phrases.wrongUsage('paste your code after the command. example! .carbon console.log("hello world")'));
       try {
         const { createCanvas } = require('canvas');
         const lines = code.split('\n');
@@ -151,7 +153,7 @@ module.exports = [
         }, { quoted: msg });
         fs.removeSync(tmpPath);
       } catch (e) {
-        reply(h.demonFail(`Carbon render failed: ${e.message}`));
+        reply(p.phrases.error(`Carbon render failed: ${e.message}`));
       }
     }
   },
@@ -163,7 +165,7 @@ module.exports = [
     description: 'Get a sarcastic verdict on whether a claim is true. Usage: .truthdetector <your claim>',
     execute: async ({ text, args, reply }) => {
       const claim = text || args.join(' ');
-      if (!claim) return reply(h.demonError('.truthdetector', '.truthdetector <your claim>', 'Give me something to judge, clown.'));
+      if (!claim) return reply(p.phrases.wrongUsage('type your claim after the command and i\'ll judge it. example! .truthdetector the earth is flat'));
       const verdict = TRUTH_VERDICTS[Math.floor(Math.random() * TRUTH_VERDICTS.length)];
       const confidence = Math.floor(Math.random() * 40) + 55;
       reply(

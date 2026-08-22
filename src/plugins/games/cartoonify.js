@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['cartoonify', 'cartoon'],
@@ -13,11 +15,11 @@ module.exports = {
     const ctx = msg.message?.extendedTextMessage?.contextInfo;
     const quoted = ctx?.quotedMessage;
 
-    if (!quoted) return reply(h.demonError('.cartoonify', '.cartoonify — reply to an image'));
+    if (!quoted) return reply(p.phrases.wrongUsage('reply to an image to cartoonify it.'));
 
     const quotedType = Object.keys(quoted)[0];
     if (quotedType !== 'imageMessage')
-      return reply(h.demonFail('Reply to an image message'));
+      return reply(p.phrases.error('Reply to an image message'));
 
     try {
       const quotedMsg = {
@@ -26,7 +28,7 @@ module.exports = {
       };
 
       const buffer = await sock.downloadMediaMessage(quotedMsg);
-      if (!buffer) return reply(h.demonFail('Failed to download image'));
+      if (!buffer) return reply(p.phrases.error('failed to download the image.'));
 
       const axios = require('axios');
       const FormData = require('form-data');
@@ -45,7 +47,7 @@ module.exports = {
         caption: '🎨 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗖𝗮𝗿𝘁𝗼𝗼𝗻𝗶𝗳𝘆*'
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Cartoonify failed. Try another image.'));
+      reply(p.phrases.error('Cartoonify failed. Try another image.'));
     }
   }
 };

@@ -4,6 +4,8 @@
  */
 const db                = require('../../lib/db');
 const { checkBotAdmin } = require('../../lib/anti-handlers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command:     'antitagall',
@@ -25,7 +27,7 @@ module.exports = {
 
     if (action === 'off') {
       db.setAnti(chatId, 'antitagall', false);
-      return reply(`✓ antitagall off`);
+      return reply(p.phrases.success('antitagall disabled.'));
     }
 
     // Block any enabling action if bot isn't admin
@@ -41,6 +43,6 @@ module.exports = {
     db.setAnti(chatId, 'antitagall', mode);
 
     const labels = { warn: 'warn 3x then kick', kick: 'instant kick', delete: 'delete only' };
-    reply(`✓ antitagall — ${labels[mode]}`);
+    reply(p.phrases.success(`antitagall set to ${labels[mode]}.`));
   }
 };

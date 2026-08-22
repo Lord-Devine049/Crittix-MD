@@ -26,6 +26,6 @@ module.exports = {
       await new Promise(r => setTimeout(r, 1200));
     }
     global.kickAllRunning[chatId] = false;
-    reply('✓ Done');
+    reply(p.phrases.success('done.'));
   }
 };

@@ -1,4 +1,6 @@
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'ipinfo',
@@ -7,7 +9,7 @@ module.exports = {
   description: 'Look up geolocation info for an IP address. Usage: ipinfo 8.8.8.8',
   execute: async ({ args, reply }) => {
     const ip = (args[0] || '').trim();
-    if (!ip) return reply('🌐 *Usage:* ipinfo 8.8.8.8');
+    if (!ip) return reply(p.phrases.wrongUsage('provide an ip address. example! .ipinfo 8.8.8.8'));
 
     try {
       const res = await axios.get(`https://ipinfo.io/${ip}/json`);

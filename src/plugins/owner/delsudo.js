@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'delsudo',
@@ -15,9 +17,9 @@ module.exports = {
     if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
     const target = h.getTarget(msg, _gtP);
     const num = target[0]?.split('@')[0] || args[0]?.replace(/\D/g,'');
-    if (!num) return reply(h.demonError('.delsudo', '.delsudo @user or number'));
+    if (!num) return reply(p.phrases.wrongUsage('tag someone or provide their number to remove sudo. example! .delsudo @user'));
     const { removeSudo } = require('../../lib/config');
     removeSudo(num);
-    reply('✓ Removed sudo: +' + num);
+    reply(p.phrases.success('sudo removed: +' + num + '.'));
   }
 };

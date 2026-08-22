@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'randomfact',
@@ -14,6 +16,6 @@ module.exports = {
     try {
       const res = await axios.get('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', { timeout: 8000 });
       reply('🧠 Random Fact:\n\n' + res.data.text);
-    } catch(e) { reply(h.demonFail('Could not fetch fact')); }
+    } catch(e) { reply(p.phrases.error('could not fetch a fact. try again.')); }
   }
 };

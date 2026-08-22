@@ -25,7 +25,7 @@ module.exports = [
     execute: async ({ sender, reply }) => {
       const invData = loadDB('inventory.json');
       const userInv = invData[sender] || [];
-      if (!userInv.length) return reply(h.demonFail('your inventory is empty — nothing to pawn. Stay broke then 💀'));
+      if (!userInv.length) return reply(p.phrases.error('your inventory is empty — nothing to pawn. Stay broke then 💀'));
       const sellPrice = (item) => {
         const prices = { legendary: 500, rare: 200, uncommon: 80, common: 30 };
         return prices[item.rarity?.toLowerCase()] || 25;
@@ -50,11 +50,11 @@ module.exports = [
       const now = Date.now();
       if (cd[sender] && now - cd[sender] < 86400000) {
         const rem = Math.ceil((86400000 - (now - cd[sender])) / 3600000);
-        return reply(h.demonFail(`interest already claimed. Come back in *${rem}h*. The bank doesn't care about your urgency.`));
+        return reply(p.phrases.error(`interest already claimed. Come back in *${rem}h*. The bank doesn't care about your urgency.`));
       }
       const bal = vault.getBalance(sender);
       const balance = bal?.balance || 0;
-      if (balance < 100) return reply(h.demonFail('need at least 🪙 100 to earn interest. Grow your account first.'));
+      if (balance < 100) return reply(p.phrases.error('need at least 🪙 100 to earn interest. Grow your account first.'));
       const interest = Math.floor(balance * 0.02);
       vault.updateBalance(sender, interest, 0);
       cd[sender] = now;
@@ -124,18 +124,18 @@ module.exports = [
       if (action === 'join') {
         const ga = gData[chatId];
         if (!ga) return reply(p.phrases.adminOnly());
-        if (ga.entries.includes(sender)) return reply(h.demonFail('you\'re already in the giveaway. Patience.'));
+        if (ga.entries.includes(sender)) return reply(p.phrases.alreadyEnabled('you are already in the giveaway. patience.'.'));
         ga.entries.push(sender);
         saveDB('giveaway.json', gData);
-        return reply(`✅ Entered! You're entry #${ga.entries.length}. May the odds be with you. 😤`);
+        return reply(p.phrases.success(`entered! you are entry #${ga.entries.length}.`));
       }
       if (action === 'end') {
         if (!await h.isSenderAdmin(sock, chatId, sender))
           return reply(p.phrases.adminOnly());
           if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const ga = gData[chatId];
-        if (!ga) return reply(h.demonFail('no active giveaway to end'));
-        if (!ga.entries.length) { gData[chatId] = null; saveDB('giveaway.json', gData); return reply(h.demonFail('no one entered. Awkward.')); }
+        if (!ga) return reply(p.phrases.error('no active giveaway to end'));
+        if (!ga.entries.length) { gData[chatId] = null; saveDB('giveaway.json', gData); return reply(p.phrases.error('no one entered. Awkward.')); }
         const winnerJid = ga.entries[Math.floor(Math.random() * ga.entries.length)];
         const winnerNum = winnerJid.split('@')[0];
         vault.updateBalance(winnerJid, ga.prize, 0);
@@ -146,7 +146,7 @@ module.exports = [
           mentions: [winnerJid]
         }, { quoted: msg });
       }
-      reply(h.demonError('.giveaway', '.giveaway start <prize> | .giveaway join | .giveaway end'));
+      reply(p.phrases.wrongUsage('use .giveaway start prize to begin. or .giveaway join to enter. or .giveaway end to close it.'));
     }
   },
 

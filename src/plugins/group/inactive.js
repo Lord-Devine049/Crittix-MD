@@ -65,7 +65,7 @@ module.exports = [
       const inactive = actTrack.getInactive(chatId, meta.participants, 7);
 
       if (!inactive.length)
-        return reply(`✅ No inactive members to kick`);
+        return reply(p.phrases.notFound("no inactive members to kick."));
 
       await reply(`⏳ kicking ${inactive.length} inactive member${inactive.length > 1 ? 's' : ''}...`);
 

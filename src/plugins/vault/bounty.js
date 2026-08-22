@@ -7,6 +7,8 @@ const fs    = require('fs-extra');
 const path  = require('path');
 const vault = require('../../lib/vault');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const BNT_PATH = path.join(process.cwd(), 'database', 'bounties.json');
 const MIN_BOUNTY = 100;
@@ -53,7 +55,7 @@ module.exports.execute = async ({ sock, msg, sender, args, chatId, reply }) => {
   const amount = parseInt(args.find(a => /^\d+$/.test(a)));
 
   if (!target || !amount)
-    return reply(h.demonError('.bounty', '.bounty @person <amount> — place a bounty on someone'));
+    return reply(p.phrases.wrongUsage('tag someone and set a bounty amount. example! .bounty @user 1000'));
 
   if (amount < MIN_BOUNTY) return reply(`😑 minimum bounty is 🪙 ${MIN_BOUNTY}`);
 

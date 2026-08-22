@@ -1,4 +1,6 @@
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 
 async function streamToBuffer(stream) {
   const chunks = [];
@@ -28,7 +30,7 @@ module.exports = {
       if (!buf || buf.length === 0) return reply('❌ *Failed to download image*');
 
       await sock.updateProfilePicture(chatId, buf);
-      reply('✅ *Group picture updated*\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_');
+      reply(p.phrases.success('group picture updated.'));
     } catch (e) {
       reply(`❌ *Failed to update* • ${e.message}`);
     }

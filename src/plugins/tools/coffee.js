@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['coffee', 'kopi'],
@@ -16,7 +18,7 @@ module.exports = {
         caption: `☕ *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗖𝗼𝗳𝗳𝗲𝗲*\n\nFresh cup just for you.`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail('Coffee machine broke. Try again.'));
+      reply(p.phrases.error('coffee machine broke. try again.'));
     }
   }
 };

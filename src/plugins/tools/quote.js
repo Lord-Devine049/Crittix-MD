@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'quote',
@@ -15,6 +17,6 @@ module.exports = {
       const res = await axios.get('https://zenquotes.io/api/random', { timeout: 8000 });
       const q = res.data[0];
       reply('💬 \"' + q.q + '\"\n\n— ' + q.a);
-    } catch(e) { reply(h.demonFail('Could not fetch quote')); }
+    } catch(e) { reply(p.phrases.error('could not fetch a quote. try again.')); }
   }
 };

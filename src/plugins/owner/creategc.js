@@ -1,4 +1,6 @@
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['creategc'],
@@ -7,7 +9,7 @@ module.exports = {
   description: 'Create a new WhatsApp group',
   ownerOnly: true,
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.creategc', '.creategc <group name>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the group name. example! .creategc crittix vip lounge'));
 
     const groupName = args.join(' ');
 
@@ -25,7 +27,7 @@ module.exports = {
         mentions: created.owner ? [created.owner] : []
       }, { quoted: msg });
     } catch (err) {
-      reply(h.demonFail('Failed to create group. Check bot permissions.'));
+      reply(p.phrases.error('Failed to create group. Check bot permissions.'));
     }
   }
 };

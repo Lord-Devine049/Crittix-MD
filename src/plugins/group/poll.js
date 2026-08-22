@@ -17,7 +17,7 @@ module.exports = {
     if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(p.phrases.adminOnly());
     if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     const parts = args.join(' ').split('|').map(s => s.trim()).filter(Boolean);
-    if (parts.length < 3) return reply(h.demonError('.poll', '.poll Question | Option1 | Option2'));
+    if (parts.length < 3) return reply(p.phrases.wrongUsage('format it correctly. example! .poll question "option1" "option2"'));
     const [question, ...options] = parts;
     await sock.sendMessage(chatId, { poll: { name: question, values: options, selectableCount: 1 } }, { quoted: msg });
   }

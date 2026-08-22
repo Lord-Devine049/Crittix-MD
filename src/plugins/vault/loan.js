@@ -7,6 +7,8 @@ const fs    = require('fs-extra');
 const path  = require('path');
 const vault = require('../../lib/vault');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const LOAN_PATH  = path.join(process.cwd(), 'database', 'loans.json');
 const MAX_LOAN   = 5000;
@@ -90,6 +92,6 @@ module.exports = {
       );
     }
 
-    reply(h.demonError('.loan', '.loan <amount> | .loan status | .loan repay'));
+    reply(p.phrases.wrongUsage('use .loan amount to borrow. or .loan status to check. or .loan repay to pay back.'));
   }
 };

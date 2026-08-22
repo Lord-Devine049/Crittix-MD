@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['wiki', 'wikipedia'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'soultools',
   description: 'Search Wikipedia',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.wiki', '.wiki <search term>'));
+    if (!text) return reply(p.phrases.wrongUsage('type what you want to search on wikipedia. example! .wiki albert einstein'));
 
     try {
       const res = await axios.get(
@@ -21,10 +23,10 @@ module.exports = {
       const data = res.data;
 
       if (data.type === 'disambiguation')
-        return reply(h.demonFail(`"${text}" is too broad. Be more specific.`));
+        return reply(p.phrases.error(`"${text}" is too broad. Be more specific.`));
 
       if (!data.extract)
-        return reply(h.demonFail(`No results found for "${text}"`));
+        return reply(p.phrases.error(`No results found for "${text}"`));
 
       const extract = data.extract.length > 600
         ? data.extract.substring(0, 600) + '...'
@@ -42,8 +44,8 @@ module.exports = {
       }
     } catch (err) {
       if (err.response?.status === 404)
-        return reply(h.demonFail(`Page "${text}" not found. Try another term.`));
-      reply(h.demonFail('Wikipedia is down. Try again later.'));
+        return reply(p.phrases.error(`Page "${text}" not found. Try another term.`));
+      reply(p.phrases.error('Wikipedia is down. Try again later.'));
     }
   }
 };

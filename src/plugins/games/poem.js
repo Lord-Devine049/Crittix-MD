@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['poem', 'poetry'],
@@ -16,7 +18,7 @@ module.exports = {
       const poem = Array.isArray(res.data) ? res.data[0] : res.data;
 
       if (!poem || !poem.lines)
-        return reply(h.demonFail('No poems found. The muse is silent.'));
+        return reply(p.phrases.error('No poems found. The muse is silent.'));
 
       const lines = poem.lines.join('\n');
       const body = lines.substring(0, 800) + (lines.length > 800 ? '\n...' : '');
@@ -28,7 +30,7 @@ module.exports = {
         `${body}`
       );
     } catch {
-      reply(h.demonFail('Poem fetch failed. The poet is asleep.'));
+      reply(p.phrases.error('Poem fetch failed. The poet is asleep.'));
     }
   }
 };

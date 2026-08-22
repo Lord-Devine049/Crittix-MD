@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 /*
  * ANIMEGEN.JS - Crittix-MD
  * Created by: LORD DEVINE
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Generate an anime-style image from a prompt',
   execute: async ({ sock, msg, args, chatId, reply }) => {
     const prompt = args.join(' ').trim();
-    if (!prompt) return reply('usage: .animegen <prompt>\nexample: .animegen itachi uchiha');
+    if (!prompt) return reply(p.phrases.wrongUsage('provide a prompt after the command. example! .animegen itachi uchiha'));
 
     await reply('🎨 generating anime image...');
 

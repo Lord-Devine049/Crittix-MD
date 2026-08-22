@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 const SETTINGS_FILE = path.join(process.cwd(), 'database', 'antibeg.json');
 
@@ -37,7 +39,7 @@ module.exports = {
     if (arg === 'on') {
       data[chatId] = { enabled: true };
       save(data);
-      reply('✅ *Anti-Beg enabled*\nBegging messages will be deleted');
+      reply(p.phrases.success('anti-beg enabled. begging messages will be deleted.'));
     } else if (arg === 'off') {
       data[chatId] = { enabled: false };
       save(data);

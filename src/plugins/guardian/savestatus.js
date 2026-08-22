@@ -1,6 +1,8 @@
 /* SAVESTATUS.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: ['savestatus', 'savest'],
   aliases: ['savest'],
@@ -10,7 +12,7 @@ module.exports = {
     try {
       const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!quotedMsg) {
-        return reply(`${h.demonEmoji()} ${h.toBoldItalic('SAVE STATUS')}\n\n${h.toBoldItalic('Save someones status to your DM.')}\n\n🔥 ${h.toBoldItalic('Usage')}: Reply to a status with ${prefix}savestatus`);
+        return reply(p.phrases.wrongUsage('reply to someone\'s status with .savestatus to save it to your dm.'));
       }
       let mediaType = null;
       if (quotedMsg.imageMessage) mediaType = 'image';
@@ -22,7 +24,7 @@ module.exports = {
       } else {
         await sock.sendMessage(sender, { video: buffer, caption: 'saved' });
       }
-      return reply(`✓ ${h.toBoldItalic('Sent')} ${h.demonEmoji()}`);
+      return reply(p.phrases.success('status saved and sent to dm.'));
     } catch (err) {
       return reply(`✘ ${h.toBoldItalic('Failed miserably')} ${h.demonEmoji()}`);
     }

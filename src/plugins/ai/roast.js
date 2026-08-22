@@ -23,6 +23,6 @@ module.exports = {
       await new Promise(r => setTimeout(r, 1500));
       const roast = await crittixAI.generateRoast(name + ' exists', name, 5, 'roast');
       await sock.sendMessage(chatId, { text: roast, mentions: jid ? [jid] : [] }, { quoted: msg });
-    } catch(e) { reply(h.demonFail('Roast failed: ' + e.message)); }
+    } catch(e) { reply(p.phrases.error('roast failed. ' + e.message)); }
   }
 };

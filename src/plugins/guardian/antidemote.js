@@ -53,6 +53,6 @@ module.exports = {
       );
     }
 
-    reply(h.demonError('.antidemote', '.antidemote on/off'));
+    reply(p.phrases.wrongUsage('use .antidemote on to enable it. or .antidemote off to disable it.'));
   }
 };

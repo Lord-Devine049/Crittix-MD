@@ -13,22 +13,25 @@ module.exports = {
   description: 'Tag all members invisibly with a message',
   groupOnly: true,
   execute: async ({ sock, msg, args, chatId, isOwner, isSudo, prefix, reply }) => {
-    const sender_ = msg.key.participant || msg.key.remoteJid;
-    if (!await h.isSenderAdmin(sock, chatId, sender_))
-      return reply(p.phrases.adminOnly());
-      if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
-
     const userMsg = args.join(' ');
-    if (!userMsg) return reply(h.demonError(
-      `${prefix}hidetag`,
-      `${prefix}hidetag good morning y'all`,
-      'Provide a message to send with the invisible tag'
-    ));
+    if (!userMsg) return reply(p.phrases.wrongUsage('provide a message to silently tag everyone with. example! .hidetag good morning everyone.'));
 
     const meta    = await sock.groupMetadata(chatId);
-    const members = meta.participants.map(p => p.id);
+    const members = meta.participants.map(m => m.id);
 
-    // Send message with invisible mentions — no @names visible
+    // Send the clean tagged message
     await sock.sendMessage(chatId, { text: userMsg, mentions: members });
+
+    // Delete the original .hidetag command message so only the clean message remains
+    try {
+      await sock.sendMessage(chatId, {
+        delete: {
+          remoteJid: chatId,
+          id: msg.key.id,
+          participant: msg.key.participant,
+          fromMe: false
+        }
+      });
+    } catch (_) {}
   }
 };

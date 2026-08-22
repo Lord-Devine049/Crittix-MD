@@ -311,25 +311,25 @@ module.exports = [
 
       if (action === 'vote') {
         const game = db[chatId];
-        if (!game?.active) return reply(h.demonFail('No Survivor game active. Start one with .survivor start'));
+        if (!game?.active) return reply(p.phrases.error('No Survivor game active. Start one with .survivor start'));
         const target = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
-        if (!target) return reply(h.demonFail('Mention who you want to vote out: .survivor vote @user'));
-        if (!game.players.includes(target)) return reply(h.demonFail('That player is not in the game.'));
-        if (game.eliminated.includes(target)) return reply(h.demonFail('That player is already eliminated.'));
+        if (!target) return reply(p.phrases.error('Mention who you want to vote out: .survivor vote @user'));
+        if (!game.players.includes(target)) return reply(p.phrases.error('That player is not in the game.'));
+        if (game.eliminated.includes(target)) return reply(p.phrases.error('That player is already eliminated.'));
         game.votes[sender] = target;
         saveDB('survivor.json', db);
-        return reply(h.demonSuccess(`Vote cast for @${target.split('@')[0]}. Others can vote too.`));
+        return reply(p.phrases.success(`vote cast for @${target.split('@')[0]}.`));
       }
 
       if (action === 'tally') {
         if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
         if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
         const game = db[chatId];
-        if (!game?.active) return reply(h.demonFail('No active game.'));
+        if (!game?.active) return reply(p.phrases.error('No active game.'));
         const counts = {};
         Object.values(game.votes).forEach(jid => { counts[jid] = (counts[jid] || 0) + 1; });
         const eliminated = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
-        if (!eliminated) return reply(h.demonFail('No votes cast this round.'));
+        if (!eliminated) return reply(p.phrases.error('No votes cast this round.'));
         game.eliminated.push(eliminated[0]);
         game.players = game.players.filter(p => p !== eliminated[0]);
         game.votes = {};
@@ -442,7 +442,7 @@ module.exports = [
     description: 'Pictionary-style — bot describes, first correct guess wins XP. Usage: .drawthat',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, reply }) => {
-      if (activeGames.has(`draw_${chatId}`)) return reply(h.demonFail('A drawthat round is already active! Guess it or wait for timeout.'));
+      if (activeGames.has(`draw_${chatId}`)) return reply(p.phrases.error('A drawthat round is already active! Guess it or wait for timeout.'));
       const thing = DESCRIBE_THINGS[Math.floor(Math.random() * DESCRIBE_THINGS.length)];
       const word = thing.split(' ').slice(-1)[0].toLowerCase().replace(/[^a-z]/g,'');
       const blanks = word.split('').map((c,i) => i === 0 ? c : '_').join(' ');
@@ -470,7 +470,7 @@ module.exports = [
     category: 'arena',
     description: 'Logic puzzle — first correct answer wins XP. Usage: .solveit',
     execute: async ({ sock, msg, chatId, reply }) => {
-      if (activeGames.has(`solve_${chatId}`)) return reply(h.demonFail('A puzzle is already active! Solve it first.'));
+      if (activeGames.has(`solve_${chatId}`)) return reply(p.phrases.error('A puzzle is already active! Solve it first.'));
       const puzzle = LOGIC_PUZZLES[Math.floor(Math.random() * LOGIC_PUZZLES.length)];
       // Store all acceptable answer variants
       const answers = [puzzle.a.toLowerCase()];
@@ -520,7 +520,7 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const trait = text || args.join(' ');
-      if (!trait) return reply(h.demonError('.powerranking', '.powerranking <trait>', 'e.g. .powerranking most likely to go broke'));
+      if (!trait) return reply(p.phrases.wrongUsage('provide a trait to rank people by. example! .powerranking most likely to go broke'));
       const db = loadDB('powerrankings.json');
       db[chatId] = { trait, votes: {}, startedAt: Date.now(), active: true };
       saveDB('powerrankings.json', db);
@@ -593,7 +593,7 @@ module.exports = [
             });
           }
         }, 120000);
-      } catch (e) { reply(h.demonFail(`Impersonator failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Impersonator failed: ${e.message}`)); }
     }
   },
 
@@ -607,9 +607,9 @@ module.exports = [
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const game = activeGames.get(`impersonate_${chatId}`);
-      if (!game) return reply(h.demonFail('No active impersonator round. Start one with .impersonator first.'));
+      if (!game) return reply(p.phrases.error('No active impersonator round. Start one with .impersonator first.'));
       const winner = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
-      if (!winner) return reply(h.demonFail('Mention who won: .impersonatorwinner @user'));
+      if (!winner) return reply(p.phrases.error('Mention who won: .impersonatorwinner @user'));
       activeGames.delete(`impersonate_${chatId}`);
       const winName = winner.split('@')[0];
       const newXP = globalXP.addXP(winner, winName);
@@ -638,10 +638,10 @@ module.exports = [
         if (!db[chatId]) db[chatId] = { open: false, count: 0 };
         db[chatId].open = action === 'open';
         saveDB('confessionbox.json', db);
-        return reply(h.demonSuccess(`Confession box: *${action === 'open' ? 'OPEN' : 'CLOSED'}*\n\nMembers DM the bot: *.confessionbox <their confession>*`));
+        return reply(p.phrases.success(`Confession box: *${action === 'open' ? 'OPEN' : 'CLOSED'}*\n\nMembers DM the bot: *.confessionbox <their confession>*`));
       }
       const confession = text?.replace(/^confessionbox\s*/i, '').trim() || args.slice(1).join(' ');
-      if (!confession) return reply(h.demonFail('Include your confession: .confessionbox <text>'));
+      if (!confession) return reply(p.phrases.error('Include your confession: .confessionbox <text>'));
       const db = loadDB('confessionbox.json');
       const targetGroup = Object.entries(db).find(([gid, data]) => data?.open && gid !== chatId)?.[0];
       if (!targetGroup) return reply(p.phrases.adminOnly());
@@ -651,7 +651,7 @@ module.exports = [
       await sock.sendMessage(targetGroup, {
         text: `💬 *ANONYMOUS CONFESSION #${confNum}*\n\n_"${confession}"_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       });
-      reply(h.demonSuccess(`Confession #${confNum} posted anonymously. They'll never know it was you.`));
+      reply(p.phrases.success(`confession #${confNum} posted anonymously.`));
     }
   },
 
@@ -671,7 +671,7 @@ module.exports = [
           const pPhone = (p.phoneNumber || p.id || '').split('@')[0].replace(/:\d+$/, '');
           return pPhone !== challengerPhone;
         });
-        if (!others.length) return reply(h.demonFail("Who are you gonna fight? The walls?"));
+        if (!others.length) return reply(p.phrases.error("Who are you gonna fight? The walls?"));
 
         const target = others[Math.floor(Math.random() * others.length)];
 
@@ -705,7 +705,7 @@ module.exports = [
             `Reply *Yes* to throw hands or *No* to back down 💀 _(60 seconds)_\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,
           mentions: [targetJid]            // ← only tag the challenged person
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`Game failed: ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`Game failed: ${e.message}`)); }
     }
   },
 
@@ -722,7 +722,7 @@ module.exports = [
 
       if (action === 'start' || !db[chatId]?.active) {
         const maxRoll = parseInt(args[1] || args[0]) || 100;
-        if (isNaN(maxRoll) || maxRoll < 2 || maxRoll > 10000) return reply(h.demonFail('Starting roll must be between 2 and 10000.'));
+        if (isNaN(maxRoll) || maxRoll < 2 || maxRoll > 10000) return reply(p.phrases.error('Starting roll must be between 2 and 10000.'));
         db[chatId] = { active: true, current: maxRoll, lastPlayer: null, lastPlayerName: null, round: 1 };
         saveDB('deathroll.json', db);
         return reply(
@@ -732,7 +732,7 @@ module.exports = [
         );
       }
 
-      if (!db[chatId]?.active) return reply(h.demonFail('No active deathroll. Start one with: .deathroll start [max]'));
+      if (!db[chatId]?.active) return reply(p.phrases.error('No active deathroll. Start one with: .deathroll start [max]'));
       const game = db[chatId];
 
       // Track previous player BEFORE updating to current sender
@@ -779,7 +779,7 @@ module.exports = [
     category: 'arena',
     description: 'Guess the anime character from a voice description. First correct wins XP. Usage: .guessthevoice',
     execute: async ({ sock, msg, chatId, reply }) => {
-      if (activeGames.has(`voice_${chatId}`)) return reply(h.demonFail('A voice guess round is already active!'));
+      if (activeGames.has(`voice_${chatId}`)) return reply(p.phrases.error('A voice guess round is already active!'));
       const voices = [
         { clue: 'High-energy, loud, always yelling about friendship and never giving up. Signature phrase involves "Nakama".', answers: ['luffy', 'monkey d luffy', 'monkey d. luffy'], full: 'Monkey D. Luffy (One Piece)' },
         { clue: 'Calm, calculating, and speaks only when necessary. Known for writing names in a notebook.', answers: ['light yagami', 'light', 'kira'], full: 'Light Yagami / Kira (Death Note)' },

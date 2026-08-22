@@ -6,6 +6,8 @@
  */
 const axios = require('axios');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_URL     = 'https://api.groq.com/openai/v1/chat/completions';
@@ -35,7 +37,7 @@ module.exports = [
     description: 'Ask Crittix AI a direct question',
     execute: async ({ msg, args, text, reply }) => {
       const q = args.join(' ') || (msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation);
-      if (!q) return reply(h.demonError('.ask', '.ask <your question>'));
+      if (!q) return reply(p.phrases.wrongUsage('type your question after the command. example! .ask what is the meaning of life'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Answer questions honestly but with a savage Crittix personality. If you don't know something, say so but make it brutal.`,
@@ -52,7 +54,7 @@ module.exports = [
     description: 'Crittix argues both sides of a topic dramatically',
     execute: async ({ args, reply }) => {
       const topic = args.join(' ');
-      if (!topic) return reply(h.demonError('.debate', '.debate <topic>'));
+      if (!topic) return reply(p.phrases.wrongUsage('provide a topic to debate. example! .debate should social media be banned'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} You are given a debate topic. Argue BOTH sides dramatically — label them *FOR:* and *AGAINST:*. Be savage about both sides.`,
@@ -69,7 +71,7 @@ module.exports = [
     description: 'Crittix generates a short story from your prompt',
     execute: async ({ args, reply }) => {
       const prompt = args.join(' ');
-      if (!prompt) return reply(h.demonError('.story', '.story <your prompt>'));
+      if (!prompt) return reply(p.phrases.wrongUsage('give me a prompt to write a story from. example! .story a cursed warrior seeking redemption'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Write a short dark dramatic story (max 10 sentences) based on the user's prompt. Crittix style — gritty, vivid, no happy endings unless ironic.`,
@@ -127,7 +129,7 @@ module.exports = [
     description: 'Send a claim — Crittix says if it\'s true or cap',
     execute: async ({ args, reply }) => {
       const claim = args.join(' ');
-      if (!claim) return reply(h.demonError('.myth', '.myth <your claim>'));
+      if (!claim) return reply(p.phrases.wrongUsage('give me a claim to fact check. example! .myth the earth is flat'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} You are a brutal fact-checker. Analyze the claim, say if it's TRUE or FALSE/CAP, explain briefly why. Be savage if it's obviously wrong.`,
@@ -146,7 +148,7 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
-      if (targets.length < 2) return reply(h.demonError('.judge', 'Tag two people for Crittix to judge'));
+      if (targets.length < 2) return reply(p.phrases.wrongUsage('tag two people and i\'ll judge them. example! .judge @person1 @person2'));
       const a = targets[0].split('@')[0], b = targets[1].split('@')[0];
       try {
         const ans = await ai(
@@ -170,7 +172,7 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
-      if (targets.length < 2) return reply(h.demonError('.roastbattle', 'Tag two people to battle'));
+      if (targets.length < 2) return reply(p.phrases.wrongUsage('tag two people to start a roast battle. example! .roastbattle @person1 @person2'));
       const a = targets[0].split('@')[0], b = targets[1].split('@')[0];
       try {
         const ans = await ai(
@@ -253,7 +255,7 @@ module.exports = [
     description: 'Give a situation — Crittix generates your excuse',
     execute: async ({ args, reply }) => {
       const situation = args.join(' ');
-      if (!situation) return reply(h.demonError('.alibi', '.alibi <your situation>'));
+      if (!situation) return reply(p.phrases.wrongUsage('describe your situation and i\'ll cook up an alibi. example! .alibi i was supposed to be at school'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Generate 3 creative alibis/excuses for the given situation. Make them creative, borderline believable, and increasingly insane.`,
@@ -270,7 +272,7 @@ module.exports = [
     description: 'Crittix pretends to be your therapist but roasts you',
     execute: async ({ args, msg, reply }) => {
       const problem = args.join(' ') || msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation;
-      if (!problem) return reply(h.demonError('.therapy', '.therapy <your problem>'));
+      if (!problem) return reply(p.phrases.wrongUsage('tell me your problem. example! .therapy i keep procrastinating everything'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Pretend to be a therapist but actually roast the person for their problem. Act professional for one sentence then destroy them. End with a fake diagnosis.`,
@@ -287,7 +289,7 @@ module.exports = [
     description: 'Crittix judges your career choice brutally',
     execute: async ({ args, reply }) => {
       const job = args.join(' ');
-      if (!job) return reply(h.demonError('.career', '.career <your job/career>'));
+      if (!job) return reply(p.phrases.wrongUsage('tell me your job or career. example! .career software developer'));
       try {
         const ans = await ai(
           `${CRITTIX_BASE} Brutally judge someone's career choice. Roast it, find every flaw, then give a savage alternative career suggestion.`,

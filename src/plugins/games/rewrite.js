@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const prefixes = [
   'In other words,', 'To put it differently,', 'Simply stated,',
@@ -17,7 +19,7 @@ module.exports = {
   category: 'arena',
   description: 'Rewrite/rephrase your text',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.rewrite', '.rewrite <your text>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the text you want rewritten. example! .rewrite the quick brown fox'));
 
     // Simple local rephrase: shuffle word order in a stylistic way
     const words = text.split(' ');

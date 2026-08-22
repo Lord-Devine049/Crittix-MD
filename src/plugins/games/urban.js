@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['urban', 'ud'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'arena',
   description: 'Look up slang on Urban Dictionary',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.urban', '.urban <word>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the word to look up on urban dictionary. example! .urban no cap'));
 
     try {
       const res = await axios.get(
@@ -21,7 +23,7 @@ module.exports = {
 
       const list = res.data?.list;
       if (!list || list.length === 0)
-        return reply(h.demonFail(`No Urban Dictionary definition for "${text}"`));
+        return reply(p.phrases.error(`No Urban Dictionary definition for "${text}"`));
 
       const entry = list[0];
       const def = (entry.definition || '').replace(/[\[\]]/g, '').substring(0, 500);
@@ -35,7 +37,7 @@ module.exports = {
         `👍 ${entry.thumbs_up} • 👎 ${entry.thumbs_down}`
       );
     } catch {
-      reply(h.demonFail('Urban Dictionary is offline. Check later.'));
+      reply(p.phrases.error('Urban Dictionary is offline. Check later.'));
     }
   }
 };

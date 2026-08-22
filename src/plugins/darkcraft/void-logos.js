@@ -4,6 +4,8 @@
  * Category: darkcraft | Logo & style art via Prexzyvilla API
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const LOGO_STYLES = [
   { cmd: 'logomaker',     label: 'Logo Maker',       emoji: '🐻' },
@@ -43,7 +45,7 @@ module.exports = LOGO_STYLES.map(({ cmd, label, emoji }) => ({
           `_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`
       }, { quoted: msg });
     } catch {
-      reply(h.demonFail(`${label} generation failed — API may be down`));
+      reply(p.phrases.error(`${label} generation failed — API may be down`));
     }
   }
 }));

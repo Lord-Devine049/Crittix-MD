@@ -1,3 +1,5 @@
+const p = require('../../lib/phrases');
+
 const STYLES = {
   bold:         t => t.split('').map(c => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.includes(c)
     ? String.fromCodePoint(c.codePointAt(0) + (c >= 'a' ? 0x1D400 - 97 : 0x1D400 - 65)) : c).join(''),
@@ -40,7 +42,7 @@ module.exports = {
   category: 'creativetools',
   description: 'Generate text in all available font styles at once. Usage: stylegen Hello World',
   execute: async ({ text, reply }) => {
-    if (!text) return reply(`✨ *Usage:* stylegen Hello World\n_Shows text in ${NAMES.length} styles_`);
+    if (!text) return reply(p.phrases.wrongUsage('type the text you want styled. example! .stylegen hello world'));
 
     let out = `✨ *Text Styles* — "${text}"\n\n`;
     for (const name of NAMES) {

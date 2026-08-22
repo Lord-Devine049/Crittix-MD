@@ -10,7 +10,7 @@ module.exports = {
   adminOnly: true,
   groupOnly: true,
   execute: async ({ sock, msg, args, text, sender, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, prefix, reply }) => {
-    if (!isGroupMsg) return reply(h.demonFail('This isn\'t a group you moron'));
+    if (!isGroupMsg) return reply(p.phrases.groupOnly());
 
     try {
       const botAdmin = await h.isBotAdmin(sock, chatId);
@@ -18,7 +18,7 @@ module.exports = {
 
       const requests = await sock.groupRequestParticipantsList(chatId);
       if (!requests || requests.length === 0)
-        return reply(h.demonFail('No requests found. The group is as empty as your brain'));
+        return reply(p.phrases.notFound('no join requests found in this group.'));
 
       let approved = 0;
       for (const req of requests) {
@@ -31,7 +31,7 @@ module.exports = {
         }
       }
 
-      reply(h.demonSuccess(`Approved ${approved} join request(s)`));
+      reply(p.phrases.success(`approved ${approved} join request(s).`));
     } catch {
       reply(p.phrases.adminOnly());
     }

@@ -1,10 +1,12 @@
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'calculator',
   aliases: ['cal2', 'math2', 'eval'],
   category: 'soultools',
   description: 'Advanced calculator supporting ×, ÷, π, e, powers. Usage: calculator 3×(4+2)÷π',
   execute: async ({ text, reply }) => {
-    if (!text) return reply('🧮 *Usage:* calculator 5×(3+2)÷2\n_Supports: + - × ÷ π e ( )_');
+    if (!text) return reply(p.phrases.wrongUsage('provide a math expression. example! .calculator 5x(3+2) supports + - x and brackets.'));
 
     try {
       const sanitized = text

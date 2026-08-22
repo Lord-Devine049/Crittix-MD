@@ -1,12 +1,14 @@
 /* COUNT.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'count',
   category: 'soultools',
   description: 'Count characters, words, and lines in text',
   execute: async ({ text, prefix, reply }) => {
     const input = text.replace(/^[^\s]+\s*/, '').trim();
-    if (!input) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}count <text>`);
+    if (!input) return reply(p.phrases.wrongUsage('type the text you want to count after the command. example! .count hello world'));
     const charCount = input.length;
     const charNoSpaces = input.replace(/\s/g, '').length;
     const wordCount = input.trim().split(/\s+/).filter(w => w).length;

@@ -4,6 +4,8 @@
  */
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['play2'],
@@ -11,7 +13,7 @@ module.exports = {
   category: 'darkweb',
   description: 'Download music (alternative source)',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.play2', '.play2 <song name>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the song name after the command. example! .play2 blinding lights'));
 
     try {
       reply(`🔍 *𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗣𝗹𝗮𝘆𝟮*\n\nSearching: _${text}_`);
@@ -45,7 +47,7 @@ module.exports = {
       }, { quoted: msg });
 
     } catch (err) {
-      reply(h.demonFail('Music fetch failed. Try again later.'));
+      reply(p.phrases.error('Music fetch failed. Try again later.'));
     }
   }
 };

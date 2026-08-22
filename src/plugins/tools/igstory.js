@@ -1,6 +1,8 @@
 /* IGSTORY.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 const IG_HEADERS = { 'User-Agent': 'Instagram 76.0.0.15.395 Android', 'x-ig-app-id': '936619743392459', 'Accept': 'application/json' };
 module.exports = {
   command: 'igstory',
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Download Instagram stories from a public account',
   execute: async ({ sock, msg, args, chatId, prefix, reply }) => {
     const igUsername = args[0]?.replace('@','').trim();
-    if (!igUsername) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}igstory <username>\n\n💀 ${h.toBoldItalic('Only works on public accounts')}`);
+    if (!igUsername) return reply(p.phrases.wrongUsage('provide the instagram username. only works on public accounts. example! .igstory natgeo'));
     try {
       await reply(`📖 ${h.toBoldItalic('Fetching stories...')} ${h.demonEmoji()}`);
       const profileRes = await axios.get(`https://www.instagram.com/api/v1/users/web_profile_info/?username=${igUsername}`, { headers: IG_HEADERS, timeout: 15000 });

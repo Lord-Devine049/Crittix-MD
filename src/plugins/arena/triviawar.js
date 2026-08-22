@@ -11,6 +11,8 @@ const arena  = require('../../lib/arena');
 const globalXP = require('../../lib/global-xp');
 
 const fetch  = require('node-fetch');
+const p = require('../../lib/phrases');
+
 
 const LOBBY_SECONDS    = 120;
 const QUESTION_SECONDS = 15;
@@ -307,7 +309,7 @@ module.exports = {
     }
 
     if (sub !== 'start') {
-      return reply(`Usage: \`${prefix}triviawar start\` or \`${prefix}triviawar stop\``);
+      return reply(p.phrases.wrongUsage('use .triviawar start to begin. or .triviawar stop to end it.'));
     }
 
     if (arena.hasActiveGame(chatId)) {

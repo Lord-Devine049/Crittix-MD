@@ -30,12 +30,12 @@ module.exports = [
       if (!bans[chatId]) bans[chatId] = [];
       const action = args[0]?.toLowerCase();
       if (action === 'list') return reply(`🚫 *AUTOBAN LIST*\n\n${bans[chatId].join('\n') || 'none'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      if (action === 'clear') { bans[chatId] = []; saveDB('autobans.json', bans); return reply('✅ Autoban list cleared.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_'); }
+      if (action === 'clear') { bans[chatId] = []; saveDB('autobans.json', bans); return reply(p.phrases.success('autoban list cleared.')); }
       const pattern = args.slice(1).join(' ');
-      if (!pattern) return reply(h.demonError('.autoban', '.autoban <pattern> — e.g. autoban +1234 | autoban clear | autoban list'));
+      if (!pattern) return reply(p.phrases.wrongUsage('provide a pattern to ban. example! .autoban +1234. or use .autoban clear. or .autoban list.'));
       bans[chatId].push(pattern);
       saveDB('autobans.json', bans);
-      reply(`✅ *Autoban pattern added:* \`${pattern}\`\n\nAny new member matching this will be removed.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`autoban pattern added: ${pattern}.`));
     }
   },
 
@@ -52,15 +52,15 @@ module.exports = [
       if (!warns[chatId]) warns[chatId] = [];
       const action = args[0]?.toLowerCase();
       if (action === 'list') return reply(`⚠️ *AUTOWARN TRIGGERS*\n\n${warns[chatId].join(', ') || 'none'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      if (action === 'clear') { warns[chatId] = []; saveDB('autowarns.json', warns); return reply('✅ Autowarn list cleared.'); }
+      if (action === 'clear') { warns[chatId] = []; saveDB('autowarns.json', warns); return reply(p.phrases.success('autowarn list cleared.')); }
       if (action === 'add') {
         const word = args.slice(1).join(' ').toLowerCase();
-        if (!word) return reply(h.demonError('.autowarn add', '.autowarn add <keyword>'));
+        if (!word) return reply(p.phrases.wrongUsage('provide a keyword to warn on. example! .autowarn add badword'));
         warns[chatId].push(word);
         saveDB('autowarns.json', warns);
-        return reply(`✅ *Auto-warn trigger added:* \`${word}\`\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success(`auto-warn trigger added: ${word}.`));
       }
-      reply('Usage: .autowarn add <word> | list | clear');
+      reply(p.phrases.wrongUsage('use .autowarn add your keyword. or .autowarn list. or .autowarn clear.'));
     }
   },
 
@@ -75,12 +75,12 @@ module.exports = [
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       const timeStr = args[0];
       const message = args.slice(1).join(' ');
-      if (!timeStr || !message) return reply(h.demonError('.scheduledmsg', '.scheduledmsg <time (5m/1h)> <message>'));
+      if (!timeStr || !message) return reply(p.phrases.wrongUsage('format it correctly. example! .scheduledmsg 30m reminder! meeting starting soon.'));
       const match = timeStr.match(/^(\d+)(m|h|s)$/);
-      if (!match) return reply(h.demonFail('invalid time — use 10m, 1h, 30m etc.'));
+      if (!match) return reply(p.phrases.error('invalid time format. use something like 10m or 1h.'));
       const ms = parseInt(match[1]) * (match[2] === 'h' ? 3600000 : match[2] === 'm' ? 60000 : 1000);
-      if (ms > 24 * 3600000) return reply(h.demonFail('max 24h schedule'));
-      reply(`✅ *Message scheduled!*\n\n⏰ In: *${timeStr}*\n📝 "${message}"\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      if (ms > 24 * 3600000) return reply(p.phrases.error('max schedule time is 24 hours.'));
+      reply(p.phrases.success(`message scheduled for ${timeStr}.`));
       setTimeout(async () => { try { await sock.sendMessage(chatId, { text: `📢 *SCHEDULED MESSAGE*\n\n${message}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_` }); } catch {} }, ms);
     }
   },
@@ -98,12 +98,12 @@ module.exports = [
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target = h.getTarget(msg, _gtP)?.[0];
       const timeStr = args.find(a => /^\d+(m|h|s)$/.test(a));
-      if (!target || !timeStr) return reply(h.demonError('.scheduledkick', '.scheduledkick @user <time>'));
+      if (!target || !timeStr) return reply(p.phrases.wrongUsage('tag someone and set a time. example! .scheduledkick @user 10m'));
       const match = timeStr.match(/^(\d+)(m|h|s)$/);
       const ms = parseInt(match[1]) * (match[2] === 'h' ? 3600000 : match[2] === 'm' ? 60000 : 1000);
-      if (ms > 24 * 3600000) return reply(h.demonFail('max 24h'));
+      if (ms > 24 * 3600000) return reply(p.phrases.error('max time is 24 hours.'));
       const num = target.split('@')[0];
-      reply(`✅ *@${num} will be kicked in ${timeStr}.*\n\nCountdown running... 😈\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      reply(p.phrases.success(`@${num} will be kicked in ${timeStr}.`)\n\nCountdown running... 😈\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       setTimeout(async () => {
         try {
           await sock.sendMessage(chatId, { text: `⏰ *Scheduled kick!*\n\n@${num} — time's up. 💀`, mentions: [target] });
@@ -124,13 +124,13 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
-      if (!targets?.length) return reply(h.demonError('.bulkkick', '.bulkkick @user1 @user2 @user3'));
+      if (!targets?.length) return reply(p.phrases.wrongUsage('tag the people you want to kick. example! .bulkkick @user1 @user2 @user3'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
       if (!isBotAdmin) return reply(p.phrases.adminOnly());
       try {
         await sock.groupParticipantsUpdate(chatId, targets, 'remove');
-        reply(`✅ *Kicked ${targets.length} user(s)*\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`bulk kick failed — ${e.message}`)); }
+        reply(p.phrases.success(`kicked ${targets.length} user(s).`)\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      } catch (e) { reply(p.phrases.error(`bulk kick failed — ${e.message}`)); }
     }
   },
 
@@ -145,13 +145,13 @@ module.exports = [
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const targets = h.getTarget(msg, _gtP);
-      if (!targets?.length) return reply(h.demonError('.bulkpromote', '.bulkpromote @user1 @user2 ...'));
+      if (!targets?.length) return reply(p.phrases.wrongUsage('tag the people you want to promote. example! .bulkpromote @user1 @user2'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
       if (!isBotAdmin) return reply(p.phrases.adminOnly());
       try {
         await sock.groupParticipantsUpdate(chatId, targets, 'promote');
-        reply(`✅ *Promoted ${targets.length} user(s) to admin*\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`bulk promote failed — ${e.message}`)); }
+        reply(p.phrases.success(`promoted ${targets.length} user(s) to admin.`)\n\n${targets.map(t => `• @${t.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      } catch (e) { reply(p.phrases.error(`bulk promote failed — ${e.message}`)); }
     }
   },
 
@@ -164,15 +164,15 @@ module.exports = [
     execute: async ({ sock, chatId, sender, args, reply }) => {
       if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.adminOnly());
       const numbers = args.filter(a => /^\d{7,15}$/.test(a.replace(/\D/g, '')));
-      if (!numbers.length) return reply(h.demonError('.massadd', '.massadd <number1> <number2> ... (international format, no +)'));
+      if (!numbers.length) return reply(p.phrases.wrongUsage('provide numbers in international format without the plus sign. example! .massadd 2348012345678 2349012345678'));
       const isBotAdmin = await h.isBotAdmin(sock, chatId);
       if (!isBotAdmin) return reply(p.phrases.adminOnly());
       const jids = numbers.map(n => n.replace(/\D/g, '') + '@s.whatsapp.net');
       try {
         const result = await sock.groupParticipantsUpdate(chatId, jids.slice(0, 10), 'add'); // WhatsApp limits ~10 at once
         const added = result?.filter(r => r.status === '200').length || jids.length;
-        reply(`✅ *Mass Add Complete*\n\nAttempted: ${jids.length}\nSucceeded: ~${added}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
-      } catch (e) { reply(h.demonFail(`mass add failed — ${e.message}`)); }
+        reply(p.phrases.success("mass add complete."\n\nAttempted: ${jids.length}\nSucceeded: ~${added}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+      } catch (e) { reply(p.phrases.error(`mass add failed — ${e.message}`)); }
     }
   },
 
@@ -221,7 +221,7 @@ module.exports = [
         await sock.groupSettingUpdate(chatId, 'not_announcement');
         return reply(`🔓 *LOCKDOWN LIFTED*\n\nAll members can now send messages.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
-      reply('Usage: .lockdown on | .lockdown off');
+      reply(p.phrases.wrongUsage('use .lockdown on to lock the group. or .lockdown off to unlock it.'));
     }
   },
 
@@ -292,7 +292,7 @@ module.exports = [
         const admins = meta.participants.filter(m => m.admin).map(m => m.id);
         adminsDB[chatId] = admins;
         saveDB('adminbackups.json', adminsDB);
-        return reply(`✅ *Admin list saved!*\n\n${admins.length} admin(s) backed up.\n${admins.map(a => `• @${a.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success("admin list saved."\n\n${admins.length} admin(s) backed up.\n${admins.map(a => `• @${a.split('@')[0]}`).join('\n')}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       if (action === 'restore') {
         const admins = adminsDB[chatId];
@@ -300,7 +300,7 @@ module.exports = [
         const isBotAdmin = await h.isBotAdmin(sock, chatId);
         if (!isBotAdmin) return reply(p.phrases.adminOnly());
         await sock.groupParticipantsUpdate(chatId, admins, 'promote');
-        return reply(`✅ *Admin list restored!*\n\n${admins.length} user(s) promoted to admin.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
+        return reply(p.phrases.success("admin list restored."\n\n${admins.length} user(s) promoted to admin.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const admins = adminsDB[chatId] || [];
       reply(`👑 *SAVED ADMIN LIST*\n\n${admins.length ? admins.map(a => `• @${a.split('@')[0]}`).join('\n') : 'No backup found'}\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
@@ -314,12 +314,12 @@ module.exports = [
     description: 'Transfer bot ownership in this group to another admin. Usage: transferownership @user',
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
-      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(h.demonFail('only the owner can transfer ownership'));
+      if (!await h.isSenderAdmin(sock, chatId, sender)) return reply(p.phrases.error('only the owner can transfer ownership'));
       if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
       let _gtP = [];
       if (chatId?.endsWith('@g.us')) { try { _gtP = (await sock.groupMetadata(chatId)).participants; } catch (_) {} }
       const target = h.getTarget(msg, _gtP)?.[0];
-      if (!target) return reply(h.demonError('.transferownership', '.transferownership @new_owner'));
+      if (!target) return reply(p.phrases.wrongUsage('tag the person you want to make owner. example! .transferownership @user'));
       const num = target.split('@')[0];
       try {
         await sock.groupParticipantsUpdate(chatId, [target], 'promote');
@@ -330,7 +330,7 @@ module.exports = [
           text: `👑 *OWNERSHIP TRANSFERRED*\n\nNew group owner: @${num}\n\nAll hail the new boss. 😤\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`,
           mentions: [target]
         }, { quoted: msg });
-      } catch (e) { reply(h.demonFail(`transfer failed — ${e.message}`)); }
+      } catch (e) { reply(p.phrases.error(`transfer failed — ${e.message}`)); }
     }
   }
 

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'stopkickall',
@@ -13,6 +15,6 @@ module.exports = {
   execute: async ({ sock, msg, args, text, sender, senderNumber, chatId, isGroupMsg, groupMetadata, isOwner, isSudo, cfg, prefix, reply, font }) => {
     
     global.kickAllCancel[chatId] = true;
-    reply('✓ KickAll cancelled');
+    reply(p.phrases.success('kickall cancelled.'));
   }
 };

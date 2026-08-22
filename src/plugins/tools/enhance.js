@@ -11,6 +11,8 @@ const Jimp = require('jimp');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const h = require('../../lib/helpers');
 const { aiUpscaleImage, hasAiUpscaler } = require('../../lib/ai-upscaler');
+const p = require('../../lib/phrases');
+
 
 const MAX_DIM = 3840;          // 4K UHD long-edge cap
 const MAX_VIDEO_SECONDS = 60;  // guard against huge/expensive jobs
@@ -124,7 +126,7 @@ module.exports = {
     const vidMsg = quoted?.videoMessage || msg.message?.videoMessage;
 
     if (!imgMsg && !vidMsg) {
-      return reply(h.demonError(`${prefix}enhance`, `Send or reply to an image/video with ${prefix}enhance`, `Aliases: ${prefix}hd, ${prefix}4k, ${prefix}quality`));
+      return reply(p.phrases.wrongUsage('send or reply to an image or video. example! .enhance. aliases! .hd .4k .quality'));
     }
 
     await sock.sendMessage(chatId, { react: { text: '🔎', key: msg.key } }).catch(() => {});
@@ -133,7 +135,7 @@ module.exports = {
       if (imgMsg) {
         await reply(`🔎 ${h.toBoldItalic('Enhancing image quality (up to 4K)...')} ${h.demonEmoji()}`);
         const buf = await downloadBuffer(imgMsg, 'image');
-        if (!buf?.length) return reply(h.demonFail('Failed to download image'));
+        if (!buf?.length) return reply(p.phrases.error('failed to download the image.'));
         const { result, origW, origH, newW, newH, ai } = await enhanceImage(buf);
         await sock.sendMessage(chatId, {
           image: result,
@@ -143,7 +145,7 @@ module.exports = {
       } else {
         await reply(`🔎 ${h.toBoldItalic('Enhancing video quality (up to 4K)... this may take a moment')} ${h.demonEmoji()}`);
         const buf = await downloadBuffer(vidMsg, 'video');
-        if (!buf?.length) return reply(h.demonFail('Failed to download video'));
+        if (!buf?.length) return reply(p.phrases.error('failed to download the video.'));
         const result = await enhanceVideo(buf, vidMsg, reply);
         await sock.sendMessage(chatId, {
           video: result,
@@ -154,7 +156,7 @@ module.exports = {
       await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } }).catch(() => {});
     } catch (e) {
       await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }).catch(() => {});
-      reply(h.demonFail(`Enhance failed: ${e.message}`));
+      reply(p.phrases.error(`Enhance failed: ${e.message}`));
     }
   }
 };

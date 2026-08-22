@@ -1,5 +1,7 @@
 // UTILITY TOOLS — 15 practical utility commands
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 
 module.exports = [
   {
@@ -8,7 +10,7 @@ module.exports = [
   description: 'Solve a math expression',
   execute: async ({ args, chatId, sock, msg, reply }) => {
     const expr = args.join(' ').trim();
-    if (!expr) return reply('usage: mathsolve <expression>\nexample: mathsolve 2+2');
+    if (!expr) return reply(p.phrases.wrongUsage('provide a math expression. example! .mathsolve 2+2'));
 
     try {
       const { data } = await axios.get(
@@ -35,7 +37,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const val = parseFloat(args[0]);
       const unit = (args[1] || '').toLowerCase();
-      if (isNaN(val) || !unit) return reply('🌡️ *Usage:* temperature 100 c\n_or_ temperature 32 f\n\n_c = Celsius, f = Fahrenheit_');
+      if (isNaN(val) || !unit) return reply(p.phrases.wrongUsage('provide a value and unit. example! .temperature 100 c. or .temperature 32 f'));
       if (unit === 'c') {
         const f = (val * 9/5) + 32;
         const k = val + 273.15;
@@ -60,7 +62,7 @@ module.exports = [
       const to = (args[2]||'').toLowerCase();
       const factors = { mm:0.001, cm:0.01, m:1, km:1000, inch:0.0254, ft:0.3048, yd:0.9144, mi:1609.344 };
       if (isNaN(val) || !factors[from] || !factors[to])
-        return reply('📏 *Usage:* lengthconv 100 cm m\n\n_Units: mm, cm, m, km, inch, ft, yd, mi_');
+        return reply(p.phrases.wrongUsage('provide a value and two units. example! .lengthconv 100 cm m'));
       const result = (val * factors[from]) / factors[to];
       reply(`📏 *Length Convert:*\n\n${val} ${from} = *${parseFloat(result.toFixed(6))} ${to}*`);
     }
@@ -76,7 +78,7 @@ module.exports = [
       const to = (args[2]||'').toLowerCase();
       const factors = { g:0.001, kg:1, lb:0.453592, oz:0.0283495, ton:1000, mg:0.000001 };
       if (isNaN(val) || !factors[from] || !factors[to])
-        return reply('⚖️ *Usage:* weightconv 70 kg lb\n\n_Units: g, kg, lb, oz, ton, mg_');
+        return reply(p.phrases.wrongUsage('provide a value and two units. example! .weightconv 70 kg lb'));
       const result = (val * factors[from]) / factors[to];
       reply(`⚖️ *Weight Convert:*\n\n${val} ${from} = *${parseFloat(result.toFixed(6))} ${to}*`);
     }
@@ -87,9 +89,9 @@ module.exports = [
     category: 'soultools',
     description: 'Calculate percentages. Usage: percentage 15 of 200',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('📊 *Usage:* percentage 15 of 200\n\n_Returns: what is 15% of 200_');
+      if (!text) return reply(p.phrases.wrongUsage('provide the percentage and the number. example! .percentage 15 of 200'));
       const match = text.match(/(\d+\.?\d*)\s*(?:of|%of|percent of)\s*(\d+\.?\d*)/i);
-      if (!match) return reply('📊 *Usage:* percentage 15 of 200');
+      if (!match) return reply(p.phrases.wrongUsage('provide the percentage and the number. example! .percentage 15 of 200'));
       const pct = parseFloat(match[1]);
       const total = parseFloat(match[2]);
       const result = (pct / 100) * total;
@@ -104,7 +106,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const min = parseInt(args[0]) || 1;
       const max = parseInt(args[1]) || 100;
-      if (min >= max) return reply('🎲 *Usage:* randomnum 1 100');
+      if (min >= max) return reply(p.phrases.wrongUsage('provide a minimum and maximum number. example! .randomnum 1 100'));
       const result = Math.floor(Math.random() * (max - min + 1)) + min;
       reply(`🎲 *Random Number*\n\nRange: ${min} – ${max}\nResult: *${result}*`);
     }
@@ -117,7 +119,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const code = (args[0] || '').replace('#','');
       if (!code || !/^[0-9A-Fa-f]{6}$/.test(code))
-        return reply('🎨 *Usage:* hex FF5733\n\n_6-digit hex color code_');
+        return reply(p.phrases.wrongUsage('provide a 6 digit hex color code. example! .hex FF5733'));
       const r = parseInt(code.slice(0,2),16);
       const g = parseInt(code.slice(2,4),16);
       const b = parseInt(code.slice(4,6),16);
@@ -138,7 +140,7 @@ module.exports = [
     category: 'soultools',
     description: 'Generate simple ASCII art from text. Usage: ascii HELLO',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔤 *Usage:* ascii CRITTIX');
+      if (!text) return reply(p.phrases.wrongUsage('type the text you want in ascii. example! .ascii crittix'));
       try {
         const r = await axios.get(`https://artii.herokuapp.com/make?text=${encodeURIComponent(text)}&font=banner`, { timeout: 10000 });
         reply(`\`\`\`\n${r.data}\n\`\`\``);
@@ -155,7 +157,7 @@ module.exports = [
     category: 'soultools',
     description: 'Get Unicode info for a character. Usage: charinfo A',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🔣 *Usage:* charinfo A');
+      if (!text) return reply(p.phrases.wrongUsage('provide a single character. example! .charinfo A'));
       const char = text.trim()[0];
       const code = char.codePointAt(0);
       const hex = code.toString(16).toUpperCase().padStart(4,'0');
@@ -184,7 +186,7 @@ module.exports = [
         reply(`🎨 *RGB → HEX*\n\nRGB(${r}, ${g}, ${b}) = *#${hex}*`);
       } else {
         const code = text.replace('#','').trim();
-        if (!/^[0-9A-Fa-f]{6}$/.test(code)) return reply('🎨 *Usage:* colorrgb 255 87 51\n_or_ colorrgb #FF5733');
+        if (!/^[0-9A-Fa-f]{6}$/.test(code)) return reply(p.phrases.wrongUsage('provide rgb values or a hex code. example! .colorrgb 255 87 51'));
         const r = parseInt(code.slice(0,2),16);
         const g = parseInt(code.slice(2,4),16);
         const b = parseInt(code.slice(4,6),16);
@@ -200,7 +202,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       const weight = parseFloat(args[0]);
       const height = parseFloat(args[1]);
-      if (!weight || !height) return reply('⚕️ *Usage:* bmi 70 175\n\n_weight in kg, height in cm_');
+      if (!weight || !height) return reply(p.phrases.wrongUsage('provide your weight in kg and height in cm. example! .bmi 70 175'));
       const hm = height / 100;
       const bmi = weight / (hm * hm);
       let category;
@@ -224,7 +226,7 @@ module.exports = [
     category: 'soultools',
     description: 'Calculate exact age from birthdate. Usage: agecheck 2000-05-15',
     execute: async ({ text, reply }) => {
-      if (!text) return reply('🎂 *Usage:* agecheck 2000-05-15\n\n_Format: YYYY-MM-DD_');
+      if (!text) return reply(p.phrases.wrongUsage('provide your birthdate in YYYY-MM-DD format. example! .agecheck 2000-05-15'));
       const dob = new Date(text.trim());
       if (isNaN(dob)) return reply('❌ *Invalid date* — use format: YYYY-MM-DD');
       const now = new Date();

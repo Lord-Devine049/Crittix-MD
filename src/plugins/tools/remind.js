@@ -4,6 +4,8 @@
  * Bot DMs you a reminder after X minutes/hours
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: ['remind', 'reminder'],
@@ -16,7 +18,7 @@ module.exports = {
     const message = args.slice(1).join(' ');
 
     if (!timeArg || !message)
-      return reply(h.demonError('.remind', '.remind <time> <message>\nExamples: .remind 30m take meds | .remind 2h meeting'));
+      return reply(p.phrases.wrongUsage('provide a time and message. example! .remind 30m take your meds.'));
 
     let ms = 0;
     if (timeArg.endsWith('m')) ms = parseInt(timeArg) * 60 * 1000;

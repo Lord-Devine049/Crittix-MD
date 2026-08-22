@@ -1,6 +1,8 @@
 /* REDDIT.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'reddit',
   category: 'soultools',
@@ -8,7 +10,7 @@ module.exports = {
   execute: async ({ sock, msg, args, chatId, prefix, reply }) => {
     const subreddit = args[0]?.replace('r/','').trim();
     const sort = ['hot','new','top','rising'].includes(args[1]?.toLowerCase()) ? args[1].toLowerCase() : 'hot';
-    if (!subreddit) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}reddit <subreddit> [hot/new/top]\n\n${h.toBoldItalic('Examples')}:\n${prefix}reddit memes\n${prefix}reddit worldnews top\n${prefix}reddit funny new`);
+    if (!subreddit) return reply(p.phrases.wrongUsage('provide a subreddit name. example! .reddit memes. optional sort! hot new top.'));
     try {
       await reply(`🔍 ${h.toBoldItalic(`Fetching r/${subreddit}...`)} ${h.demonEmoji()}`);
       const res = await axios.get(`https://www.reddit.com/r/${subreddit}/${sort}.json?limit=5`, { headers: { 'User-Agent': 'CrittixMD/2.0 (whatsapp-bot)', 'Accept': 'application/json' }, timeout: 15000 });

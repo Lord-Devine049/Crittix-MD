@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'autoviewstatus',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ AUTO_VIEW_STATUS: true }); return reply('✓ autoviewstatus enabled'); }
-    if (action === 'off') { set({ AUTO_VIEW_STATUS: false }); return reply('✓ autoviewstatus disabled'); }
+    if (action === 'on') { set({ AUTO_VIEW_STATUS: true }); return reply(p.phrases.success('autoviewstatus enabled.')); }
+    if (action === 'off') { set({ AUTO_VIEW_STATUS: false }); return reply(p.phrases.success('autoviewstatus disabled.')); }
     reply('ℹ️ autoviewstatus: ' + (getConfig().AUTO_VIEW_STATUS ? 'ON' : 'OFF') + '\n\nUsage: .autoviewstatus on/off');
   }
 };

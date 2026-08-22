@@ -7,6 +7,8 @@ const fs    = require('fs-extra');
 const path  = require('path');
 const vault = require('../../lib/vault');
 const h     = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const BM_PATH = path.join(process.cwd(), 'database', 'blackmarket.json');
 
@@ -58,7 +60,7 @@ module.exports = {
     if (action === 'buy') {
       const idx  = parseInt(args[1]) - 1;
       const item = bm.items[idx];
-      if (!item || idx < 0 || idx > 2) return reply(h.demonError('.bm buy', 'Use .bm buy 1, 2, or 3'));
+      if (!item || idx < 0 || idx > 2) return reply(p.phrases.wrongUsage('choose item 1 2 or 3. example! .bm buy 1'));
 
       const bal = vault.getBalance(sender);
       if (!bal || bal.balance < item.price)
@@ -74,6 +76,6 @@ module.exports = {
       );
     }
 
-    reply(h.demonError('.bm', 'Use .bm or .bm buy <1/2/3>'));
+    reply(p.phrases.wrongUsage('use .bm to view the black market. or .bm buy 1 to purchase.'));
   }
 };

@@ -3,6 +3,8 @@
  * Created by: LORD DEVINE
  */
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 module.exports = {
   command: 'antibug',
@@ -13,8 +15,8 @@ module.exports = {
     
     const action = args[0]?.toLowerCase();
     const { set, getConfig } = require('../../lib/config');
-    if (action === 'on') { set({ ANTIBUG: true }); return reply('✓ antibug enabled'); }
-    if (action === 'off') { set({ ANTIBUG: false }); return reply('✓ antibug disabled'); }
+    if (action === 'on') { set({ ANTIBUG: true }); return reply(p.phrases.success('antibug enabled.')); }
+    if (action === 'off') { set({ ANTIBUG: false }); return reply(p.phrases.success('antibug disabled.')); }
     reply('ℹ️ antibug: ' + (getConfig().ANTIBUG ? 'ON' : 'OFF') + '\n\nUsage: .antibug on/off');
   }
 };

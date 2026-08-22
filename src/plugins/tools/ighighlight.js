@@ -1,6 +1,8 @@
 /* IGHIGHLIGHT.JS - Crittix-MD / Created by: LORD DEVINE */
 const h = require('../../lib/helpers');
 const axios = require('axios');
+const p = require('../../lib/phrases');
+
 const IG_HEADERS = { 'User-Agent': 'Instagram 76.0.0.15.395 Android', 'x-ig-app-id': '936619743392459', 'Accept': 'application/json' };
 module.exports = {
   command: 'ighighlight',
@@ -8,7 +10,7 @@ module.exports = {
   description: 'Get highlight covers and titles from an Instagram profile',
   execute: async ({ sock, msg, args, chatId, prefix, reply }) => {
     const igUsername = args[0]?.replace('@','').trim();
-    if (!igUsername) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}ighighlight <username>\n\n${h.toBoldItalic('Example')}: ${prefix}ighighlight natgeo`);
+    if (!igUsername) return reply(p.phrases.wrongUsage('provide the instagram username. example! .ighighlight natgeo'));
     try {
       await reply(`🔍 ${h.toBoldItalic('Fetching highlights...')} ${h.demonEmoji()}`);
       const profileRes = await axios.get(`https://www.instagram.com/api/v1/users/web_profile_info/?username=${igUsername}`, { headers: IG_HEADERS, timeout: 15000 });

@@ -459,7 +459,7 @@ module.exports = [
         return reply(`🔠 A Word Grid game is already in progress!\n\nFind the hidden words — type them in chat.\n\nUse *.stopwordgrid* to end the current game.\n\n_𝗖𝗿𝗶𝘁𝘁𝗶𝘅 𝗠𝗗_`);
       }
       const game = generateGame(chatId);
-      if (!game) return reply(h.demonFail('Failed to generate grid. Try again.'));
+      if (!game) return reply(p.phrases.error('Failed to generate grid. Try again.'));
       game.startedBy     = sender;
       game.startedByName = msg.pushName || sender.split('@')[0];
       activeGames.set(chatId, game);
@@ -478,7 +478,7 @@ module.exports = [
     groupOnly: true,
     execute: async ({ sock, msg, chatId, sender, reply }) => {
       const game = activeGames.get(chatId);
-      if (!game) return reply(h.demonFail('No active Word Grid game to stop.'));
+      if (!game) return reply(p.phrases.error('No active Word Grid game to stop.'));
       const isHost  = game.startedBy === sender;
       const isAdmin = await h.isSenderAdmin(sock, chatId, sender).catch(() => false);
       if (!isHost && !isAdmin) return reply(p.phrases.adminOnly());

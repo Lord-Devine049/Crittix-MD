@@ -6,6 +6,8 @@
 const h    = require('../../lib/helpers');
 const fs   = require('fs-extra');
 const path = require('path');
+const p = require('../../lib/phrases');
+
 
 // ── Notes store ──────────────────────────────────────
 const NOTES_PATH = path.join(process.cwd(), 'database', 'notes.json');
@@ -62,7 +64,7 @@ module.exports = [
       // Save: .note <keyword> <content>
       const keyword = args[0]?.toLowerCase();
       const content = args.slice(1).join(' ');
-      if (!keyword || !content) return reply(h.demonError('.note', '.note <keyword> <content>\n.note list\n.note get <keyword>'));
+      if (!keyword || !content) return reply(p.phrases.wrongUsage('provide a keyword and content. example! .note reminders drink water. or .note list. or .note get reminders.'));
 
       notes[chatId][keyword] = { text: content, by: sender.split('@')[0], savedAt: Date.now() };
       saveNotes(notes);
@@ -129,7 +131,7 @@ module.exports = [
     execute: async ({ args, reply }) => {
       // .tz 3pm UTC to WAT
       const input = args.join(' ');
-      if (!input) return reply(h.demonError('.tz', '.tz <time> <from_tz> to <to_tz>\nExample: .tz 3pm UTC to WAT'));
+      if (!input) return reply(p.phrases.wrongUsage('provide the time and both timezones. example! .tz 3pm utc to wat'));
 
       const TZ_OFFSETS = {
         UTC:0, GMT:0, WAT:1, CAT:2, EAT:3, IST:5.5,
@@ -166,7 +168,7 @@ module.exports = [
     description: 'Encrypt a message — only .decrypt can decode it',
     execute: async ({ args, msg, reply }) => {
       const text = args.join(' ') || msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation;
-      if (!text) return reply(h.demonError('.encrypt', '.encrypt <message> or reply to a message'));
+      if (!text) return reply(p.phrases.wrongUsage('type the message to encrypt or reply to one. example! .encrypt my secret message'));
       const encoded = xorCipher(text);
       reply(`🔒 *ENCRYPTED*\n\n\`${encoded}\`\n\nUse *.decrypt <code>* to decode`);
     }
@@ -178,7 +180,7 @@ module.exports = [
     description: 'Decrypt an encrypted Crittix message',
     execute: async ({ args, reply }) => {
       const code = args[0];
-      if (!code) return reply(h.demonError('.decrypt', '.decrypt <encrypted code>'));
+      if (!code) return reply(p.phrases.wrongUsage('provide the encrypted code to decrypt it. example! .decrypt U2FsdGVkX1...'));
       const decoded = xorDecipher(code);
       if (!decoded) return reply(`😑 invalid code — not a Crittix encrypted message`);
       reply(`🔓 *DECRYPTED*\n\n${decoded}`);

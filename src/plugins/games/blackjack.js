@@ -6,6 +6,8 @@
 const vault    = require('../../lib/vault');
 const globalXP = require('../../lib/global-xp');
 const h        = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const SUITS = ['♠','♥','♦','♣'];
 const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -84,7 +86,7 @@ module.exports = {
 
     // Start new game
     const bet = parseInt(args[0]);
-    if (!bet || bet <= 0) return reply(h.demonError('.blackjack', '.blackjack <bet amount>'));
+    if (!bet || bet <= 0) return reply(p.phrases.wrongUsage('provide your bet amount. example! .blackjack 500'));
     const bal = vault.getBalance(sender);
     if (!bal || bal.balance < bet) return reply(`😑 broke. you have 🪙 ${bal?.balance || 0}`);
 

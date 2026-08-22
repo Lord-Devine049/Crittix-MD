@@ -2,6 +2,8 @@
 const h = require('../../lib/helpers');
 const Jimp = require('jimp');
 const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const p = require('../../lib/phrases');
+
 module.exports = {
   command: 'rotate',
   category: 'creativetools',
@@ -10,7 +12,7 @@ module.exports = {
     const degrees = parseInt(args[0]);
     const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = msg.message?.imageMessage || quotedMsg?.imageMessage;
-    if (!imageMsg || isNaN(degrees)) return reply(`✘ ${h.toBoldItalic('Usage')}: ${prefix}rotate <degrees> (reply to image)\n\n${h.toBoldItalic('Example')}: ${prefix}rotate 90`);
+    if (!imageMsg || isNaN(degrees)) return reply(p.phrases.wrongUsage('reply to an image and provide the degrees to rotate. example! .rotate 90'));
     try {
       let imgBuffer;
       if (msg.message?.imageMessage) imgBuffer = await downloadMediaMessage(msg, 'buffer', {});

@@ -18,6 +18,6 @@ module.exports = {
     if (!await h.isSenderAdmin(sock, chatId, sender_)) return reply(p.phrases.adminOnly());
     if (!await h.isBotAdmin(sock, chatId)) return reply(p.phrases.adminOnly());
     await sock.groupSettingUpdate(chatId, 'not_announcement');
-    reply('✓ Group open, The weak can type');
+    reply(p.phrases.success('group unmuted. everyone can speak now.'));
   }
 };

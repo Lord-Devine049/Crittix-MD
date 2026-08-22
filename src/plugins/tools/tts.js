@@ -8,6 +8,8 @@ const path = require('path');
 const { exec } = require('child_process');
 const axios = require('axios');
 const h = require('../../lib/helpers');
+const p = require('../../lib/phrases');
+
 
 const CHUNK_LIMIT = 190; // Google Translate TTS silently truncates past ~200 chars
 const tmpFile = (ext) => path.join('/tmp', `tts_${Date.now()}_${Math.random().toString(36).slice(2, 7)}${ext}`);
@@ -50,7 +52,7 @@ module.exports = {
   category: 'soultools',
   description: 'Convert text to speech',
   execute: async ({ sock, msg, args, text, sender, chatId, isOwner, isSudo, prefix, reply }) => {
-    if (!text) return reply(h.demonError('.tts', '.tts <text>'));
+    if (!text) return reply(p.phrases.wrongUsage('type the text you want spoken. example! .tts crittix md is the greatest bot'));
 
     const lang = (args[0] && /^[a-z]{2}(-[A-Z]{2})?$/.test(args[0]) && text.slice(args[0].length).trim())
       ? args[0]
@@ -99,7 +101,7 @@ module.exports = {
       await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } }).catch(() => {});
     } catch (e) {
       await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }).catch(() => {});
-      reply(h.demonFail('TTS failed. Google TTS may be blocked — try again in a bit.'));
+      reply(p.phrases.error('TTS failed. Google TTS may be blocked — try again in a bit.'));
     } finally {
       cleanUp(...partFiles, outFile);
     }
